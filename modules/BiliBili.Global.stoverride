@@ -1,0 +1,95 @@
+name: "📺 BiliBili: 🌐 Global"
+desc: 哔哩哔哩：全球模式                                   （通用版内容聚合及自动线路）
+openUrl: http://boxjs.com/#/app/BiliBili.Global
+author: VirgilClyne
+homepage: https://github.com/VirgilClyne
+manual: https://github.com/VirgilClyne/BiliBili/wiki/🌐-Global
+icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png
+
+http:
+  mitm:
+    - "www.bilibili.com"
+    - "app.bilibili.com"
+    - "search.bilibili.com"
+    - "api.bilibili.com"
+    - "api.biliapi.net"
+    - "grpc.biliapi.net"
+  script:
+    - match: ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web)\/season(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web)\/season(\?.+)?$
+      name: BiliBili.Global.response
+      type: response
+      require-body: true
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: true
+      timeout: 15
+      binary-mode: true
+      max-size: 0
+      argument:
+    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: true
+      timeout: 15
+      binary-mode: true
+      max-size: 0
+      argument:
+    - match: ^https?:\/\/app\.bilibili\.com\/x\/(v2|web-interface)\/search(\/type)?(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/search\.bilibili\.com\/all?(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/app\.bilibili\.com\/x\/v2\/space(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/wbi/acc\/info(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
+
+script-providers:
+  BiliBili.Global.request:
+    url: https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliBili.Global.request.js
+    interval: 86400
+  BiliBili.Global.response:
+    url: https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliBili.Global.response.js
+    interval: 86400

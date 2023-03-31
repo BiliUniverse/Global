@@ -1,0 +1,28 @@
+#!name=📺 BiliIntl: 🌐 Global
+#!desc=哔哩国际：全球模式                                   （国际版内容聚合及自动线路）
+#!openUrl=http://boxjs.com/#/app/BiliIntl.Global
+#!author=VirgilClyne
+#!homepage=https://github.com/VirgilClyne
+#!manual=https://github.com/VirgilClyne/BiliBili/wiki/🌐-Global
+#!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili.png
+
+#[Script]
+# BiliIntl.Global.anime.html
+^https?:\/\/www\.bilibili\.tv\/([a-z]{2})\/anime?(\?.+)?$ url script-request-header https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliIntl.Global.request.js
+# BiliIntl.Global.play.html
+^https?:\/\/www\.bilibili\.tv\/([a-z]{2})\/play\/\d+(\/\d+)?(\?.+)?$ url script-request-header https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliIntl.Global.request.js
+
+# BiliIntl.Global.season.json
+^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/ogv\/view\/app\/season2(\?.+)?$ url script-request-header https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliIntl.Global.request.js
+
+# BiliIntl.Global.playurl.web.json
+^https?:\/\/api\.bilibili\.tv\/intl\/gateway\/web\/playurl(\?.+)?$ url script-request-header https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliIntl.Global.request.js
+
+# BiliIntl.Global.search.json
+^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/app\/search\/(type|v2)(\?.+)?$ url script-request-header https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliIntl.Global.request.js
+
+# BiliIntl.Global.all.json
+^https?:\/\/(app|passport)\.biliintl\.com\/(.+)?$ url script-request-header https://raw.githubusercontent.com/VirgilClyne/BiliBili/main/js/BiliIntl.Global.request.js
+
+#[MITM]
+hostname = www.bilibili.tv, api.bilibili.tv, app.biliintl.com, passport.biliintl.com
