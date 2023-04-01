@@ -394,6 +394,24 @@ for (const [key, value] of Object.entries($response.headers)) {
 									$.log(`newCaches = ${JSON.stringify(newCaches)}`);
 									let isSave = $.setjson(newCaches, "@BiliBili.Global.Caches");
 									$.log(`$.setjson ? ${isSave}`);
+
+									// 解锁弹幕和评论区
+									for (const episode of data.modules[0].data.episodes) {
+										if (episode.badge_info.text == '受限') {
+											episode.badge_info.text = ''
+											episode.bg_color = "#FB7299"
+											episode.bg_color_night = "#BB5B76"
+										}
+										episode.rights.allow_dm = 1
+										episode.rights.area_limit = 0
+										episode.rights.allow_download = 1
+										episode.rights.allow_demand = 1
+									}
+									data.rights.allow_download = 1
+									data.rights.allow_demand = 1
+
+									$response.body = JSON.stringify(body)
+									
 									break;
 							};
 							break;
