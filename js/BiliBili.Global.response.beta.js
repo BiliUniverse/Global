@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.1(2) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.2(4) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -360,6 +360,13 @@ for (const [key, value] of Object.entries($response.headers)) {
 									if (!newCaches?.ss) newCaches.ss = {};
 									let data = body.data;
 									let episodes = getEpisodes(data);
+									// 解锁弹幕和评论区等限制
+									data.modules = setEpisodes(data?.modules);
+									if (data?.rights) {
+										data.rights.allow_download = 1;
+										data.rights.allow_demand = 1;
+									};
+									$response.body = JSON.stringify(body);
 									//$.log(JSON.stringify(data?.title.match(/\uFF08(.+)\uFF09/)));
 									switch (data?.title.match(/\uFF08(.+)\uFF09/)?.[1]) {
 										case "僅限港澳台地區":
@@ -394,24 +401,6 @@ for (const [key, value] of Object.entries($response.headers)) {
 									$.log(`newCaches = ${JSON.stringify(newCaches)}`);
 									let isSave = $.setjson(newCaches, "@BiliBili.Global.Caches");
 									$.log(`$.setjson ? ${isSave}`);
-
-									// 解锁弹幕和评论区
-									for (const episode of data.modules[0].data.episodes) {
-										if (episode.badge_info.text == '受限') {
-											episode.badge_info.text = ''
-											episode.bg_color = "#FB7299"
-											episode.bg_color_night = "#BB5B76"
-										}
-										episode.rights.allow_dm = 1
-										episode.rights.area_limit = 0
-										episode.rights.allow_download = 1
-										episode.rights.allow_demand = 1
-									}
-									data.rights.allow_download = 1
-									data.rights.allow_demand = 1
-
-									$response.body = JSON.stringify(body)
-									
 									break;
 							};
 							break;
@@ -520,6 +509,46 @@ function getEpisodes(data) {
 	$.log(`🎉 ${$.name}, Get Episodes`, "");
 	//$.log(`🚧 ${$.name}, Get Episodes`, `modules.episodes: ${JSON.stringify(episodes)}`, "");
 	return episodes;
+};
+
+/**
+ * Set Episodes Data
+ * @author NyaMisty & VirgilClyne
+ * @param {Array} modules - Response Body's Data's Modules
+ * @return {Array<Object>} Modules Datas
+ */
+function setEpisodes(modules = []) {
+	$.log(`⚠ ${$.name}, Set Episodes`, "");
+	modules = modules.map(module => {
+		switch (module?.style) {
+			case "positive": // 选集
+			case "section": // SP				
+				// 解锁弹幕和评论区
+				module.data.episodes = module.data.episodes.map(episode => {
+					if (episode?.badge_info?.text == "受限") {
+						episode.badge_info.text = ""
+						episode.badge_info.bg_color = "#FB7299"
+						episode.badge_info.bg_color_night = "#BB5B76"
+					};
+					if (episode?.rights) {
+						episode.rights.allow_dm = 1
+						episode.rights.area_limit = 0
+						episode.rights.allow_download = 1
+						episode.rights.allow_demand = 1
+					};
+					return episode;
+				});
+				break;
+			case "pugv": // 猜你喜欢
+			case "season": // 选季
+			default:
+				break;
+		};
+		return module;
+	});
+	//$.log(`🎉 ${$.name}, Set Episodes`, "");
+	$.log(`🚧 ${$.name}, Set Episodes`, `modules: ${JSON.stringify(modules)}`, "");
+	return modules;
 };
 
 /**
