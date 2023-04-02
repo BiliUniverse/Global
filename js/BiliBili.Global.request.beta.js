@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.3.10(7) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.3.10(9) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -284,6 +284,7 @@ let $response = undefined;
 								case "x/v2/space": // 用户空间
 									switch (url.params?.vmid || url.params?.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
+										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
 											let availableLocales = Settings?.Locales.filter(locale => locale !== "CHN");
 											$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
@@ -324,6 +325,7 @@ let $response = undefined;
 								case "x/space/wbi/acc/info": // 用户空间-账号信息
 									switch (url.params?.vmid || url.params?.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
+										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
 											let availableLocales = Settings?.Locales.filter(locale => locale !== "CHN");
 											$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
