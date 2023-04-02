@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.0(4) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.2(5) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -192,7 +192,15 @@ for (const [key, value] of Object.entries($response.headers)) {
 									if (!newCaches?.ep) newCaches.ep = {};
 									if (!newCaches?.ss) newCaches.ss = {};
 									let data = body.data;
-									let episodes = getEpisodes(data);
+									$.log(`⚠ ${$.name}`, `season_id: ${data?.season_id}, season_title: ${data?.season_title}`, "");
+									let episodes = getEpisodes(data?.modules);
+									// 解锁弹幕和评论区等限制
+									data.modules = setEpisodes(data?.modules);
+									if (data?.rights) {
+										data.rights.allow_download = 1;
+										data.rights.allow_demand = 1;
+									};
+									$response.body = JSON.stringify(body);
 									//$.log(JSON.stringify(data?.title.match(/\uFF08(.+)\uFF09/)));
 									switch (data?.title.match(/\uFF08(.+)\uFF09/)?.[1]) {
 										case "僅限港澳台地區":
@@ -229,10 +237,6 @@ for (const [key, value] of Object.entries($response.headers)) {
 									$.log(`$.setjson ? ${isSave}`);
 									break;
 							};
-							break;
-						case "app.biliintl.com":
-							break;
-						case "api.global.bilibili.com":
 							break;
 					};
 					break;
@@ -312,18 +316,19 @@ function setENV(name, platform, database) {
 /**
  * Get Episodes Data
  * @author VirgilClyne
- * @param {Object} data - Response Body's Data
+ * @param {Array} modules - Response Body's Data's Modules
  * @return {Array<Object>} Episodes Datas
  */
-function getEpisodes(data) {
-	$.log(`⚠ ${$.name}, Get Episodes`, `season_id: ${data?.season_id}, season_title: ${data?.season_title}`, "");
-	let episodes = (data?.modules ?? []).flatMap(module => {
+function getEpisodes(modules = []) {
+	$.log(`⚠ ${$.name}, Get Episodes`, "");
+	let episodes = modules.flatMap(module => {
 		switch (module?.style) {
 			case "positive": // 选集
 			case "section": // SP
 				return module?.data?.episodes;
-			case "pugv": // 猜你喜欢
 			case "season": // 选季
+				return [];
+			case "pugv": // 猜你喜欢
 			default:
 				return [];
 		};
@@ -331,6 +336,46 @@ function getEpisodes(data) {
 	$.log(`🎉 ${$.name}, Get Episodes`, "");
 	//$.log(`🚧 ${$.name}, Get Episodes`, `modules.episodes: ${JSON.stringify(episodes)}`, "");
 	return episodes;
+};
+
+/**
+ * Set Episodes Data
+ * @author NyaMisty & VirgilClyne
+ * @param {Array} modules - Response Body's Data's Modules
+ * @return {Array<Object>} Modules Datas
+ */
+function setEpisodes(modules = []) {
+	$.log(`⚠ ${$.name}, Set Episodes`, "");
+	modules = modules.map(module => {
+		switch (module?.style) {
+			case "positive": // 选集
+			case "section": // SP				
+				// 解锁弹幕和评论区
+				module.data.episodes = module.data.episodes.map(episode => {
+					if (episode?.badge_info?.text == "受限") {
+						episode.badge_info.text = ""
+						episode.badge_info.bg_color = "#FB7299"
+						episode.badge_info.bg_color_night = "#BB5B76"
+					};
+					if (episode?.rights) {
+						episode.rights.allow_dm = 1
+						episode.rights.area_limit = 0
+						episode.rights.allow_download = 1
+						episode.rights.allow_demand = 1
+					};
+					return episode;
+				});
+				break;
+			case "pugv": // 猜你喜欢
+			case "season": // 选季
+			default:
+				break;
+		};
+		return module;
+	});
+	$.log(`🎉 ${$.name}, Set Episodes`, "");
+	//$.log(`🚧 ${$.name}, Set Episodes`, `modules: ${JSON.stringify(modules)}`, "");
+	return modules;
 };
 
 /**
