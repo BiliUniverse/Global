@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.2(5) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.2(6) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -202,7 +202,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 									};
 									$response.body = JSON.stringify(body);
 									//$.log(JSON.stringify(data?.title.match(/\uFF08(.+)\uFF09/)));
-									switch (data?.title.match(/\uFF08(.+)\uFF09/)?.[1]) {
+									switch (data?.title?.match(/[(\uFF08](.+)[)\uFF09]/)?.[1]) {
 										case "僅限港澳台地區":
 											newCaches.ss[data?.season_id] = ["HKG", "MAC", "TWN"];
 											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "TWN"]);
