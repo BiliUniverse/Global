@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.2(4) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.2(5) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -359,7 +359,8 @@ for (const [key, value] of Object.entries($response.headers)) {
 									if (!newCaches?.ep) newCaches.ep = {};
 									if (!newCaches?.ss) newCaches.ss = {};
 									let data = body.data;
-									let episodes = getEpisodes(data);
+									$.log(`⚠ ${$.name}`, `season_id: ${data?.season_id}, season_title: ${data?.season_title}`, "");
+									let episodes = getEpisodes(data?.modules);
 									// 解锁弹幕和评论区等限制
 									data.modules = setEpisodes(data?.modules);
 									if (data?.rights) {
@@ -483,18 +484,20 @@ function setENV(name, platform, database) {
 /**
  * Get Episodes Data
  * @author VirgilClyne
- * @param {Object} data - Response Body's Data
+ * @param {Array} modules - Response Body's Data's Modules
  * @return {Array<Object>} Episodes Datas
  */
-function getEpisodes(data) {
-	$.log(`⚠ ${$.name}, Get Episodes`, `season_id: ${data?.season_id}, season_title: ${data?.season_title}`, "");
-	let episodes = (data?.modules ?? []).flatMap(module => {
+function getEpisodes(modules = []) {
+	$.log(`⚠ ${$.name}, Get Episodes`, "");
+	let episodes = modules.flatMap(module => {
 		switch (module?.style) {
 			case "positive": // 选集
 			case "section": // SP
 				return module?.data?.episodes;
-			case "pugv": // 猜你喜欢
 			case "season": // 选季
+				//return module?.data?.seasons;
+				return [];
+			case "pugv": // 猜你喜欢
 			default:
 				return [];
 		};
@@ -546,8 +549,8 @@ function setEpisodes(modules = []) {
 		};
 		return module;
 	});
-	//$.log(`🎉 ${$.name}, Set Episodes`, "");
-	$.log(`🚧 ${$.name}, Set Episodes`, `modules: ${JSON.stringify(modules)}`, "");
+	$.log(`🎉 ${$.name}, Set Episodes`, "");
+	//$.log(`🚧 ${$.name}, Set Episodes`, `modules: ${JSON.stringify(modules)}`, "");
 	return modules;
 };
 
