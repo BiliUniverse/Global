@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.3.8(6) request");
+const $ = new Env("📺 BiliBili:Global v0.3.10(10) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -11,9 +11,9 @@ const DataBase = {
 		}
 	},
     "Global":{
-		"Settings":{"Switch":true,"ForceHost":"1","Locales":["CHN","HKG","TWN","USA","SGP"],"Proxies":{"CHN":"DIRECT","HKG":"🇭🇰香港","MAC":"🇲🇴澳门","TWN":"🇹🇼台湾","USA":"🇺🇸美国","SGP":"🇸🇬新加坡","MYA":"🇲🇾马来西亚","THA":"🇹🇭泰国"}},
+		"Settings":{"Switch":true,"ForceHost":"1","Locales":["CHN","HKG","TWN"],"Proxies":{"CHN":"DIRECT","HKG":"🇭🇰香港","MAC":"🇲🇴澳门","TWN":"🇹🇼台湾"}},
 		"Configs":{
-			"SearchNav":{"CHN":{"name":"番剧🇨🇳","total":0,"pages":0,"type":17},"HKG":{"name":"动画🇭🇰","total":0,"pages":0,"type":27},"MAC":{"name":"动画🇲🇴","total":0,"pages":0,"type":37},"TWN":{"name":"动画🇹🇼","total":0,"pages":0,"type":47},"SEA":{"name":"动画🇺🇳","total":0,"pages":0,"type":57}}
+			"SearchNav":{"CHN":{"name":"番剧🇨🇳","total":0,"pages":0,"type":17},"HKG":{"name":"动画🇭🇰","total":0,"pages":0,"type":27},"MAC":{"name":"动画🇲🇴","total":0,"pages":0,"type":37},"TWN":{"name":"动画🇹🇼","total":0,"pages":0,"type":47}}
 		}
 	},
 	"Roaming":{
@@ -244,6 +244,7 @@ let $response = undefined;
 								case "x/v2/space": // 用户空间
 									switch (url.params?.vmid || url.params?.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
+										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
 											let availableLocales = Settings?.Locales.filter(locale => locale !== "CHN");
 											$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
@@ -260,11 +261,16 @@ let $response = undefined;
 							switch (url.path) {
 								case "pgc/player/api/playurl": // 番剧-播放地址-api
 								case "pgc/player/web/playurl": // 番剧-播放地址-web
-								case "pgc/player/web/playurl/html5": // 番剧-播放地址-web-HTML5
-									let epid = url?.params?.ep_id;
-									$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
-									if (Caches?.ep?.[epid]) {
-										let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
+								case "pgc/player/web/playurl/html5": { // 番剧-播放地址-web-HTML5
+									let epId = url?.params?.ep_id;
+									let seasonId = url?.params?.season_id;
+									if (Caches?.ss?.[seasonId]) { // 有Season ID缓存
+										//$.log(`🚧 ${$.name}`, ` Caches.ss[seasonId]: ${Caches.ss[seasonId]}`, "");
+										let availableLocales = Caches.ss[seasonId].filter(locale => Settings?.Locales.includes(locale));
+										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+									} else if (Caches?.ep?.[epId]) {
+										let availableLocales = Caches.ep[epId].filter(locale => Settings?.Locales.includes(locale));
 										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
 										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
 									} else {
@@ -273,11 +279,13 @@ let $response = undefined;
 										$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 									};
 									break;
+								};
 								case "x/player/wbi/playurl": // UGC-用户生产内容-播放地址
 									break;
 								case "x/space/wbi/acc/info": // 用户空间-账号信息
 									switch (url.params?.vmid || url.params?.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
+										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
 											let availableLocales = Settings?.Locales.filter(locale => locale !== "CHN");
 											$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
@@ -287,16 +295,37 @@ let $response = undefined;
 											break;
 									};
 									break;
-								//case "pgc/view/v2/app/season": // 番剧页面-内容-api
+								case "pgc/view/v2/app/season": // 番剧页面-内容-app
 								case "pgc/view/web/season": // 番剧-内容-web
-									if (Caches.AccessKey) {
-										// https://github.com/ipcjs/bilibili-helper/blob/user.js/packages/unblock-area-limit/src/api/biliplus.ts
-									} else {
+									// 判断线路
+									let epId = url?.params?.ep_id;
+									let seasonId = url?.params?.season_id;
+									if (Caches?.ss?.[seasonId]) { // 有Season ID缓存
+										//$.log(`🚧 ${$.name}`, ` Caches.ss[seasonId]: ${Caches.ss[seasonId]}`, "");
+										let availableLocales = Caches.ss[seasonId].filter(locale => Settings?.Locales.includes(locale));
+										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+									} else if (Caches?.ep?.[epId]) { // 有Episode ID缓存
+										//$.log(`🚧 ${$.name}`, ` Caches.ep[epId]: ${Caches.ep[epId]}`, "");
+										let availableLocales = Caches.ep[epId].filter(locale => Settings?.Locales.includes(locale));
+										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+									} else { // 都没有缓存
 										let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales);
 										let availableLocales = checkLocales(responses);
-										$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
+										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+										//$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 									};
 									break;
+								//case "pgc/view/web/season": // 番剧-内容-web
+									//if (Caches.AccessKey) {
+										// https://github.com/ipcjs/bilibili-helper/blob/user.js/packages/unblock-area-limit/src/api/biliplus.ts
+									//} else {
+										//let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales);
+										//let availableLocales = checkLocales(responses);
+										//$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
+									//};
+									//break;
 								case "x/web-interface/search": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
 								case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
@@ -308,41 +337,6 @@ let $response = undefined;
 									break;
 								};
 							};
-							break;
-						case "www.bilibili.tv":
-							if (url.path.includes("/anime")) { // 番剧-web
-								$request = ReReqeust($request, Settings.Proxies["SEA"]); // 默认用SEA
-							} else if (url.path.includes("/play/")) { // 番剧-播放页-web
-								let epid = url?.params?.ep_id;
-								$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
-								if (Caches?.ep?.[epid]) {
-									let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
-									$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-									$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-								} else {
-									$request = ReReqeust($request, Settings.Proxies["SEA"]); // 默认用SEA
-								};
-							};
-							break;
-						case "api.bilibili.tv":
-							switch (url.path) {
-								case "intl/gateway/web/playurl": { // 番剧-播放地址-web
-									let epid = url?.params?.ep_id;
-									$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
-									if (Caches?.ep?.[epid]) {
-										let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
-										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-									} else {
-										$request = ReReqeust($request, Settings.Proxies["SEA"]); // 默认用SEA
-									};
-									break;
-								};
-							};
-							break;
-						case "app.biliintl.com":
-							break;
-						case "api.global.bilibili.com":
 							break;
 					};
 					break;
@@ -513,9 +507,30 @@ function isResponseAvailability(response = {}) {
 					switch (response?.headers?.["bili-status-code"]) {
 						case "0":
 						case undefined:
-							isAvailable = true;
+							switch (response?.headers?.idc) {
+								case "sgp001":
+								case "sgp002":
+									let data = JSON.parse(response?.body).data;
+									switch (data?.limit) {
+										case "":
+										case undefined:
+											isAvailable = true;
+											break;
+										default:
+											isAvailable = false;
+											break;
+									};
+									break;
+								case "shjd":
+								case undefined:
+								default:
+									isAvailable = true;
+									break;
+							};
 							break;
+						case "-404": // 啥都木有
 						case "-10403":
+						case "10015001": // 版权地区受限
 						default:
 							isAvailable = false;
 							break;
@@ -609,23 +624,43 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keywords.pop();
 			keyword = keywords.join(delimiter);
 			break;
-		case "SEA":
-		case "sea":
-		case "东南亚":
-		case "🇺🇳":
+		//case "US":
+		//case "us":
+		case "USA":
+		//case "美":
+		case "美国":
+		case "🇺🇸":
+			locale = "USA";
+			keywords.pop();
+			keyword = keywords.join(delimiter);
+			break;
+		case "SG":
+		case "sg":
+		case "SGP":
+		//case "新":
+		case "新加坡":
+		case "🇸🇬":
+			locale = "SGP";
+			keywords.pop();
+			keyword = keywords.join(delimiter);
+			break;
 		case "TH":
+		case "th":
+		case "THA":
 		case "泰":
 		case "泰国":
 		case "🇹🇭":
-		case "SG":
-		case "新":
-		case "新加坡":
-		case "🇸🇬":
-		case "MY":
-		case "马":
+			locale = "THA";
+			keywords.pop();
+			keyword = keywords.join(delimiter);
+			break;
+		//case "MY":
+		//case "my":
+		case "MYS":
+		//case "马":
 		case "马来西亚":
 		case "🇲🇾":
-			locale = "SEA";
+			locale = "MYS";
 			keywords.pop();
 			keyword = keywords.join(delimiter);
 			break;
