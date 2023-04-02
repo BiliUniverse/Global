@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.3.10(9) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.3.10(10) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -309,8 +309,8 @@ let $response = undefined;
 										let availableLocales = Caches.ss[seasonId].filter(locale => Settings?.Locales.includes(locale));
 										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
 										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-									} else if (Caches?.ep?.[epid]) {
-										let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
+									} else if (Caches?.ep?.[epId]) {
+										let availableLocales = Caches.ep[epId].filter(locale => Settings?.Locales.includes(locale));
 										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
 										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
 									} else {
