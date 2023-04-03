@@ -7,17 +7,17 @@
 #!icon=https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili.png
 
 [Script]
-http-request ^https?:\/\/www\.bilibili\.tv\/([a-z]{2})\/anime?(\?.+)?$ requires-body=0, max-size=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.anime.html
-http-request ^https?:\/\/www\.bilibili\.tv\/([a-z]{2})\/play\/\d+(\/\d+)?(\?.+)?$ requires-body=0, max-size=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.play.html
+http-request ^https?:\/\/www\.bilibili\.tv\/([a-z]{2})\/anime?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.anime.html
+http-request ^https?:\/\/www\.bilibili\.tv\/([a-z]{2})\/play\/\d+(\/\d+)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.play.html
 
-http-request ^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/ogv\/view\/app\/season2(\?.+)?$ requires-body=0, max-size=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.season.json
+http-request ^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/ogv\/view\/app\/season2(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.season.json
 
-http-request ^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/ogv\/playurl(\?.+)?$ requires-body=0, max-size=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.playurl.json
-http-request ^https?:\/\/api\.bilibili\.tv\/intl\/gateway\/web\/playurl(\?.+)?$ requires-body=0, max-size=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.playurl.web.json
+http-request ^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/ogv\/playurl(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.playurl.json
+http-request ^https?:\/\/api\.bilibili\.tv\/intl\/gateway\/web\/playurl(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.playurl.web.json
 
-http-request ^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/app\/search\/(type|v2)(\?.+)?$ requires-body=0, max-size=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.search.json
+http-request ^https?:\/\/app\.biliintl\.com\/intl\/gateway\/v2\/app\/search\/(type|v2)(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.search.json
 
-http-request ^https?:\/\/(app|passport)\.biliintl\.com\/(.+)?$ requires-body=0, max-size=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.all.json
+http-request ^https?:\/\/(app|passport)\.biliintl\.com\/(.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliIntl.Global.request.js, tag=BiliIntl.Global.all.json
 
 [MITM]
 hostname = www.bilibili.tv, api.bilibili.tv, app.biliintl.com, passport.biliintl.com

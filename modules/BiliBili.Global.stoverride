@@ -39,7 +39,6 @@ http:
       require-body: true
       timeout: 15
       binary-mode: true
-      max-size: 0
       argument:
     - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$
       name: BiliBili.Global.request
@@ -53,7 +52,6 @@ http:
       require-body: true
       timeout: 15
       binary-mode: true
-      max-size: 0
       argument:
     - match: ^https?:\/\/app\.bilibili\.com\/x\/(v2|web-interface)\/search(\/type)?(\?.+)?$
       name: BiliBili.Global.request
