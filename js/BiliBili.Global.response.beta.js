@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.2(11) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.2(12) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -403,7 +403,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 											episodes.forEach(episode => newCaches.ep[episode?.id] = ["CHN"]);
 											break;
 									};
-									$.log(`newCaches = ${JSON.stringify(newCaches)}`);
+									//$.log(`newCaches = ${JSON.stringify(newCaches)}`);
 									let isSave = $.setjson(newCaches, "@BiliBili.Global.Caches");
 									$.log(`$.setjson ? ${isSave}`);
 									break;
