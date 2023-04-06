@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.0(21) request");
+const $ = new Env("📺 BiliBili:Global v0.4.0(23) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -135,13 +135,8 @@ let $response = undefined;
 																	//else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 																	break;
 																case "Quantumult X":
-																	if (Caches?.ss?.[seasonId]) {
-																		let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
-																		$response = await Fetch(request);
-																	} else if (Caches?.ep?.[epId]) {
-																		let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
-																		$response = await Fetch(request);
-																	} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
 																	break;
 																case "Shadowrocket":
 																default:
@@ -211,8 +206,25 @@ let $response = undefined;
 									break;
 							};
 							// 写入二进制数据
-							if ($.isQuanX()) $request.bodyBytes = rawBody
-							else $request.body = rawBody;
+							switch (environment()) {
+								case "Loon":
+								case "Stash":
+								case "Surge":
+									$request.body = rawBody;
+									break;
+								case "Quantumult X":
+									$request.bodyBytes = rawBody
+									if (!$response) { // 兼容模式，返回echo response
+										// 已有指定策略的请求，根据策略fetch
+										if ($request?.opt?.policy) $response = await Fetch($request);
+										// 未指定策略的请求，mutiFetch
+										else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+									}
+									break;
+								case "Shadowrocket":
+								default:
+									break;
+							};
 							break;
 						default:
 							break;
@@ -237,18 +249,6 @@ let $response = undefined;
 									url.params.keyword = encodeURIComponent(keyword);
 									$request.url = URL.stringify(url);
 									$request = ReReqeust($request, Settings.Proxies[locale]);
-									switch (environment()) {
-										case "Loon":
-										case "Stash":
-										case "Surge":
-											break;
-										case "Quantumult X":
-											$response = await Fetch($request);
-											break;
-										case "Shadowrocket":
-										default:
-											break;
-									};
 									break;
 							};
 							break;
@@ -261,18 +261,6 @@ let $response = undefined;
 									url.params.keyword = encodeURIComponent(keyword);
 									$request.url = URL.stringify(url);
 									$request = ReReqeust($request, Settings.Proxies[locale]);
-									switch (environment()) {
-										case "Loon":
-										case "Stash":
-										case "Surge":
-											break;
-										case "Quantumult X":
-											$response = await Fetch($request);
-											break;
-										case "Shadowrocket":
-										default:
-											break;
-									};
 									break;
 								};
 								case "x/v2/space": // 用户空间
@@ -280,19 +268,7 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											switch (environment()) {
-												case "Loon":
-												case "Stash":
-												case "Surge":
-													({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
-													break;
-												case "Quantumult X":
-													({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-													break;
-												case "Shadowrocket":
-												default:
-													break;
-											};
+											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
 											break;
@@ -321,13 +297,8 @@ let $response = undefined;
 											else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 											break;
 										case "Quantumult X":
-											if (Caches?.ss?.[seasonId]) {
-												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
-												$response = await Fetch(request);
-											} else if (Caches?.ep?.[epId]) {
-												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
-												$response = await Fetch(request);
-											} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
 											break;
 										case "Shadowrocket":
 										default:
@@ -342,19 +313,7 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											switch (environment()) {
-												case "Loon":
-												case "Stash":
-												case "Surge":
-													({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
-													break;
-												case "Quantumult X":
-													({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-													break;
-												case "Shadowrocket":
-												default:
-													break;
-											};
+											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
 											break;
@@ -378,6 +337,7 @@ let $response = undefined;
 											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 											break;
 										case "Quantumult X":
+											// 跳过，不进request脚本
 											/*
 											if (Caches?.ss?.[seasonId]) {
 												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
@@ -401,21 +361,27 @@ let $response = undefined;
 									url.params.keyword = encodeURIComponent(keyword);
 									$request.url = URL.stringify(url);
 									$request = ReReqeust($request, Settings.Proxies[locale]);
-									switch (environment()) {
-										case "Loon":
-										case "Stash":
-										case "Surge":
-											break;
-										case "Quantumult X":
-											$response = await Fetch($request);
-											break;
-										case "Shadowrocket":
-										default:
-											break;
-									};
 									break;
 								};
 							};
+							break;
+					};
+					// 特殊情况处理
+					switch (environment()) {
+						case "Loon":
+						case "Stash":
+						case "Surge":
+							break;
+						case "Quantumult X":
+							if (!$response) { // 兼容模式，返回echo response
+								// 已有指定策略的请求，根据策略fetch
+								if ($request?.opt?.policy) $response = await Fetch($request);
+								// 未指定策略的请求，mutiFetch
+								else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+							};
+							break;
+						case "Shadowrocket":
+						default:
 							break;
 					};
 					break;
