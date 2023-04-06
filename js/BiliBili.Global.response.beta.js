@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.3(2) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.3(3) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -196,7 +196,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 									if (data?.modules) {
 										let episodes = getEpisodes(data?.modules);
 										// 解锁弹幕和评论区等限制
-										data.modules = setEpisodes(data?.modules);
+										data.modules = setModules(data?.modules);
 										if (data?.rights) {
 											data.rights.allow_download = 1;
 											data.rights.allow_demand = 1;
@@ -209,32 +209,11 @@ for (const [key, value] of Object.entries($response.headers)) {
 									body = JSON.parse($response.body);
 									let result = body.result;
 									$.log(`⚠ ${$.name}`, `season_title: ${result?.season_title}, season_id: ${result?.season_id}`, "");
+									
 									if (result?.episodes || result?.section) {
 										// 解锁弹幕和评论区等限制
-										if (result?.episodes) {
-											let modules = [
-												{
-													"style": "positive", // 选集
-													"data":
-													{
-														"episodes": result?.episodes
-													}
-												}
-											];
-											result.episodes = setEpisodes(modules)[0].data.episodes;
-										};
-										if (result?.section) {
-											let modules = [
-												{
-													"style": "section", // 简介
-													"data":
-													{
-														"episodes": result?.section
-													}
-												}
-											];
-											result.section = setEpisodes(modules)[0].data.episodes;
-										};
+										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
+										if (result?.section) result.section = setEpisodes(result.section);
 										setCache(result?.season_title, result?.season_id, result?.episodes, Caches);
 									};
 									if (result?.rights) {
@@ -358,32 +337,19 @@ function getEpisodes(modules = []) {
 };
 
 /**
- * Set Episodes Data
+ * Set Modules Data
  * @author NyaMisty & VirgilClyne
  * @param {Array} modules - Response Body's Data's Modules
  * @return {Array<Object>} Modules Datas
  */
-function setEpisodes(modules = []) {
+function setModules(modules = []) {
 	$.log(`⚠ ${$.name}, Set Episodes`, "");
 	modules = modules.map(module => {
 		switch (module?.style) {
 			case "positive": // 选集
 			case "section": // SP				
 				// 解锁弹幕和评论区
-				module.data.episodes = module.data.episodes.map(episode => {
-					if (episode?.badge_info?.text == "受限") {
-						episode.badge_info.text = ""
-						episode.badge_info.bg_color = "#FB7299"
-						episode.badge_info.bg_color_night = "#BB5B76"
-					};
-					if (episode?.rights) {
-						episode.rights.allow_dm = 1
-						episode.rights.area_limit = 0
-						episode.rights.allow_download = 1
-						episode.rights.allow_demand = 1
-					};
-					return episode;
-				});
+				module.data.episodes = setEpisodes(module?.data?.episodes);
 				break;
 			case "pugv": // 猜你喜欢
 			case "season": // 选季
@@ -395,6 +361,33 @@ function setEpisodes(modules = []) {
 	$.log(`🎉 ${$.name}, Set Episodes`, "");
 	//$.log(`🚧 ${$.name}, Set Episodes`, `modules: ${JSON.stringify(modules)}`, "");
 	return modules;
+};
+
+/**
+ * Set Episodes Data
+ * @author NyaMisty & VirgilClyne
+ * @param {Array} modules - Response Body's Data's Modules's Episodes
+ * @return {Array<Object>} Modules Datas
+ */
+function setEpisodes(episodes = []) {
+	$.log(`⚠ ${$.name}, Set Episodes`, "");
+	episodes = episodes.map(episode => {
+		if (episode?.badge_info?.text == "受限") {
+			episode.badge_info.text = ""
+			episode.badge_info.bg_color = "#FB7299"
+			episode.badge_info.bg_color_night = "#BB5B76"
+		};
+		if (episode?.rights) {
+			episode.rights.allow_dm = 1
+			episode.rights.area_limit = 0
+			episode.rights.allow_download = 1
+			episode.rights.allow_demand = 1
+		};
+		return episode;
+	});
+	$.log(`🎉 ${$.name}, Set Episodes`, "");
+	//$.log(`🚧 ${$.name}, Set Episodes`, `episodes: ${JSON.stringify(episodes)}`, "");
+	return episodes;
 };
 
 /**
