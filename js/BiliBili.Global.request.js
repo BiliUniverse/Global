@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.0(20) request");
+const $ = new Env("📺 BiliBili:Global v0.4.0(21) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -237,6 +237,18 @@ let $response = undefined;
 									url.params.keyword = encodeURIComponent(keyword);
 									$request.url = URL.stringify(url);
 									$request = ReReqeust($request, Settings.Proxies[locale]);
+									switch (environment()) {
+										case "Loon":
+										case "Stash":
+										case "Surge":
+											break;
+										case "Quantumult X":
+											$response = await Fetch($request);
+											break;
+										case "Shadowrocket":
+										default:
+											break;
+									};
 									break;
 							};
 							break;
@@ -249,6 +261,18 @@ let $response = undefined;
 									url.params.keyword = encodeURIComponent(keyword);
 									$request.url = URL.stringify(url);
 									$request = ReReqeust($request, Settings.Proxies[locale]);
+									switch (environment()) {
+										case "Loon":
+										case "Stash":
+										case "Surge":
+											break;
+										case "Quantumult X":
+											$response = await Fetch($request);
+											break;
+										case "Shadowrocket":
+										default:
+											break;
+									};
 									break;
 								};
 								case "x/v2/space": // 用户空间
@@ -256,7 +280,19 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
+											switch (environment()) {
+												case "Loon":
+												case "Stash":
+												case "Surge":
+													({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
+													break;
+												case "Quantumult X":
+													({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+													break;
+												case "Shadowrocket":
+												default:
+													break;
+											};
 											break;
 										default:
 											break;
@@ -306,7 +342,19 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
+											switch (environment()) {
+												case "Loon":
+												case "Stash":
+												case "Surge":
+													({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
+													break;
+												case "Quantumult X":
+													({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+													break;
+												case "Shadowrocket":
+												default:
+													break;
+											};
 											break;
 										default:
 											break;
@@ -353,6 +401,18 @@ let $response = undefined;
 									url.params.keyword = encodeURIComponent(keyword);
 									$request.url = URL.stringify(url);
 									$request = ReReqeust($request, Settings.Proxies[locale]);
+									switch (environment()) {
+										case "Loon":
+										case "Stash":
+										case "Surge":
+											break;
+										case "Quantumult X":
+											$response = await Fetch($request);
+											break;
+										case "Shadowrocket":
+										default:
+											break;
+									};
 									break;
 								};
 							};
