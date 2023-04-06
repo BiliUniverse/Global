@@ -247,7 +247,7 @@ let $response = undefined;
 									break;
 							};
 							// 写入二进制数据
-							if ($.isQuanX()) $request.bodyBytes = rawBody;
+							if ($.isQuanX()) $request.bodyBytes = rawBody
 							else $request.body = rawBody;
 							break;
 						default:
@@ -321,7 +321,6 @@ let $response = undefined;
 											else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 											break;
 										case "Quantumult X":
-											/*
 											if (Caches?.ss?.[seasonId]) {
 												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
 												$response = await Fetch(request);
@@ -329,7 +328,6 @@ let $response = undefined;
 												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
 												$response = await Fetch(request);
 											} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-											*/
 											break;
 										case "Shadowrocket":
 										default:
@@ -368,6 +366,7 @@ let $response = undefined;
 											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 											break;
 										case "Quantumult X":
+											/*
 											if (Caches?.ss?.[seasonId]) {
 												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
 												$response = await Fetch(request);
@@ -375,6 +374,7 @@ let $response = undefined;
 												let { request } = processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
 												$response = await Fetch(request);
 											} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											*/
 											break;
 										case "Shadowrocket":
 										default:

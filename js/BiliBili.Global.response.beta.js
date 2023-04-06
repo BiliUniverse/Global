@@ -209,7 +209,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 									body = JSON.parse($response.body);
 									let result = body.result;
 									$.log(`⚠ ${$.name}`, `season_title: ${result?.season_title}, season_id: ${result?.season_id}`, "");
-									
+									// 有剧集信息
 									if (result?.episodes || result?.section) {
 										// 解锁弹幕和评论区等限制
 										if (result?.episodes) result.episodes = setEpisodes(result.episodes);

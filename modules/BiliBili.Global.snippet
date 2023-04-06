@@ -11,28 +11,28 @@
 ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 
 # BiliBili.Global.season.json
-^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web)\/season(\?.+)?$ url script-request-header https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+# ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web)\/season(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 # BiliBili.Global.season.json
 ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web)\/season(\?.+)?$ url script-response-body https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.response.js
 
 # BiliBili.Global.playurl.grpc
-^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView(\?.+)?$ url script-request-body https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 # BiliBili.Global.playurl.json
 ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 
 # BiliBili.Global.search.grpc
-^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)(\?.+)?$ url script-request-body https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 # BiliBili.Global.search.json
-^https?:\/\/app\.bilibili\.com\/x\/(v2|web-interface)\/search(\/type)?(\?.+)?$ url script-request-header https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+^https?:\/\/app\.bilibili\.com\/x\/(v2|web-interface)\/search(\/type)?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 # BiliBili.Global.search.html
-^https?:\/\/search\.bilibili\.com\/all?(\?.+)?$ url script-request-header https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+^https?:\/\/search\.bilibili\.com\/all?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 # BiliBili.Global.search.wbi.json
-^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$ url script-request-header https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 
 # BiliBili.Global.space.json
-^https?:\/\/app\.bilibili\.com\/x\/v2\/space(\?.+)?$ url script-request-header https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+^https?:\/\/app\.bilibili\.com\/x\/v2\/space(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 # BiliBili.Global.space.wbi.json
-^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/wbi/acc\/info(\?.+)?$ url script-request-header https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/wbi/acc\/info(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.request.js
 
 #[MITM]
 hostname = www.bilibili.com, app.bilibili.com, search.bilibili.com, api.bilibili.com, api.biliapi.net, grpc.biliapi.net
