@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.2(12) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.2(13) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -346,6 +346,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 								case "x/space/wbi/acc/info": // 用户空间-账号信息
 									switch (url.params.vmid || url.params.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
+										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
 											break;
 										default:
@@ -355,57 +356,60 @@ for (const [key, value] of Object.entries($response.headers)) {
 								case "pgc/view/v2/app/season": // 番剧页面-内容-api
 								case "pgc/view/web/season": // 番剧-内容-web
 									body = JSON.parse($response.body);
-									let newCaches = Caches;
-									if (!newCaches?.ep) newCaches.ep = {};
-									if (!newCaches?.ss) newCaches.ss = {};
 									let data = body.data;
 									$.log(`⚠ ${$.name}`, `season_id: ${data?.season_id}, season_title: ${data?.season_title}`, "");
-									let episodes = getEpisodes(data?.modules);
-									// 解锁弹幕和评论区等限制
-									data.modules = setEpisodes(data?.modules);
-									if (data?.rights) {
-										data.rights.allow_download = 1;
-										data.rights.allow_demand = 1;
+									// 有剧集信息
+									if (data?.modules) {
+										let newCaches = Caches;
+										if (!newCaches?.ep) newCaches.ep = {};
+										if (!newCaches?.ss) newCaches.ss = {};
+										let episodes = getEpisodes(data?.modules);
+										// 解锁弹幕和评论区等限制
+										data.modules = setEpisodes(data?.modules);
+										if (data?.rights) {
+											data.rights.allow_download = 1;
+											data.rights.allow_demand = 1;
+										};
+										$response.body = JSON.stringify(body);
+										$.log([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+										//$.log([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
+										//$.log([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
+										switch ([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
+											case "僅限港澳台地區":
+											case "限僅港澳台地區":
+											case "港澳台地區":
+												newCaches.ss[data?.season_id] = ["HKG", "MAC", "TWN"];
+												episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "TWN"]);
+												break;
+											case "僅限港台地區":
+												newCaches.ss[data?.season_id] = ["HKG", "TWN"];
+												episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "TWN"]);
+												break;
+											case "僅限港澳地區":
+												newCaches.ss[data?.season_id] = ["HKG", "MAC"];
+												episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC"]);
+												break;
+											case "僅限台灣地區":
+												newCaches.ss[data?.season_id] = ["TWN"];
+												episodes.forEach(episode => newCaches.ep[episode?.id] = ["TWN"]);
+												break;
+											case "僅限港澳台及其他地區":
+												newCaches.ss[data?.season_id] = ["HKG", "MAC", "TWN", "SEA"];
+												episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "TWN", "SEA"]);
+												break;
+											case "僅限港澳及其他地區":
+												newCaches.ss[data?.season_id] = ["HKG", "MAC", "SEA"];
+												episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "SEA"]);
+												break;
+											case undefined:
+												newCaches.ss[data?.season_id] = ["CHN"];
+												episodes.forEach(episode => newCaches.ep[episode?.id] = ["CHN"]);
+												break;
+										};
+										//$.log(`newCaches = ${JSON.stringify(newCaches)}`);
+										let isSave = $.setjson(newCaches, "@BiliBili.Global.Caches");
+										$.log(`$.setjson ? ${isSave}`);
 									};
-									$response.body = JSON.stringify(body);
-									$.log([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
-									//$.log([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
-									//$.log([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
-									switch ([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
-										case "僅限港澳台地區":
-										case "限僅港澳台地區":
-										case "港澳台地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC", "TWN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "TWN"]);
-											break;
-										case "僅限港台地區":
-											newCaches.ss[data?.season_id] = ["HKG", "TWN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "TWN"]);
-											break;
-										case "僅限港澳地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC"]);
-											break;
-										case "僅限台灣地區":
-											newCaches.ss[data?.season_id] = ["TWN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["TWN"]);
-											break;
-										case "僅限港澳台及其他地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC", "TWN", "SEA"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "TWN", "SEA"]);
-											break;
-										case "僅限港澳及其他地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC", "SEA"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "SEA"]);
-											break;
-										case undefined:
-											newCaches.ss[data?.season_id] = ["CHN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["CHN"]);
-											break;
-									};
-									//$.log(`newCaches = ${JSON.stringify(newCaches)}`);
-									let isSave = $.setjson(newCaches, "@BiliBili.Global.Caches");
-									$.log(`$.setjson ? ${isSave}`);
 									break;
 							};
 							break;
