@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.2(13) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.3(0) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -126,176 +126,11 @@ for (const [key, value] of Object.entries($response.headers)) {
 													break;
 												case "bilibili.polymer.app.search.v1.Search": // 搜索结果
 													/******************  initialization start  *******************/
-													class Nav$Type extends MessageType{constructor(){super("bilibili.polymer.app.search.v1.Nav",[{no:1,name:"name",kind:"scalar",T:9},{no:2,name:"total",kind:"scalar",T:5},{no:3,name:"pages",kind:"scalar",T:5},{no:4,name:"type",kind:"scalar",T:5}])}create(value){const message={name:"",total:0,pages:0,type:0};globalThis.Object.defineProperty(message,MESSAGE_TYPE,{enumerable:false,value:this});if(value!==undefined)reflectionMergePartial(this,message,value);return message}internalBinaryRead(reader,length,options,target){let message=target??this.create(),end=reader.pos+length;while(reader.pos<end){let[fieldNo,wireType]=reader.tag();switch(fieldNo){case 1:message.name=reader.string();break;case 2:message.total=reader.int32();break;case 3:message.pages=reader.int32();break;case 4:message.type=reader.int32();break;default:let u=options.readUnknownField;if(u==="throw")throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);let d=reader.skip(wireType);if(u!==false)(u===true?UnknownFieldHandler.onRead:u)(this.typeName,message,fieldNo,wireType,d)}}return message}internalBinaryWrite(message,writer,options){if(message.name!=="")writer.tag(1,WireType.LengthDelimited).string(message.name);if(message.total!==0)writer.tag(2,WireType.Varint).int32(message.total);if(message.pages!==0)writer.tag(3,WireType.Varint).int32(message.pages);if(message.type!==0)writer.tag(4,WireType.Varint).int32(message.type);let u=options.writeUnknownFields;if(u!==false)(u==true?UnknownFieldHandler.onWrite:u)(this.typeName,message,writer);return writer}};
-													const Nav = new Nav$Type;
-													//class EasterEgg$Type extends MessageType{constructor(){super("bilibili.polymer.app.search.v1.EasterEgg",[{no:1,name:"id",kind:"scalar",T:5},{no:2,name:"show_count",kind:"scalar",T:5},{no:3,name:"type",kind:"scalar",T:5},{no:4,name:"url",kind:"scalar",T:9},{no:5,name:"close_count",kind:"scalar",T:5},{no:6,name:"mask_transparency",kind:"scalar",T:5},{no:7,name:"mask_color",kind:"scalar",T:9},{no:8,name:"pic_type",kind:"scalar",T:5},{no:9,name:"show_time",kind:"scalar",T:5},{no:10,name:"source_url",kind:"scalar",T:9},{no:11,name:"source_md5",kind:"scalar",T:9},{no:12,name:"source_size",kind:"scalar",T:5}])}create(value){const message={id:0,showCount:0,type:0,url:"",closeCount:0,maskTransparency:0,maskColor:"",picType:0,showTime:0,sourceUrl:"",sourceMd5:"",sourceSize:0};globalThis.Object.defineProperty(message,MESSAGE_TYPE,{enumerable:false,value:this});if(value!==undefined)reflectionMergePartial(this,message,value);return message}internalBinaryRead(reader,length,options,target){let message=target??this.create(),end=reader.pos+length;while(reader.pos<end){let[fieldNo,wireType]=reader.tag();switch(fieldNo){case 1:message.id=reader.int32();break;case 2:message.showCount=reader.int32();break;case 3:message.type=reader.int32();break;case 4:message.url=reader.string();break;case 5:message.closeCount=reader.int32();break;case 6:message.maskTransparency=reader.int32();break;case 7:message.maskColor=reader.string();break;case 8:message.picType=reader.int32();break;case 9:message.showTime=reader.int32();break;case 10:message.sourceUrl=reader.string();break;case 11:message.sourceMd5=reader.string();break;case 12:message.sourceSize=reader.int32();break;default:let u=options.readUnknownField;if(u==="throw")throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);let d=reader.skip(wireType);if(u!==false)(u===true?UnknownFieldHandler.onRead:u)(this.typeName,message,fieldNo,wireType,d)}}return message}internalBinaryWrite(message,writer,options){if(message.id!==0)writer.tag(1,WireType.Varint).int32(message.id);if(message.showCount!==0)writer.tag(2,WireType.Varint).int32(message.showCount);if(message.type!==0)writer.tag(3,WireType.Varint).int32(message.type);if(message.url!=="")writer.tag(4,WireType.LengthDelimited).string(message.url);if(message.closeCount!==0)writer.tag(5,WireType.Varint).int32(message.closeCount);if(message.maskTransparency!==0)writer.tag(6,WireType.Varint).int32(message.maskTransparency);if(message.maskColor!=="")writer.tag(7,WireType.LengthDelimited).string(message.maskColor);if(message.picType!==0)writer.tag(8,WireType.Varint).int32(message.picType);if(message.showTime!==0)writer.tag(9,WireType.Varint).int32(message.showTime);if(message.sourceUrl!=="")writer.tag(10,WireType.LengthDelimited).string(message.sourceUrl);if(message.sourceMd5!=="")writer.tag(11,WireType.LengthDelimited).string(message.sourceMd5);if(message.sourceSize!==0)writer.tag(12,WireType.Varint).int32(message.sourceSize);let u=options.writeUnknownFields;if(u!==false)(u==true?UnknownFieldHandler.onWrite:u)(this.typeName,message,writer);return writer}};
-													//const EasterEgg = new EasterEgg$Type;
-													class DisplayOption$Type extends MessageType{constructor(){super("bilibili.polymer.app.search.v1.DisplayOption",[{no:1,name:"video_title_row",kind:"scalar",T:5},{no:2,name:"search_page_visual_opti",kind:"scalar",T:5}])}create(value){const message={videoTitleRow:0,searchPageVisualOpti:0};globalThis.Object.defineProperty(message,MESSAGE_TYPE,{enumerable:false,value:this});if(value!==undefined)reflectionMergePartial(this,message,value);return message}internalBinaryRead(reader,length,options,target){let message=target??this.create(),end=reader.pos+length;while(reader.pos<end){let[fieldNo,wireType]=reader.tag();switch(fieldNo){case 1:message.videoTitleRow=reader.int32();break;case 2:message.searchPageVisualOpti=reader.int32();break;default:let u=options.readUnknownField;if(u==="throw")throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);let d=reader.skip(wireType);if(u!==false)(u===true?UnknownFieldHandler.onRead:u)(this.typeName,message,fieldNo,wireType,d)}}return message}internalBinaryWrite(message,writer,options){if(message.videoTitleRow!==0)writer.tag(1,WireType.Varint).int32(message.videoTitleRow);if(message.searchPageVisualOpti!==0)writer.tag(2,WireType.Varint).int32(message.searchPageVisualOpti);let u=options.writeUnknownFields;if(u!==false)(u==true?UnknownFieldHandler.onWrite:u)(this.typeName,message,writer);return writer}};
-													const DisplayOption = new DisplayOption$Type;
 													/******************  initialization finish  *******************/
 													switch (url.paths?.[1]) {
 														case "SearchAll": // 全部结果（综合）
 															/******************  initialization start  *******************/
-															class SearchAllResponse$Type extends MessageType {
-																constructor() {
-																	super("bilibili.polymer.app.search.v1.SearchAllResponse", [
-																		{ no: 1, name: "keyword", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 2, name: "trackid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 3, name: "nav", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => Nav },
-																		//{ no: 4, name: "item", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => Item },
-																		//{ no: 5, name: "easter_egg", kind: "message", T: () => EasterEgg },
-																		//{ no: 6, name: "exp_str", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		//{ no: 7, name: "extra_word_list", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
-																		//{ no: 8, name: "org_extra_word", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 9, name: "select_bar_type", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-																		//{ no: 10, name: "new_search_exp_num", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-																		//{ no: 11, name: "pagination", kind: "message", T: () => PaginationReply },
-																		{ no: 12, name: "app_display_option", kind: "message", T: () => DisplayOption },
-																		{ no: 13, name: "annotation", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
-																	]);
-																}
-																create(value) {
-																	const message = { keyword: "", trackid: "", nav: [], selectBarType: 0, annotation: {} };
-																	globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
-																	if (value !== undefined)
-																		reflectionMergePartial(this, message, value);
-																	return message;
-																}
-																internalBinaryRead(reader, length, options, target) {
-																	let message = target ?? this.create(), end = reader.pos + length;
-																	while (reader.pos < end) {
-																		let [fieldNo, wireType] = reader.tag();
-																		switch (fieldNo) {
-																			case /* string keyword */ 1:
-																				message.keyword = reader.string();
-																				break;
-																			case /* string trackid */ 2:
-																				message.trackid = reader.string();
-																				break;
-																			case /* repeated bilibili.polymer.app.search.v1.Nav nav */ 3:
-																				message.nav.push(Nav.internalBinaryRead(reader, reader.uint32(), options));
-																				break;
-																			//case /* repeated bilibili.polymer.app.search.v1.Item item */ 4:
-																				//message.item.push(Item.internalBinaryRead(reader, reader.uint32(), options));
-																				//break;
-																			//case /* bilibili.polymer.app.search.v1.EasterEgg easter_egg */ 5:
-																				//message.easterEgg = EasterEgg.internalBinaryRead(reader, reader.uint32(), options, message.easterEgg);
-																				//break;
-																			//case /* string exp_str */ 6:
-																				//message.expStr = reader.string();
-																				//break;
-																			//case /* repeated string extra_word_list */ 7:
-																				//message.extraWordList.push(reader.string());
-																				//break;
-																			//case /* string org_extra_word */ 8:
-																				//message.orgExtraWord = reader.string();
-																				//break;
-																			case /* int64 select_bar_type = 9 [jstype = JS_NUMBER];*/ 9:
-																				message.selectBarType = reader.int64().toNumber();
-																				break;
-																			//case /* int64 new_search_exp_num = 10 [jstype = JS_NUMBER];*/ 10:
-																				//message.newSearchExpNum = reader.int64().toNumber();
-																				//break;
-																			//case /* bilibili.pagination.PaginationReply pagination */ 11:
-																				//message.pagination = PaginationReply.internalBinaryRead(reader, reader.uint32(), options, message.pagination);
-																				//break;
-																			case /* bilibili.polymer.app.search.v1.DisplayOption app_display_option */ 12:
-																				message.appDisplayOption = DisplayOption.internalBinaryRead(reader, reader.uint32(), options, message.appDisplayOption);
-																				break;
-																			case /* map<string, string> annotation */ 13:
-																				this.binaryReadMap13(message.annotation, reader, options);
-																				break;
-																			default:
-																				let u = options.readUnknownField;
-																				if (u === "throw")
-																					throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-																				let d = reader.skip(wireType);
-																				if (u !== false)
-																					(u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-																		}
-																	}
-																	return message;
-																}
-																binaryReadMap13(map, reader, options) {
-																	let len = reader.uint32(), end = reader.pos + len, key, val;
-																	while (reader.pos < end) {
-																		let [fieldNo, wireType] = reader.tag();
-																		switch (fieldNo) {
-																			case 1:
-																				key = reader.string();
-																				break;
-																			case 2:
-																				val = reader.string();
-																				break;
-																			default: throw new globalThis.Error("unknown map entry field for field bilibili.polymer.app.search.v1.SearchAllResponse.annotation");
-																		}
-																	}
-																	map[key ?? ""] = val ?? "";
-																}
-																internalBinaryWrite(message, writer, options) {
-																	/* string keyword = 1; */
-																	if (message.keyword !== "")
-																		writer.tag(1, WireType.LengthDelimited).string(message.keyword);
-																	/* string trackid = 2; */
-																	if (message.trackid !== "")
-																		writer.tag(2, WireType.LengthDelimited).string(message.trackid);
-																	/* repeated bilibili.polymer.app.search.v1.Nav nav = 3; */
-																	for (let i = 0; i < message.nav.length; i++)
-																		Nav.internalBinaryWrite(message.nav[i], writer.tag(3, WireType.LengthDelimited).fork(), options).join();
-																	/* repeated bilibili.polymer.app.search.v1.Item item = 4; */
-																	//for (let i = 0; i < message.item.length; i++)
-																		//Item.internalBinaryWrite(message.item[i], writer.tag(4, WireType.LengthDelimited).fork(), options).join();
-																	/* bilibili.polymer.app.search.v1.EasterEgg easter_egg = 5; */
-																	//if (message.easterEgg)
-																		//EasterEgg.internalBinaryWrite(message.easterEgg, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
-																	/* string exp_str = 6; */
-																	//if (message.expStr !== "")
-																		//writer.tag(6, WireType.LengthDelimited).string(message.expStr);
-																	/* repeated string extra_word_list = 7; */
-																	//for (let i = 0; i < message.extraWordList.length; i++)
-																		//writer.tag(7, WireType.LengthDelimited).string(message.extraWordList[i]);
-																	/* string org_extra_word = 8; */
-																	//if (message.orgExtraWord !== "")
-																		//writer.tag(8, WireType.LengthDelimited).string(message.orgExtraWord);
-																	/* int64 select_bar_type = 9 [jstype = JS_NUMBER]; */
-																	if (message.selectBarType !== 0)
-																		writer.tag(9, WireType.Varint).int64(message.selectBarType);
-																	/* int64 new_search_exp_num = 10 [jstype = JS_NUMBER]; */
-																	//if (message.newSearchExpNum !== 0)
-																		//writer.tag(10, WireType.Varint).int64(message.newSearchExpNum);
-																	/* bilibili.pagination.PaginationReply pagination = 11; */
-																	//if (message.pagination)
-																		//PaginationReply.internalBinaryWrite(message.pagination, writer.tag(11, WireType.LengthDelimited).fork(), options).join();
-																	/* bilibili.polymer.app.search.v1.DisplayOption app_display_option = 12; */
-																	if (message.appDisplayOption)
-																		DisplayOption.internalBinaryWrite(message.appDisplayOption, writer.tag(12, WireType.LengthDelimited).fork(), options).join();
-																	/* map<string, string> annotation = 13; */
-																	for (let k of Object.keys(message.annotation))
-																		writer.tag(13, WireType.LengthDelimited).fork().tag(1, WireType.LengthDelimited).string(k).tag(2, WireType.LengthDelimited).string(message.annotation[k]).join();
-																	let u = options.writeUnknownFields;
-																	if (u !== false)
-																		(u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-																	return writer;
-																}
-															};
-															const SearchAllResponse = new SearchAllResponse$Type;
 															/******************  initialization finish  *******************/
-															let data = SearchAllResponse.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
-															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
-															if (UF) {
-																UF = UF.map(uf => {
-																	//uf.no; // 22
-																	//uf.wireType; // WireType.Varint
-																	// use the binary reader to decode the raw data:
-																	let reader = new BinaryReader(uf.data);
-																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
-																});
-															};
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
-															body = SearchAllResponse.toBinary(data);
 															break;
 														case "SearchByType": // 按分类搜索（番剧、用户、影视、专栏）
 															break;
