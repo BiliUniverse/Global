@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.3.10(10) request");
+const $ = new Env("📺 BiliBili:Global v0.4.0(20) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -122,17 +122,30 @@ let $response = undefined;
 															// 判断线路
 															let epId = data?.epId?.toString();
 															let seasonId = data?.seasonId?.toString();
-															if (Caches?.ss?.[seasonId]) { // 有Season ID缓存
-																//$.log(`🚧 ${$.name}`, ` Caches.ss[seasonId]: ${Caches.ss[seasonId]}`, "");
-																let availableLocales = Caches.ss[seasonId].filter(locale => Settings?.Locales.includes(locale));
-																$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-																$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-															} else if (Caches?.ep?.[epId]) { // 有Episode ID缓存
-																//$.log(`🚧 ${$.name}`, ` Caches.ep[epId]: ${Caches.ep[epId]}`, "");
-																let availableLocales = Caches.ep[epId].filter(locale => Settings?.Locales.includes(locale));
-																$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-																$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-															} else { // 都没有缓存
+															switch (environment()) {
+																case "Loon":
+																case "Stash":
+																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+																	else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+																	break;
+																case "Surge":
+																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+																	//else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+																	break;
+																case "Quantumult X":
+																	if (Caches?.ss?.[seasonId]) {
+																		let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
+																		$response = await Fetch(request);
+																	} else if (Caches?.ep?.[epId]) {
+																		let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
+																		$response = await Fetch(request);
+																	} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+																	break;
+																case "Shadowrocket":
+																default:
+																	break;
 															};
 															break;
 														};
@@ -214,10 +227,7 @@ let $response = undefined;
 					switch (url.host) {
 						case "www.bilibili.com":
 							if (url.path.includes("bangumi/play/")) { // 番剧-web
-								let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales);
-								let availableLocales = checkLocales(responses);
-								//$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]);								
-								$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
+								({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 							};
 							break;
 						case "search.bilibili.com":
@@ -246,9 +256,7 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											let availableLocales = Settings?.Locales.filter(locale => locale !== "CHN");
-											$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-											$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
 											break;
@@ -264,19 +272,32 @@ let $response = undefined;
 								case "pgc/player/web/playurl/html5": { // 番剧-播放地址-web-HTML5
 									let epId = url?.params?.ep_id;
 									let seasonId = url?.params?.season_id;
-									if (Caches?.ss?.[seasonId]) { // 有Season ID缓存
-										//$.log(`🚧 ${$.name}`, ` Caches.ss[seasonId]: ${Caches.ss[seasonId]}`, "");
-										let availableLocales = Caches.ss[seasonId].filter(locale => Settings?.Locales.includes(locale));
-										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-									} else if (Caches?.ep?.[epId]) {
-										let availableLocales = Caches.ep[epId].filter(locale => Settings?.Locales.includes(locale));
-										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-									} else {
-										let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales);
-										let availableLocales = checkLocales(responses);
-										$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
+									switch (environment()) {
+										case "Loon":
+										case "Stash":
+											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+											else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											break;
+										case "Surge":
+											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+											else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											break;
+										case "Quantumult X":
+											/*
+											if (Caches?.ss?.[seasonId]) {
+												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
+												$response = await Fetch(request);
+											} else if (Caches?.ep?.[epId]) {
+												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
+												$response = await Fetch(request);
+											} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											*/
+											break;
+										case "Shadowrocket":
+										default:
+											break;
 									};
 									break;
 								};
@@ -287,9 +308,7 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											let availableLocales = Settings?.Locales.filter(locale => locale !== "CHN");
-											$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-											$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
 											break;
@@ -300,32 +319,32 @@ let $response = undefined;
 									// 判断线路
 									let epId = url?.params?.ep_id;
 									let seasonId = url?.params?.season_id;
-									if (Caches?.ss?.[seasonId]) { // 有Season ID缓存
-										//$.log(`🚧 ${$.name}`, ` Caches.ss[seasonId]: ${Caches.ss[seasonId]}`, "");
-										let availableLocales = Caches.ss[seasonId].filter(locale => Settings?.Locales.includes(locale));
-										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-									} else if (Caches?.ep?.[epId]) { // 有Episode ID缓存
-										//$.log(`🚧 ${$.name}`, ` Caches.ep[epId]: ${Caches.ep[epId]}`, "");
-										let availableLocales = Caches.ep[epId].filter(locale => Settings?.Locales.includes(locale));
-										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-									} else { // 都没有缓存
-										let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales);
-										let availableLocales = checkLocales(responses);
-										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
-										//$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
+									switch (environment()) {
+										case "Loon":
+										case "Stash":
+											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											break;
+										case "Surge":
+											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											break;
+										case "Quantumult X":
+											if (Caches?.ss?.[seasonId]) {
+												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
+												$response = await Fetch(request);
+											} else if (Caches?.ep?.[epId]) {
+												let { request } = processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
+												$response = await Fetch(request);
+											} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											break;
+										case "Shadowrocket":
+										default:
+											break;
 									};
 									break;
-								//case "pgc/view/web/season": // 番剧-内容-web
-									//if (Caches.AccessKey) {
-										// https://github.com/ipcjs/bilibili-helper/blob/user.js/packages/unblock-area-limit/src/api/biliplus.ts
-									//} else {
-										//let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales);
-										//let availableLocales = checkLocales(responses);
-										//$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
-									//};
-									//break;
 								case "x/web-interface/search": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
 								case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
@@ -569,6 +588,55 @@ function checkLocales(responses = {}) {
 };
 
 /**
+ * Process Strategy
+ * @author VirgilClyne
+ * @param {string} type - Strategy Type
+ * @param {Object} request - Original Request Content
+ * @param {Object} proxies - Proxies Name
+ * @param {Array} locales - Locales Names
+ * @param {array} availableLocales - Available Locales @ Caches
+ * @return {Promise<{request, response}>} modified { request, response }
+ */
+async function processStrategy(type = undefined, request = {}, proxies = {}, locales = [], availableLocales = []) {
+	$.log(`⚠ ${$.name}, Process Strategy`, `type: ${type}`, "");
+	let response = {};
+	let randomLocale = "";
+	switch (type) {
+		case "locales": // 本地已有可用地区缓存
+			availableLocales = availableLocales.filter(locale => locales.includes(locale));
+			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
+			break;
+		case "mutiFetch": // 本地无可用地区缓存，并发请求
+			let responses = await mutiFetch(request, proxies, locales);
+			availableLocales = checkLocales(responses);
+			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
+			response = responses[randomLocale]; // 随机用一个
+			break;
+		case "random": // 随机用一个
+			availableLocales = locales;
+			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
+			break;
+		case "randomwithoutCHN": // 随机用一个，但不用CHN
+			availableLocales = locales.filter(locale => locale !== "CHN");
+			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
+			break;
+		case undefined:
+		default:
+			break;
+	};
+	$.log(`🎉 ${$.name}, Process Strategy`, `Available Locales: ${availableLocales}`, `Random Locale: ${randomLocale}`, "");
+	return { request, response };
+};
+
+/**
  * Check Search Keyword
  * @author VirgilClyne
  * @param {String} keyword - Search Keyword
@@ -718,3 +786,14 @@ function URLs(s){return new class{constructor(s=[]){this.name="URL v1.0.2",this.
  * @return {Object} { Settings, Caches, Configs }
  */
 function getENV(t,e,n){let i=$.getjson(t,n),s={};if("undefined"!=typeof $argument&&Boolean($argument)){let t=Object.fromEntries($argument.split("&").map((t=>t.split("="))));for(let e in t)l(s,e,t[e])}let g={...n?.Default?.Settings,...n?.[e]?.Settings,...i?.[e]?.Settings,...s},f={...n?.Default?.Configs,...n?.[e]?.Configs,...i?.[e]?.Configs},o=i?.[e]?.Caches||{};return"string"==typeof o&&(o=JSON.parse(o)),{Settings:g,Caches:o,Configs:f};function l(t,e,n){e.split(".").reduce(((t,i,s)=>t[i]=e.split(".").length===++s?n:t[i]||{}),t)}}
+
+function environment() {
+	let environment = undefined;
+	if ('undefined' !== typeof module && !!module.exports) environment = "Node.js";
+	if ('undefined' !== typeof $task) environment = "Quantumult X";
+	if ('undefined' !== typeof $environment && $environment['surge-version']) environment = "Surge";
+	if ('undefined' !== typeof $loon) environment = "Loon";
+	if ('undefined' !== typeof $rocket) environment = "Shadowrocket";
+	if ('undefined' !== typeof $environment && $environment['stash-version']) environment = "Stash";
+	return environment;
+}

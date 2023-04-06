@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.2(11) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.3(3) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -179,6 +179,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 								case "x/space/wbi/acc/info": // 用户空间-账号信息
 									switch (url.params.vmid || url.params.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
+										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
 											break;
 										default:
@@ -186,57 +187,41 @@ for (const [key, value] of Object.entries($response.headers)) {
 									};
 									break;
 								case "pgc/view/v2/app/season": // 番剧页面-内容-api
+									body = JSON.parse($response.body);
+									let data = body.data;
+									$.log(`⚠ ${$.name}`, `season_title: ${data?.season_title}, season_id: ${data?.season_id}`, "");
+									// 有剧集信息
+									if (data?.modules) {
+										let episodes = getEpisodes(data?.modules);
+										// 解锁弹幕和评论区等限制
+										data.modules = setModules(data?.modules);
+										if (data?.rights) {
+											data.rights.allow_download = 1;
+											data.rights.allow_demand = 1;
+										};
+										$response.body = JSON.stringify(body);
+										setCache(data?.season_title, data?.season_id, episodes, Caches);
+									};
+									break;
 								case "pgc/view/web/season": // 番剧-内容-web
 									body = JSON.parse($response.body);
-									let newCaches = Caches;
-									if (!newCaches?.ep) newCaches.ep = {};
-									if (!newCaches?.ss) newCaches.ss = {};
-									let data = body.data;
-									$.log(`⚠ ${$.name}`, `season_id: ${data?.season_id}, season_title: ${data?.season_title}`, "");
-									let episodes = getEpisodes(data?.modules);
-									// 解锁弹幕和评论区等限制
-									data.modules = setEpisodes(data?.modules);
-									if (data?.rights) {
-										data.rights.allow_download = 1;
-										data.rights.allow_demand = 1;
+									let result = body.result;
+									$.log(`⚠ ${$.name}`, `season_title: ${result?.season_title}, season_id: ${result?.season_id}`, "");
+									
+									if (result?.episodes || result?.section) {
+										// 解锁弹幕和评论区等限制
+										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
+										if (result?.section) result.section = setEpisodes(result.section);
+										setCache(result?.season_title, result?.season_id, result?.episodes, Caches);
+									};
+									if (result?.rights) {
+										result.rights.allow_bp = 1;
+										result.rights.area_limit = 0;
+										result.rights.can_watch = 1;
+										result.allow_download = 1;
+										result.allow_bp_rank = 1;
 									};
 									$response.body = JSON.stringify(body);
-									$.log([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
-									switch ([...data?.title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
-										case "僅限港澳台地區":
-										case "限僅港澳台地區":
-										case "港澳台地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC", "TWN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "TWN"]);
-											break;
-										case "僅限港台地區":
-											newCaches.ss[data?.season_id] = ["HKG", "TWN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "TWN"]);
-											break;
-										case "僅限港澳地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC"]);
-											break;
-										case "僅限台灣地區":
-											newCaches.ss[data?.season_id] = ["TWN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["TWN"]);
-											break;
-										case "僅限港澳台及其他地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC", "TWN", "SEA"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "TWN", "SEA"]);
-											break;
-										case "僅限港澳及其他地區":
-											newCaches.ss[data?.season_id] = ["HKG", "MAC", "SEA"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["HKG", "MAC", "SEA"]);
-											break;
-										case undefined:
-											newCaches.ss[data?.season_id] = ["CHN"];
-											episodes.forEach(episode => newCaches.ep[episode?.id] = ["CHN"]);
-											break;
-									};
-									$.log(`newCaches = ${JSON.stringify(newCaches)}`);
-									let isSave = $.setjson(newCaches, "@BiliBili.Global.Caches");
-									$.log(`$.setjson ? ${isSave}`);
 									break;
 							};
 							break;
@@ -341,32 +326,19 @@ function getEpisodes(modules = []) {
 };
 
 /**
- * Set Episodes Data
+ * Set Modules Data
  * @author NyaMisty & VirgilClyne
  * @param {Array} modules - Response Body's Data's Modules
  * @return {Array<Object>} Modules Datas
  */
-function setEpisodes(modules = []) {
+function setModules(modules = []) {
 	$.log(`⚠ ${$.name}, Set Episodes`, "");
 	modules = modules.map(module => {
 		switch (module?.style) {
 			case "positive": // 选集
 			case "section": // SP				
 				// 解锁弹幕和评论区
-				module.data.episodes = module.data.episodes.map(episode => {
-					if (episode?.badge_info?.text == "受限") {
-						episode.badge_info.text = ""
-						episode.badge_info.bg_color = "#FB7299"
-						episode.badge_info.bg_color_night = "#BB5B76"
-					};
-					if (episode?.rights) {
-						episode.rights.allow_dm = 1
-						episode.rights.area_limit = 0
-						episode.rights.allow_download = 1
-						episode.rights.allow_demand = 1
-					};
-					return episode;
-				});
+				module.data.episodes = setEpisodes(module?.data?.episodes);
 				break;
 			case "pugv": // 猜你喜欢
 			case "season": // 选季
@@ -378,6 +350,102 @@ function setEpisodes(modules = []) {
 	$.log(`🎉 ${$.name}, Set Episodes`, "");
 	//$.log(`🚧 ${$.name}, Set Episodes`, `modules: ${JSON.stringify(modules)}`, "");
 	return modules;
+};
+
+/**
+ * Set Episodes Data
+ * @author NyaMisty & VirgilClyne
+ * @param {Array} modules - Response Body's Data's Modules's Episodes
+ * @return {Array<Object>} Modules Datas
+ */
+function setEpisodes(episodes = []) {
+	$.log(`⚠ ${$.name}, Set Episodes`, "");
+	episodes = episodes.map(episode => {
+		if (episode?.badge_info?.text == "受限") {
+			episode.badge_info.text = ""
+			episode.badge_info.bg_color = "#FB7299"
+			episode.badge_info.bg_color_night = "#BB5B76"
+		};
+		if (episode?.rights) {
+			episode.rights.allow_dm = 1
+			episode.rights.area_limit = 0
+			episode.rights.allow_download = 1
+			episode.rights.allow_demand = 1
+		};
+		return episode;
+	});
+	$.log(`🎉 ${$.name}, Set Episodes`, "");
+	//$.log(`🚧 ${$.name}, Set Episodes`, `episodes: ${JSON.stringify(episodes)}`, "");
+	return episodes;
+};
+
+/**
+ * Set Cache
+ * @author VirgilClyne
+ * @param {String} season_title - Season Title
+ * @param {String} season_id - Season Id
+ * @param {Array} episodes - Episodes info
+ * @param {Object} cache - Caches
+ * @return {Array<Boolean>} is setJSON success?
+ */
+function setCache(season_title = "", season_id = "", episodes = [], cache = {}) {
+	$.log(`⚠ ${$.name}, Set Cache`, `season_title: ${season_title}, season_id: ${season_id}`, "");
+	let isSaved = new Boolean;
+	if (!cache?.ep) cache.ep = {};
+	if (!cache?.ss) cache.ss = {};
+	$.log([...season_title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+	if (season_title) {
+		switch ([...season_title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
+			case "僅限港澳台地區":
+			case "限僅港澳台地區":
+			case "港澳台地區":
+				cache.ss[season_id] = ["HKG", "MAC", "TWN"];
+				episodes.forEach(episode => {
+					cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
+				});
+				break;
+			case "僅限港台地區":
+				cache.ss[season_id] = ["HKG", "TWN"];
+				episodes.forEach(episode => {
+					cache.ep[episode?.id] = ["HKG", "TWN"]
+				});
+				break;
+			case "僅限港澳地區":
+				cache.ss[season_id] = ["HKG", "MAC"];
+				episodes.forEach(episode => {
+					cache.ep[episode?.id] = ["HKG", "MAC"]
+				});
+				break;
+			case "僅限台灣地區":
+				cache.ss[season_id] = ["TWN"];
+				episodes.forEach(episode => {
+					cache.ep[episode?.id] = ["TWN"]
+				});
+				break;
+			case "僅限港澳台及其他地區":
+				cache.ss[season_id] = ["HKG", "MAC", "TWN", "SEA"];
+				episodes.forEach(episode => {
+					cache.ep[episode?.id] = ["HKG", "MAC", "TWN", "SEA"]
+				});
+				break;
+			case "僅限港澳及其他地區":
+				cache.ss[season_id] = ["HKG", "MAC", "SEA"];
+				episodes.forEach(episode => {
+					cache.ep[episode?.id] = ["HKG", "MAC", "SEA"]
+				});
+				break;
+			case undefined:
+				cache.ss[season_id] = ["CHN"];
+				episodes.forEach(episode => {
+					cache.ep[episode?.id] = ["CHN"]
+				});
+				break;
+		};
+		isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
+	};
+	//$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
+	$.log(`🎉 ${$.name}, Set Cache`, `$.setjson ? ${isSaved}`, "");
+	return isSaved;
 };
 
 /**
