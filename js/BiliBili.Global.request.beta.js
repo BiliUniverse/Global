@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.0(23) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.0(25) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -137,6 +137,7 @@ let $response = undefined;
 															switch (environment()) {
 																case "Loon":
 																case "Stash":
+																case "Quantumult X":
 																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
 																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
 																	else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
@@ -145,10 +146,6 @@ let $response = undefined;
 																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
 																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
 																	//else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-																	break;
-																case "Quantumult X":
-																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
 																	break;
 																case "Shadowrocket":
 																default:
@@ -242,25 +239,8 @@ let $response = undefined;
 									break;
 							};
 							// 写入二进制数据
-							switch (environment()) {
-								case "Loon":
-								case "Stash":
-								case "Surge":
-									$request.body = rawBody;
-									break;
-								case "Quantumult X":
-									$request.bodyBytes = rawBody
-									if (!$response) { // 兼容模式，返回echo response
-										// 已有指定策略的请求，根据策略fetch
-										if ($request?.opt?.policy) $response = await Fetch($request);
-										// 未指定策略的请求，mutiFetch
-										else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-									}
-									break;
-								case "Shadowrocket":
-								default:
-									break;
-							};
+							if ($.isQuanX()) $request.bodyBytes = rawBody;
+							else $request.body = rawBody;
 							break;
 						default:
 							break;
@@ -274,9 +254,8 @@ let $response = undefined;
 					// 解析链接
 					switch (url.host) {
 						case "www.bilibili.com":
-							if (url.path.includes("bangumi/play/")) { // 番剧-web
+							if (url.path.includes("bangumi/play/")) // 番剧-web
 								({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-							};
 							break;
 						case "search.bilibili.com":
 							switch (url.path) {
@@ -304,7 +283,7 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
+											({ request: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
 											break;
@@ -320,26 +299,9 @@ let $response = undefined;
 								case "pgc/player/web/playurl/html5": { // 番剧-播放地址-web-HTML5
 									let epId = url?.params?.ep_id;
 									let seasonId = url?.params?.season_id;
-									switch (environment()) {
-										case "Loon":
-										case "Stash":
-											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
-											else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-											break;
-										case "Surge":
-											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
-											else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-											break;
-										case "Quantumult X":
-											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
-											break;
-										case "Shadowrocket":
-										default:
-											break;
-									};
+									if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+									else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+									else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 									break;
 								};
 								case "x/player/wbi/playurl": // UGC-用户生产内容-播放地址
@@ -349,7 +311,7 @@ let $response = undefined;
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
 										case "2042149112": // b站_綜藝咖
-											({ requets: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
+											({ request: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
 											break;
@@ -360,43 +322,13 @@ let $response = undefined;
 									// 判断线路
 									let epId = url?.params?.ep_id;
 									let seasonId = url?.params?.season_id;
-									switch (environment()) {
-										case "Loon":
-										case "Stash":
-											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
-											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-											break;
-										case "Surge":
-											if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-											else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
-											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-											break;
-										case "Quantumult X":
-											// 跳过，不进request脚本
-											/*
-											if (Caches?.ss?.[seasonId]) {
-												let { request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]);
-												$response = await Fetch(request);
-											} else if (Caches?.ep?.[epId]) {
-												let { request } = processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]);
-												$response = await Fetch(request);
-											} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-											*/
-											break;
-										case "Shadowrocket":
-										default:
-											break;
-									};
+									if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+									else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
 									break;
 								//case "pgc/view/web/season": // 番剧-内容-web
 									//if (Caches.AccessKey) {
 										// https://github.com/ipcjs/bilibili-helper/blob/user.js/packages/unblock-area-limit/src/api/biliplus.ts
-									//} else {
-										//let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales);
-										//let availableLocales = checkLocales(responses);
-										//$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
-									//};
+									//} else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 									//break;
 								case "x/web-interface/search": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
@@ -411,25 +343,25 @@ let $response = undefined;
 							};
 							break;
 					};
-					// 特殊情况处理
-					switch (environment()) {
-						case "Loon":
-						case "Stash":
-						case "Surge":
-							break;
-						case "Quantumult X":
-							if (!$response) { // 兼容模式，返回echo response
-								// 已有指定策略的请求，根据策略fetch
-								if ($request?.opt?.policy) $response = await Fetch($request);
-								// 未指定策略的请求，mutiFetch
-								else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-							};
-							break;
-						case "Shadowrocket":
-						default:
-							break;
-					};
 					break;
+			};
+			// 兼容性处理
+			if (!$response) { // 无（构造）回复数据
+				switch (environment()) {
+					case "Loon":
+					case "Stash":
+					case "Surge":
+						break;
+					case "Quantumult X":
+						// 已有指定策略的请求，根据策略fetch
+						if ($request?.opt?.policy) $response = await Fetch($request);
+						// 未指定策略的请求，mutiFetch
+						else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+						break;
+					case "Shadowrocket":
+					default:
+						break;
+				};
 			};
 			break;
 		case "false":
