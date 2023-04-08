@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.0(25) request");
+const $ = new Env("📺 BiliBili:Global v0.4.0(25.3) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -41,6 +41,14 @@ let $response = undefined;
 		default:
 			let url = URL.parse($request.url);
 			$.log(url.path);
+			if ($.isQuanX()) {
+				$.log("是QX")
+				$.log("method:" + $request?.method)
+				$.log("ArrayBuffer.isView(bodyBytes):" + ArrayBuffer.isView($request?.bodyBytes))
+				$.log("bodyBytes:" + $request?.bodyBytes)
+				$.log("body:" + $request?.body)
+				$.log("$request:" + JSON.stringify($request))
+			}
 			// 创建空数据
 			let body = { "code": 0, "message": "0", "data": {} };
 			switch ($request.method) {
