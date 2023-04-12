@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.3(5) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.3(6) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -437,6 +437,7 @@ function setCache(season_title = "", season_id = "", episodes = [], cache = {}) 
 				});
 				break;
 			case undefined:
+			default:
 				let traditional = isTraditional(season_title);
 				if (traditional > 0) { // Traditional Chinese
 					cache.ss[season_id] = ["HKG", "MAC", "TWN"];
