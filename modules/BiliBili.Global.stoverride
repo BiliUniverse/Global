@@ -1,10 +1,10 @@
 name: "📺 BiliBili: 🌐 Global"
-desc: 哔哩哔哩：全球模式                                   （通用版内容聚合及自动线路）
-openUrl: http://boxjs.com/#/app/BiliBili.Global
+desc: "哔哩哔哩：全球模式（中国站自动线路及全区搜索）"
+openUrl: "http://boxjs.com/#/app/BiliBili.Global"
 author: VirgilClyne
-homepage: https://github.com/BiliUniverse
-manual: https://github.com/BiliUniverse/Global/wiki
-icon: https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/bilibili_3.png
+homepage: "https://github.com/BiliUniverse"
+manual: "https://github.com/BiliUniverse/Global/wiki"
+icon: "https://github.com/BiliUniverse/Global/raw/main/database/icon_rounded_108x.png"
 
 http:
   mitm:
@@ -21,13 +21,13 @@ http:
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web)\/season(\?.+)?$
+    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc))\/season(\?.+)?$
+    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$
       name: BiliBili.Global.response
       type: response
       require-body: true
