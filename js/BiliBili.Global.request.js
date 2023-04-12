@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.0(25.3) request");
+const $ = new Env("📺 BiliBili:Global v0.4.1(5) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -232,7 +232,7 @@ let $response = undefined;
 						case "search.bilibili.com":
 							switch (url.path) {
 								case "all": // 搜索-全部结果-web（综合）
-									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword), "+");
+									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword));
 									url.params.keyword = encodeURIComponent(keyword);
 									$request.url = URL.stringify(url);
 									$request = ReReqeust($request, Settings.Proxies[locale]);
@@ -278,7 +278,8 @@ let $response = undefined;
 								};
 								case "x/player/wbi/playurl": // UGC-用户生产内容-播放地址
 									break;
-								case "x/space/wbi/acc/info": // 用户空间-账号信息
+								case "x/space/acc/info": // 用户空间-账号信息-pc
+								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
 									switch (url.params?.vmid || url.params?.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
 										case "1988098633": // b站_戲劇咖
@@ -291,14 +292,22 @@ let $response = undefined;
 									break;
 								case "pgc/view/v2/app/season": // 番剧页面-内容-app
 								case "pgc/view/web/season": // 番剧-内容-web
+								case "pgc/view/pc/season": // 番剧-内容-pc
 									// 判断线路
 									let epId = url?.params?.ep_id;
 									let seasonId = url?.params?.season_id;
 									if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
 									else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+									else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 									break;
 								case "x/web-interface/search": // 搜索-全部结果-web（综合）
+								case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
+									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword));
+									url.params.keyword = encodeURIComponent(keyword);
+									$request.url = URL.stringify(url);
+									$request = ReReqeust($request, Settings.Proxies[locale]);
+									break;
 								case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
 								case "x/web-interface/wbi/search/type": { // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
 									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword), "+");

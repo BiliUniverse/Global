@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.3(4) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.3(5) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -176,6 +176,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 									break;
 								case "x/player/wbi/playurl": // UGC-用户生产内容-播放地址
 									break;
+								case "x/space/acc/info": // 用户空间-账号信息-pc
 								case "x/space/wbi/acc/info": // 用户空间-账号信息
 									switch (url.params.vmid || url.params.mid) {
 										case "11783021": // 哔哩哔哩番剧出差
@@ -204,6 +205,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 									};
 									break;
 								case "pgc/view/web/season": // 番剧-内容-web
+								case "pgc/view/pc/season": // 番剧-内容-pc
 									body = JSON.parse($response.body);
 									let result = body.result;
 									$.log(`⚠ ${$.name}`, `season_title: ${result?.season_title}, season_id: ${result?.season_id}`, "");
