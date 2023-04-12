@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.1(5) request");
+const $ = new Env("📺 BiliBili:Global v0.4.1(6) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -505,10 +505,10 @@ function isResponseAvailability(response = {}) {
 					switch (response?.headers?.["bili-status-code"]) {
 						case "0":
 						case undefined:
+							let data = JSON.parse(response?.body).data;
 							switch (response?.headers?.idc) {
 								case "sgp001":
 								case "sgp002":
-									let data = JSON.parse(response?.body).data;
 									switch (data?.limit) {
 										case "":
 										case undefined:
@@ -522,7 +522,15 @@ function isResponseAvailability(response = {}) {
 								case "shjd":
 								case undefined:
 								default:
-									isAvailable = true;
+									switch (data?.dialog?.code) {
+										case undefined:
+											isAvailable = true;
+											break;
+										case 6010001:
+										default:
+											isAvailable = false;
+											break;
+									};
 									break;
 							};
 							break;
