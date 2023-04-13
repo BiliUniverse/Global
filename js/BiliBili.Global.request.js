@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.1(6) request");
+const $ = new Env("📺 BiliBili:Global v0.4.1(7) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -419,22 +419,30 @@ function setENV(name, platform, database) {
  * @param {Object} proxyName - Proxies Name
  * @return {Object} Modify Request Content with Policy
  */
-function ReReqeust(request = {}, proxyName = "") {
+function ReReqeust(request = {}, proxyName = undefined) {
 	$.log(`⚠ ${$.name}, Construct Redirect Reqeusts`, "");
 	if (proxyName) {
-		if ($.isLoon()) request.node = proxyName;
-		if ($.isQuanX()) {
-			if (request.opts) request.opts.policy = proxyName;
-			else request.opts = { "policy": proxyName };
+		switch (environment()) {
+			case "Loon":
+				request.node = proxyName;
+				break;
+			case "Stash":
+				request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
+				break;
+			case "Shadowrocket":
+			case "Surge":
+				delete request.id;
+				request.headers["X-Surge-Policy"] = proxyName;
+				request.policy = proxyName;
+				break;
+			case "Quantumult X":
+				if (request.opts) request.opts.policy = proxyName;
+				else request.opts = { "policy": proxyName };
+				break;
+			default:
+				break;
 		};
-		if ($.isSurge()) {
-			delete request.id;
-			request.headers["X-Surge-Policy"] = proxyName;
-			request.policy = proxyName;
-		};
-		if ($.isStash()) request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
-		if ($.isShadowrocket()) $.logErr(`❗️${$.name}, ${Fetch.name}执行失败`, `不支持的app: Shadowrocket`, "");
-	}
+	};
 	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
 	//$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
 	return request;
