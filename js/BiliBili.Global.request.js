@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.1(7) request");
+const $ = new Env("📺 BiliBili:Global v0.4.1(8) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -130,23 +130,9 @@ let $response = undefined;
 															// 判断线路
 															let epId = data?.epId?.toString();
 															let seasonId = data?.seasonId?.toString();
-															switch (environment()) {
-																case "Loon":
-																case "Stash":
-																case "Quantumult X":
-																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
-																	else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-																	break;
-																case "Surge":
-																	if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-																	else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
-																	//else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-																	break;
-																case "Shadowrocket":
-																default:
-																	break;
-															};
+															if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+															else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+															else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 															break;
 														};
 														case "PlayConf": // 播放配置
