@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.3(7) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.3(8) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -199,6 +199,10 @@ for (const [key, value] of Object.entries($response.headers)) {
 										if (data?.rights) {
 											data.rights.allow_download = 1;
 											data.rights.allow_demand = 1;
+										};
+										// 解锁地区限制遮罩
+										if (data?.dialog) {
+											if (data?.dialog?.code === 6010001) delete data.dialog;
 										};
 										$response.body = JSON.stringify(body);
 										setCache(data?.season_title, data?.season_id, episodes, Caches);
