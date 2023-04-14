@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.1(9) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.1(10) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -463,6 +463,7 @@ function ReReqeust(request = {}, proxyName = undefined) {
 				delete request.id;
 				request.headers["X-Surge-Policy"] = proxyName;
 				request.policy = proxyName;
+				request["binary-mode"] = true;
 				break;
 			case "Quantumult X":
 				if (request.opts) request.opts.policy = proxyName;
