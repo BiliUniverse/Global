@@ -1,20 +1,17 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.3(10) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.4(9) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
 		"Settings":{"Switch":"true","Home":{"Top_left":"mine","Top":["消息Top"],"Top_more":[],"Tab":["直播tab","推荐tab","hottopic","bangumi","anime","koreavtw"],"Tab_default":"bangumi"},"Bottom":["home","dynamic","ogv","会员购Bottom","我的Bottom"]},
 		"Configs":{
-			"Tab":{"tab":[{"id":39,"name":"直播","uri":"bilibili://live/home","tab_id":"直播tab","pos":1},{"id":40,"name":"推荐","uri":"bilibili://pegasus/promo","tab_id":"推荐tab","pos":2},{"id":41,"name":"热门","uri":"bilibili://pegasus/hottopic","tab_id":"hottopic","pos":3},{"id":545,"name":"追番","uri":"bilibili://pgc/home","tab_id":"bangumi","pos":4},{"id":774,"name":"动画","uri":"bilibili://following/home_activity_tab/6544","tab_id":"anime","pos":4},{"id":151,"name":"影视","uri":"bilibili://pgc/cinema-tab","tab_id":"film","pos":5},{"id":2280,"name":"校园","uri":"bilibili://campus/home_tab","tab_id":"school","pos":6},{"id":136117,"name":"两会","uri":"bilibili://following/home_activity_tab/136117","tab_id":"165","pos":7,"color":"#DD1225"},{"id":1716,"icon":"http://i0.hdslb.com/bfs/archive/38d2c2669a68eae8a53fc9afaa193aafa5265a78.png","name":"数码","uri":"bilibili://pegasus/vertical/13807","tab_id":"kj","pos":8},{"id":801,"icon":"http://i0.hdslb.com/bfs/archive/38d2c2669a68eae8a53fc9afaa193aafa5265a78.png","name":"韩综","uri":"bilibili://following/home_activity_tab/95636","tab_id":"koreavtw","pos":10}],"top":[{"id":222,"icon":"http://i0.hdslb.com/bfs/archive/734a3b610a953df398bbe6d787944514dcd94a46.png","name":"游戏中心","uri":"bilibili://game_center/home","tab_id":"游戏中心Top","pos":1},{"id":176,"icon":"http://i0.hdslb.com/bfs/archive/d43047538e72c9ed8fd8e4e34415fbe3a4f632cb.png","name":"消息","uri":"bilibili://link/im_home","tab_id":"消息Top","pos":2}],"bottom":[{"id":177,"icon":"http://i0.hdslb.com/bfs/archive/63d7ee88d471786c1af45af86e8cb7f607edf91b.png","icon_selected":"http://i0.hdslb.com/bfs/archive/e5106aa688dc729e7f0eafcbb80317feb54a43bd.png","name":"首页","uri":"bilibili://main/home/","tab_id":"home","pos":1},{"id":179,"icon":"http://i0.hdslb.com/bfs/archive/86dfbe5fa32f11a8588b9ae0fccb77d3c27cedf6.png","icon_selected":"http://i0.hdslb.com/bfs/archive/25b658e1f6b6da57eecba328556101dbdcb4b53f.png","name":"动态","uri":"bilibili://following/home/","tab_id":"dynamic","pos":2},{"id":670,"icon":"http://i0.hdslb.com/bfs/feed-admin/c25cabacb40e9df2ccf54c327350e1afc4ae2f8c.png","name":"发布","uri":"bilibili://uper/center_plus?relation_from=center_plus\u0026tab_index=2","tab_id":"publish","pos":3,"dialog_items":[{"id":617,"name":"开直播","icon":"http://i0.hdslb.com/bfs/feed-admin/01f9b3f8ed61a4e59af693da9fcd38fc342ee7e5.png","uri":"activity://liveStreaming/home?source_event=14"},{"id":618,"name":"拍摄","icon":"http://i0.hdslb.com/bfs/feed-admin/30636aa60e594550ec47422e3875b4345e7d6017.png","uri":"bilibili://uper/user_center/add_archive/?from=1\u0026is_new_ui=1\u0026relation_from=center_plus"},{"id":619,"name":"上传","icon":"http://i0.hdslb.com/bfs/feed-admin/55c3c112f4885adc6cce0b4b94149409fd1c147b.png","uri":"bilibili://uper/user_center/add_archive/?from=0\u0026is_new_ui=1\u0026relation_from=center_plus"},{"id":620,"name":"模板创作","icon":"http://i0.hdslb.com/bfs/feed-admin/4e5188d8390754655dee0fdfd90c1088da3cdf90.png","uri":"bilibili://uper/user_center/add_archive/?from=2\u0026is_new_ui=1\u0026relation_from=center_plus"}],"type":3},{"id":690,"icon":"http://i0.hdslb.com/bfs/feed-admin/68b1625cef3a8315d6fe3fbfd2a8b06c905f323a.png","icon_selected":"http://i0.hdslb.com/bfs/feed-admin/1903c6f1dc881ed4c459ab337767fd8436cda159.png","name":"节目","uri":"bilibili://following/home_bottom_tab_activity_tab/168312","tab_id":"ogv","pos":4,"type":4},{"id":242,"icon":"http://i0.hdslb.com/bfs/archive/6090d5fa7ece2a94de839e7cce4f1e774dae7779.png","icon_selected":"http://i0.hdslb.com/bfs/archive/eeaf83fb7157000776dd93f61702a049f56801d3.png","name":"会员购","uri":"bilibili://mall/home","tab_id":"会员购Bottom","pos":4},{"id":181,"icon":"http://i0.hdslb.com/bfs/archive/4b0b2c49ffeb4f0c2e6a4cceebeef0aab1c53fe1.png","icon_selected":"http://i0.hdslb.com/bfs/archive/a54a8009116cb896e64ef14dcf50e5cade401e00.png","name":"我的","uri":"bilibili://user_center/","tab_id":"我的Bottom","pos":5}],"top_more":[{"id":621,"icon":"http://i0.hdslb.com/bfs/feed-admin/f95dfa31c793c857af6e7b65b5387a05f30d31ba.png","name":"更多分区","uri":"bilibili://main/top_category","pos":1},{"id":922,"icon":"http://i0.hdslb.com/bfs/feed-admin/38beac42189ad4d838d20259a5b2cdfd302fef40.png","name":"搜索","uri":"bilibili://search","pos":2}],"top_left":{"mine":{"exp":0,"head_tag":"","url":"bilibili://user_center/mine","goto":1,"story_background_image":"","story_foreground_image":"","listen_background_image":"","listen_foreground_image":""},"videoshortcut":{"exp":1,"head_tag":"https://i0.hdslb.com/bfs/app/92e7b36c3bd10c850e8a2ba85d19566937751540.png","url":"bilibili://videoshortcut?user_reg_state=0","goto":2,"story_background_image":"http://i0.hdslb.com/bfs/app/7391267ec11cfe99823a8cfd80532a7bc6eca390.png","story_foreground_image":"http://i0.hdslb.com/bfs/app/98098cfd9349b7500c233216169d768cd536d305.png","listen_background_image":"http://i0.hdslb.com/bfs/app/365848675f453e32b42567ba9e249a347a5df061.png","listen_foreground_image":"http://i0.hdslb.com/bfs/app/986ee5e963237d511802c4084c83c2f228e97369.png"}}}
+			"Tab":{"tab":[{"id":39,"name":"直播","uri":"bilibili://live/home","tab_id":"直播tab","pos":1},{"id":40,"name":"推荐","uri":"bilibili://pegasus/promo","tab_id":"推荐tab","pos":2},{"id":41,"name":"热门","uri":"bilibili://pegasus/hottopic","tab_id":"hottopic","pos":3},{"id":545,"name":"追番","uri":"bilibili://pgc/home","tab_id":"bangumi","pos":4},{"id":774,"name":"动画","uri":"bilibili://following/home_activity_tab/6544","tab_id":"anime","pos":4},{"id":151,"name":"影视","uri":"bilibili://pgc/cinema-tab","tab_id":"film","pos":5},{"id":2280,"name":"校园","uri":"bilibili://campus/home_tab","tab_id":"school","pos":6},{"id":136117,"name":"新征程","uri":"bilibili://following/home_activity_tab/136117","tab_id":"165","pos":7,"color":"#DD1225"},{"id":1716,"icon":"http://i0.hdslb.com/bfs/archive/38d2c2669a68eae8a53fc9afaa193aafa5265a78.png","name":"数码","uri":"bilibili://pegasus/vertical/13807","tab_id":"kj","pos":8},{"id":801,"icon":"http://i0.hdslb.com/bfs/archive/38d2c2669a68eae8a53fc9afaa193aafa5265a78.png","name":"韩综","uri":"bilibili://following/home_activity_tab/95636","tab_id":"koreavtw","pos":10}],"top":[{"id":222,"icon":"http://i0.hdslb.com/bfs/archive/734a3b610a953df398bbe6d787944514dcd94a46.png","name":"游戏中心","uri":"bilibili://game_center/home","tab_id":"游戏中心Top","pos":1},{"id":108,"icon":"http://i0.hdslb.com/bfs/archive/9d1c0985b9d0e2da2c2f919cc2ee0e36ea41fd90.png","name":"会员购","uri":"bilibili://mall/home/","tab_id":"会员购Top","pos":2},{"id":176,"icon":"http://i0.hdslb.com/bfs/archive/d43047538e72c9ed8fd8e4e34415fbe3a4f632cb.png","name":"消息","uri":"bilibili://link/im_home","tab_id":"消息Top","pos":2}],"bottom":[{"id":177,"icon":"http://i0.hdslb.com/bfs/archive/63d7ee88d471786c1af45af86e8cb7f607edf91b.png","icon_selected":"http://i0.hdslb.com/bfs/archive/e5106aa688dc729e7f0eafcbb80317feb54a43bd.png","name":"首页","uri":"bilibili://main/home/","tab_id":"home","pos":1},{"id":103,"icon":"http://i0.hdslb.com/bfs/archive/b4f621f268c1f9eda501805135f132aa9498b0ba.png","icon_selected":"http://i0.hdslb.com/bfs/archive/94539249e59621214f7dc1226cf38a2b8fe4c64f.png","name":"频道","uri":"bilibili://pegasus/channel/","tab_id":"频道Bottom","pos":2},{"id":179,"icon":"http://i0.hdslb.com/bfs/archive/86dfbe5fa32f11a8588b9ae0fccb77d3c27cedf6.png","icon_selected":"http://i0.hdslb.com/bfs/archive/25b658e1f6b6da57eecba328556101dbdcb4b53f.png","name":"动态","uri":"bilibili://following/home/","tab_id":"dynamic","pos":2},{"id":670,"icon":"http://i0.hdslb.com/bfs/feed-admin/c25cabacb40e9df2ccf54c327350e1afc4ae2f8c.png","name":"发布","uri":"bilibili://uper/center_plus?relation_from=center_plus\u0026tab_index=2","tab_id":"publish","pos":3,"dialog_items":[{"id":617,"name":"开直播","icon":"http://i0.hdslb.com/bfs/feed-admin/01f9b3f8ed61a4e59af693da9fcd38fc342ee7e5.png","uri":"activity://liveStreaming/home?source_event=14"},{"id":618,"name":"拍摄","icon":"http://i0.hdslb.com/bfs/feed-admin/30636aa60e594550ec47422e3875b4345e7d6017.png","uri":"bilibili://uper/user_center/add_archive/?from=1\u0026is_new_ui=1\u0026relation_from=center_plus"},{"id":619,"name":"上传","icon":"http://i0.hdslb.com/bfs/feed-admin/55c3c112f4885adc6cce0b4b94149409fd1c147b.png","uri":"bilibili://uper/user_center/add_archive/?from=0\u0026is_new_ui=1\u0026relation_from=center_plus"},{"id":620,"name":"模板创作","icon":"http://i0.hdslb.com/bfs/feed-admin/4e5188d8390754655dee0fdfd90c1088da3cdf90.png","uri":"bilibili://uper/user_center/add_archive/?from=2\u0026is_new_ui=1\u0026relation_from=center_plus"}],"type":3},{"id":690,"icon":"http://i0.hdslb.com/bfs/feed-admin/68b1625cef3a8315d6fe3fbfd2a8b06c905f323a.png","icon_selected":"http://i0.hdslb.com/bfs/feed-admin/1903c6f1dc881ed4c459ab337767fd8436cda159.png","name":"节目","uri":"bilibili://following/home_bottom_tab_activity_tab/168312","tab_id":"ogv","pos":4,"type":4},{"id":242,"icon":"http://i0.hdslb.com/bfs/archive/6090d5fa7ece2a94de839e7cce4f1e774dae7779.png","icon_selected":"http://i0.hdslb.com/bfs/archive/eeaf83fb7157000776dd93f61702a049f56801d3.png","name":"会员购","uri":"bilibili://mall/home","tab_id":"会员购Bottom","pos":4},{"id":105,"icon":"http://i0.hdslb.com/bfs/archive/93dae0f0fb2c9887effb2840800d5b639be69351.png","icon_selected":"http://i0.hdslb.com/bfs/archive/f96bfd9ffea2e51443aed44dba6d76b7b34891c8.png","name":"消息","uri":"bilibili://link/im_home","tab_id":"消息Bottom","pos":4},{"id":181,"icon":"http://i0.hdslb.com/bfs/archive/4b0b2c49ffeb4f0c2e6a4cceebeef0aab1c53fe1.png","icon_selected":"http://i0.hdslb.com/bfs/archive/a54a8009116cb896e64ef14dcf50e5cade401e00.png","name":"我的","uri":"bilibili://user_center/","tab_id":"我的Bottom","pos":5}],"top_more":[{"id":621,"icon":"http://i0.hdslb.com/bfs/feed-admin/f95dfa31c793c857af6e7b65b5387a05f30d31ba.png","name":"更多分区","uri":"bilibili://main/top_category","pos":1},{"id":922,"icon":"http://i0.hdslb.com/bfs/feed-admin/38beac42189ad4d838d20259a5b2cdfd302fef40.png","name":"搜索","uri":"bilibili://search","pos":2}],"top_left":{"mine":{"exp":0,"head_tag":"","url":"bilibili://user_center/","goto":1,"story_background_image":"","story_foreground_image":"","listen_background_image":"","listen_foreground_image":""},"videoshortcut":{"exp":1,"head_tag":"https://i0.hdslb.com/bfs/app/92e7b36c3bd10c850e8a2ba85d19566937751540.png","url":"bilibili://videoshortcut?user_reg_state=0","goto":2,"story_background_image":"http://i0.hdslb.com/bfs/app/7391267ec11cfe99823a8cfd80532a7bc6eca390.png","story_foreground_image":"http://i0.hdslb.com/bfs/app/98098cfd9349b7500c233216169d768cd536d305.png","listen_background_image":"http://i0.hdslb.com/bfs/app/365848675f453e32b42567ba9e249a347a5df061.png","listen_foreground_image":"http://i0.hdslb.com/bfs/app/986ee5e963237d511802c4084c83c2f228e97369.png"}}}
 		}
 	},
     "Global":{
-		"Settings":{"Switch":true,"ForceHost":"1","Locales":["CHN","HKG","TWN","USA","SGP"],"Proxies":{"CHN":"DIRECT","HKG":"🇭🇰香港","MAC":"🇲🇴澳门","TWN":"🇹🇼台湾","USA":"🇺🇸美国","SGP":"🇸🇬新加坡","MYA":"🇲🇾马来西亚","THA":"🇹🇭泰国"}},
-		"Configs":{
-			"SearchNav":{"CHN":{"name":"番剧🇨🇳","total":0,"pages":0,"type":17},"HKG":{"name":"动画🇭🇰","total":0,"pages":0,"type":27},"MAC":{"name":"动画🇲🇴","total":0,"pages":0,"type":37},"TWN":{"name":"动画🇹🇼","total":0,"pages":0,"type":47},"SEA":{"name":"动画🇺🇳","total":0,"pages":0,"type":57}}
-		}
+		"Settings":{"Switch":true,"ForceHost":"1","Locales":["CHN","HKG","TWN"],"Proxies":{"CHN":"DIRECT","HKG":"🇭🇰香港","MAC":"🇲🇴澳门","TWN":"🇹🇼台湾"}}
 	},
 	"Roaming":{
 		"Settings":{"Switch":"true","Proxy":{"Pool":["xn--2vrub.plus","api.qiu.moe","xn--2vrub.icu","xn--n4yr07d.xn--6qq986b3xl","xn--3dz622b.xn--n4y597a0mfle743a.icu","bili.tuturu.top","xn--7rv796dvkm.xn--6qq986b3xl","xn--7ovr3tf1cxr4d.fun","xn--8fv56a330gjea.icu","xn--qoqt3y678a.xn--6qq986b3xl","atri.ink","xn--kiv440b.xn--6qq986b3xl","xn--w4r620anpl.xn--oor00vs23b.icu","xn--chqwq129p.pch.pub","melusinesuki.site","bili.takami.ink"],"Customs":""}}
@@ -169,6 +166,14 @@ for (const [key, value] of Object.entries($response.headers)) {
 							break;
 						case "api.bilibili.com":
 						case "api.biliapi.net":
+							// ID组
+							let infoGroup = {
+								"seasonTitle": url?.params?.season_title,
+								"epId": url?.params?.ep_id,
+								"seasonId": url?.params?.season_id,
+								"mId": url?.params?.mid || url?.params?.vmid,
+								"evaluate": undefined
+							};
 							switch (url.path) {
 								case "pgc/player/api/playurl": // 番剧-播放地址-api
 								case "pgc/player/web/playurl": // 番剧-播放地址-web
@@ -190,36 +195,45 @@ for (const [key, value] of Object.entries($response.headers)) {
 								case "pgc/view/v2/app/season": // 番剧页面-内容-api
 									body = JSON.parse($response.body);
 									let data = body.data;
-									$.log(`⚠ ${$.name}`, `season_title: ${data?.season_title}, season_id: ${data?.season_id}`, "");
+									if (data?.season_title) infoGroup.seasonTitle = data.season_title;
+									if (data?.season_id) infoGroup.seasonId = data.season_id;
+									if (data?.up_info?.mid) infoGroup.mId = data.up_info.mid;
+									infoGroup.evaluate = data?.evaluate;
+									$.log(`⚠ ${$.name}`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}`, "");
 									// 有剧集信息
 									if (data?.modules) {
-										let episodes = getEpisodes(data?.modules);
-										// 解锁弹幕和评论区等限制
-										data.modules = setModules(data?.modules);
-										if (data?.rights) {
-											data.rights.allow_download = 1;
-											data.rights.allow_demand = 1;
-										};
-										// 解锁地区限制遮罩
-										if (data?.dialog) {
-											if (data?.dialog?.code === 6010001) delete data.dialog;
-										};
-										$response.body = JSON.stringify(body);
-										setCache(data?.season_title, data?.season_id, episodes, Caches);
+										// 解锁剧集信息限制
+										data.modules = setModules(data?.modules);	
 									};
+									setCache(infoGroup, getEpisodes(data?.modules), Caches);
+									// 解锁地区限制遮罩
+									if (data?.dialog) {
+										if (data?.dialog?.code === 6010001) delete data.dialog;
+									};
+									// 解锁弹幕和评论区等限制
+									if (data?.rights) {
+										data.rights.allow_download = 1;
+										data.rights.allow_demand = 1;
+									};
+									$response.body = JSON.stringify(body);
 									break;
 								case "pgc/view/web/season": // 番剧-内容-web
 								case "pgc/view/pc/season": // 番剧-内容-pc
 									body = JSON.parse($response.body);
 									let result = body.result;
-									$.log(`⚠ ${$.name}`, `season_title: ${result?.season_title}, season_id: ${result?.season_id}`, "");
+									if (result?.season_title) infoGroup.seasonTitle = result.season_title;
+									if (result?.season_id) infoGroup.seasonId = result.season_id;
+									if (result?.up_info?.mid) infoGroup.mId = result.up_info.mid;
+									infoGroup.evaluate = result?.evaluate;
+									$.log(`⚠ ${$.name}`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}`, "");
 									// 有剧集信息
 									if (result?.episodes || result?.section) {
-										// 解锁弹幕和评论区等限制
+										// 解锁剧集信息限制
 										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
 										if (result?.section) result.section = setEpisodes(result.section);
-										setCache(result?.season_title, result?.season_id, result?.episodes, Caches);
 									};
+									setCache(infoGroup, result?.episodes, Caches);
+									// 解锁弹幕和评论区等限制
 									if (result?.rights) {
 										result.rights.allow_bp = 1;
 										result.rights.area_limit = 0;
@@ -240,54 +254,37 @@ for (const [key, value] of Object.entries($response.headers)) {
 			break;
 	};
 })()
-.catch((e) => $.logErr(e))
-.finally(() => {
-	switch ($response) {
-		case undefined: // 无回复数据，返回构造的回复数据
-			//$.log(`🚧 ${$.name}, finally`, `echo $response:${JSON.stringify($response)}`, "");
-			$.log(`🎉 ${$.name}, finally`, `echo $response`, "");
-			// headers转小写
-			for (const [key, value] of Object.entries($response.headers)) {
-				delete $response.headers[key]
-				$response.headers[key.toLowerCase()] = value
-			};
-			$response.headers["content-encoding"] = "identity";
-			if ($.isQuanX()) $.done($response)
-			else $.done({ response: $response });
-			break;
-		default: // 有回复数据，返回修改的回复数据
-			//$.log(`🚧 ${$.name}, finally`, `$response:${JSON.stringify($response)}`, "");
-			$.log(`🎉 ${$.name}, finally`, `$response`, "");
-			switch ($response?.headers?.["content-type"]?.split(";")?.[0]) {
-				case "application/json":
-				case "text/xml":
-				default:
-					// 返回普通数据
-					if ($.isQuanX()) $.done({ headers: $response.headers, body: $response.body })
-					else $.done($response)
-					break;
-				case "application/x-protobuf":
-				case "application/grpc":
-					// 返回二进制数据
-					if ($.isQuanX()) {
-						$.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
-						$.log(`bodyBytes.byteOffset: ${$response.bodyBytes.byteOffset}}`);
-						$.done({ headers: $response.headers, bodyBytes: $response.bodyBytes.buffer.slice($response.bodyBytes.byteOffset, $response.bodyBytes.byteLength + $response.bodyBytes.byteOffset) });
-					} else {
-						$.log(`${$response.body.byteLength}---${$response.body.buffer.byteLength}`);
-						$.done($response)
-					};
-					break;
-				case undefined: // 视为无body
-					// 返回普通数据
-					if ($.isQuanX()) $.done({ headers: $response.headers })
-					else $.done($response)
-					break;
-
-			};
-			break;
-	};
-})
+	.catch((e) => $.logErr(e))
+	.finally(() => {
+		//$.log(`🚧 ${$.name}, finally`, `$response:${JSON.stringify($response)}`, "");
+		$.log(`🎉 ${$.name}, finally`, `$response`, "");
+		switch ($response?.headers?.["content-type"]?.split(";")?.[0]) {
+			case "application/json":
+			case "text/xml":
+			default:
+				// 返回普通数据
+				if ($.isQuanX()) $.done({ headers: $response.headers, body: $response.body })
+				else $.done($response)
+				break;
+			case "application/x-protobuf":
+			case "application/grpc":
+				// 返回二进制数据
+				if ($.isQuanX()) {
+					$.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
+					$.log(`bodyBytes.byteOffset: ${$response.bodyBytes.byteOffset}}`);
+					$.done({ headers: $response.headers, bodyBytes: $response.bodyBytes.buffer.slice($response.bodyBytes.byteOffset, $response.bodyBytes.byteLength + $response.bodyBytes.byteOffset) });
+				} else {
+					$.log(`${$response.body.byteLength}---${$response.body.buffer.byteLength}`);
+					$.done($response)
+				};
+				break;
+			case undefined: // 视为无body
+				// 返回普通数据
+				if ($.isQuanX()) $.done({ headers: $response.headers })
+				else $.done($response)
+				break;
+		};
+	})
 
 /***************** Function *****************/
 /**
@@ -390,71 +387,98 @@ function setEpisodes(episodes = []) {
 /**
  * Set Cache
  * @author VirgilClyne
- * @param {String} season_title - Season Title
- * @param {String} season_id - Season Id
+ * @param {Object} info - Info Group: { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}
  * @param {Array} episodes - Episodes info
  * @param {Object} cache - Caches
  * @return {Array<Boolean>} is setJSON success?
  */
-function setCache(season_title = "", season_id = "", episodes = [], cache = {}) {
-	$.log(`⚠ ${$.name}, Set Cache`, `season_title: ${season_title}, season_id: ${season_id}`, "");
+function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
+	$.log(`⚠ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
 	let isSaved = new Boolean;
 	if (!cache?.ep) cache.ep = {};
 	if (!cache?.ss) cache.ss = {};
-	$.log([...season_title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
-	if (season_title) {
-		switch ([...season_title?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
+	$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+	if (infoGroup?.seasonTitle) {
+		switch ([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
 			case "港澳台地區":
-				cache.ss[season_id] = ["HKG", "MAC", "TWN"];
+				cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
+				cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
 				});
 				break;
 			case "僅限港台地區":
-				cache.ss[season_id] = ["HKG", "TWN"];
+				cache.ss[infoGroup.seasonId] = ["HKG", "TWN"];
+				cache.ep[infoGroup.epId] = ["HKG", "TWN"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "TWN"]
 				});
 				break;
 			case "僅限港澳地區":
-				cache.ss[season_id] = ["HKG", "MAC"];
+				cache.ss[infoGroup.seasonId] = ["HKG", "MAC"];
+				cache.ep[infoGroup.epId] = ["HKG", "MAC"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC"]
 				});
 				break;
 			case "僅限台灣地區":
-				cache.ss[season_id] = ["TWN"];
+				cache.ss[infoGroup.seasonId] = ["TWN"];
+				cache.ep[infoGroup.epId] = ["TWN"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["TWN"]
 				});
 				break;
 			case "僅限港澳台及其他地區":
-				cache.ss[season_id] = ["HKG", "MAC", "TWN", "SEA"];
+				cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN", "SEA"];
+				cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN", "SEA"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC", "TWN", "SEA"]
 				});
 				break;
 			case "僅限港澳及其他地區":
-				cache.ss[season_id] = ["HKG", "MAC", "SEA"];
+				cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "SEA"];
+				cache.ep[infoGroup.epId] = ["HKG", "MAC", "SEA"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC", "SEA"]
 				});
 				break;
 			case undefined:
 			default:
-				let traditional = isTraditional(season_title);
-				if (traditional > 0) { // Traditional Chinese
-					cache.ss[season_id] = ["HKG", "MAC", "TWN"];
-					episodes.forEach(episode => {
-						cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
-					});
-				} else { // Simplified Chinese
-					cache.ss[season_id] = ["CHN"];
-					episodes.forEach(episode => {
-						cache.ep[episode?.id] = ["CHN"]
-					});
+				switch (infoGroup.mId) {
+					case 11783021: // 哔哩哔哩番剧出差
+					case 1988098633: // b站_戲劇咖
+					case 2042149112: // b站_綜藝咖
+						cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
+						cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
+						episodes.forEach(episode => {
+							cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
+						});
+						break;
+					default: // 其他UP主
+						break;
+					case undefined: // 无UP主信息
+						if (isTraditional(infoGroup.seasonTitle) > 0) { // Traditional Chinese
+							cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
+							cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
+							episodes.forEach(episode => {
+								cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
+							});
+						} else if (isTraditional(infoGroup.evaluate) > 1) { // Traditional Chinese
+							cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
+							cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
+							episodes.forEach(episode => {
+								cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
+							});
+						} else { // Simplified Chinese
+							cache.ss[infoGroup.seasonId] = ["CHN"];
+							cache.ep[infoGroup.epId] = ["CHN"];
+							episodes.forEach(episode => {
+								cache.ep[episode?.id] = ["CHN"]
+							});
+						};
+						break;
 				};
 				break;
 		};
