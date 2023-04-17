@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.1(12) request");
+const $ = new Env("📺 BiliBili:Global v0.4.1(13) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -424,8 +424,7 @@ function ReReqeust(request = {}, proxyName = undefined) {
 				request.policy = proxyName;
 				break;
 			case "Quantumult X":
-				if (request.opts) request.opts.policy = proxyName;
-				else request.opts = { "policy": proxyName };
+				$.lodash_set(request, "opts.policy", proxyName);
 				break;
 			default:
 				break;
