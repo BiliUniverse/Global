@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.3(11) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.4(4) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -204,7 +204,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 											if (data?.dialog?.code === 6010001) delete data.dialog;
 										};
 										$response.body = JSON.stringify(body);
-										setCache(data?.season_title, data?.season_id, episodes, Caches);
+										setCache(data?.season_title, data?.season_id, data?.up_info?.mid, episodes, Caches);
 									};
 									break;
 								case "pgc/view/web/season": // 番剧-内容-web
@@ -217,7 +217,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 										// 解锁弹幕和评论区等限制
 										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
 										if (result?.section) result.section = setEpisodes(result.section);
-										setCache(result?.season_title, result?.season_id, result?.episodes, Caches);
+										setCache(result?.season_title, result?.season_id, data?.up_info?.mid, result?.episodes, Caches);
 									};
 									if (result?.rights) {
 										result.rights.allow_bp = 1;
@@ -387,8 +387,8 @@ function setEpisodes(episodes = []) {
  * @param {Object} cache - Caches
  * @return {Array<Boolean>} is setJSON success?
  */
-function setCache(season_title = "", season_id = "", episodes = [], cache = {}) {
-	$.log(`⚠ ${$.name}, Set Cache`, `season_title: ${season_title}, season_id: ${season_id}`, "");
+function setCache(season_title = "", season_id = "", mid = "", episodes = [], cache = {}) {
+	$.log(`⚠ ${$.name}, Set Cache`, `season_title: ${season_title}, season_id: ${season_id}, mid: ${mid}`, "");
 	let isSaved = new Boolean;
 	if (!cache?.ep) cache.ep = {};
 	if (!cache?.ss) cache.ss = {};
@@ -437,17 +437,32 @@ function setCache(season_title = "", season_id = "", episodes = [], cache = {}) 
 				break;
 			case undefined:
 			default:
-				let traditional = isTraditional(season_title);
-				if (traditional > 0) { // Traditional Chinese
-					cache.ss[season_id] = ["HKG", "MAC", "TWN"];
-					episodes.forEach(episode => {
-						cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
-					});
-				} else { // Simplified Chinese
-					cache.ss[season_id] = ["CHN"];
-					episodes.forEach(episode => {
-						cache.ep[episode?.id] = ["CHN"]
-					});
+				switch (mid) {
+					case 11783021: // 哔哩哔哩番剧出差
+					case 1988098633: // b站_戲劇咖
+					case 2042149112: // b站_綜藝咖
+						$.log("🚧", "Bilibili Official", "mid: " + mid);
+						cache.ss[season_id] = ["HKG", "MAC", "TWN"];
+						episodes.forEach(episode => {
+							cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
+						});
+						break;
+					default: // 其他UP主
+						break;
+					case undefined: // 无UP主信息
+						let traditional = isTraditional(season_title);
+						if (traditional > 0) { // Traditional Chinese
+							cache.ss[season_id] = ["HKG", "MAC", "TWN"];
+							episodes.forEach(episode => {
+								cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
+							});
+						} else { // Simplified Chinese
+							cache.ss[season_id] = ["CHN"];
+							episodes.forEach(episode => {
+								cache.ep[episode?.id] = ["CHN"]
+							});
+						};
+						break;
 				};
 				break;
 		};
