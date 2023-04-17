@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.4(4) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.4(7) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -168,6 +168,12 @@ for (const [key, value] of Object.entries($response.headers)) {
 							break;
 						case "api.bilibili.com":
 						case "api.biliapi.net":
+							// ID组
+							let idGroup = {
+								"epId": url?.params?.ep_id,
+								"seasonId": url?.params?.season_id,
+								"mId": url?.params?.mid || url?.params?.vmid
+							};
 							switch (url.path) {
 								case "pgc/player/api/playurl": // 番剧-播放地址-api
 								case "pgc/player/web/playurl": // 番剧-播放地址-web
@@ -189,36 +195,41 @@ for (const [key, value] of Object.entries($response.headers)) {
 								case "pgc/view/v2/app/season": // 番剧页面-内容-api
 									body = JSON.parse($response.body);
 									let data = body.data;
-									$.log(`⚠ ${$.name}`, `season_title: ${data?.season_title}, season_id: ${data?.season_id}`, "");
+									if (data?.season_id) idGroup.seasonId = data.season_id;
+									if (data?.up_info?.mid) idGroup.mId = data.up_info.mid;
+									$.log(`⚠ ${$.name}`, `season_title: ${data?.season_title}, seasonId: ${idGroup.seasonId}, epId: ${idGroup.epId}`, "");
 									// 有剧集信息
 									if (data?.modules) {
-										let episodes = getEpisodes(data?.modules);
 										// 解锁弹幕和评论区等限制
-										data.modules = setModules(data?.modules);
-										if (data?.rights) {
-											data.rights.allow_download = 1;
-											data.rights.allow_demand = 1;
-										};
-										// 解锁地区限制遮罩
-										if (data?.dialog) {
-											if (data?.dialog?.code === 6010001) delete data.dialog;
-										};
-										$response.body = JSON.stringify(body);
-										setCache(data?.season_title, data?.season_id, data?.up_info?.mid, episodes, Caches);
+										data.modules = setModules(data?.modules);	
 									};
+									setCache(data?.season_title, idGroup, getEpisodes(data?.modules), Caches);
+									// 解锁地区限制遮罩
+									if (data?.dialog) {
+										if (data?.dialog?.code === 6010001) delete data.dialog;
+									};
+									// 解锁弹幕和评论区等限制
+									if (data?.rights) {
+										data.rights.allow_download = 1;
+										data.rights.allow_demand = 1;
+									};
+									$response.body = JSON.stringify(body);
 									break;
 								case "pgc/view/web/season": // 番剧-内容-web
 								case "pgc/view/pc/season": // 番剧-内容-pc
 									body = JSON.parse($response.body);
 									let result = body.result;
-									$.log(`⚠ ${$.name}`, `season_title: ${result?.season_title}, season_id: ${result?.season_id}`, "");
+									if (result?.season_id) idGroup.seasonId = result.season_id;
+									if (result?.up_info?.mid) idGroup.mId = result.up_info.mid;
+									$.log(`⚠ ${$.name}`, `season_title: ${result?.season_title}, seasonId: ${idGroup.seasonId}, epId: ${idGroup.epId}`, "");
 									// 有剧集信息
 									if (result?.episodes || result?.section) {
 										// 解锁弹幕和评论区等限制
 										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
 										if (result?.section) result.section = setEpisodes(result.section);
-										setCache(result?.season_title, result?.season_id, data?.up_info?.mid, result?.episodes, Caches);
 									};
+									setCache(result?.season_title, idGroup, result?.episodes, Caches);
+									// 解锁弹幕和评论区等限制
 									if (result?.rights) {
 										result.rights.allow_bp = 1;
 										result.rights.area_limit = 0;
@@ -382,13 +393,13 @@ function setEpisodes(episodes = []) {
  * Set Cache
  * @author VirgilClyne
  * @param {String} season_title - Season Title
- * @param {String} season_id - Season Id
+ * @param {Object} idGroup - Id Group: { "seasonId": undefined, "epId": undefined, "mId": undefined}
  * @param {Array} episodes - Episodes info
  * @param {Object} cache - Caches
  * @return {Array<Boolean>} is setJSON success?
  */
-function setCache(season_title = "", season_id = "", mid = "", episodes = [], cache = {}) {
-	$.log(`⚠ ${$.name}, Set Cache`, `season_title: ${season_title}, season_id: ${season_id}, mid: ${mid}`, "");
+function setCache(season_title = "", idGroup = {"seasonId": undefined, "epId": undefined, "mId": undefined}, episodes = [], cache = {}) {
+	$.log(`⚠ ${$.name}, Set Cache`, `season_title: ${season_title}, seasonId: ${idGroup.seasonId}, epId: ${idGroup.epId}, mId: ${idGroup.mId}`, "");
 	let isSaved = new Boolean;
 	if (!cache?.ep) cache.ep = {};
 	if (!cache?.ss) cache.ss = {};
@@ -400,49 +411,55 @@ function setCache(season_title = "", season_id = "", mid = "", episodes = [], ca
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
 			case "港澳台地區":
-				cache.ss[season_id] = ["HKG", "MAC", "TWN"];
+				cache.ss[idGroup.seasonId] = ["HKG", "MAC", "TWN"];
+				cache.ep[idGroup.epId] = ["HKG", "MAC", "TWN"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
 				});
 				break;
 			case "僅限港台地區":
-				cache.ss[season_id] = ["HKG", "TWN"];
+				cache.ss[idGroup.seasonId] = ["HKG", "TWN"];
+				cache.ep[idGroup.epId] = ["HKG", "TWN"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "TWN"]
 				});
 				break;
 			case "僅限港澳地區":
-				cache.ss[season_id] = ["HKG", "MAC"];
+				cache.ss[idGroup.seasonId] = ["HKG", "MAC"];
+				cache.ep[idGroup.epId] = ["HKG", "MAC"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC"]
 				});
 				break;
 			case "僅限台灣地區":
-				cache.ss[season_id] = ["TWN"];
+				cache.ss[idGroup.seasonId] = ["TWN"];
+				cache.ep[idGroup.epId] = ["TWN"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["TWN"]
 				});
 				break;
 			case "僅限港澳台及其他地區":
-				cache.ss[season_id] = ["HKG", "MAC", "TWN", "SEA"];
+				cache.ss[idGroup.seasonId] = ["HKG", "MAC", "TWN", "SEA"];
+				cache.ep[idGroup.epId] = ["HKG", "MAC", "TWN", "SEA"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC", "TWN", "SEA"]
 				});
 				break;
 			case "僅限港澳及其他地區":
-				cache.ss[season_id] = ["HKG", "MAC", "SEA"];
+				cache.ss[idGroup.seasonId] = ["HKG", "MAC", "SEA"];
+				cache.ep[idGroup.epId] = ["HKG", "MAC", "SEA"];
 				episodes.forEach(episode => {
 					cache.ep[episode?.id] = ["HKG", "MAC", "SEA"]
 				});
 				break;
 			case undefined:
 			default:
-				switch (mid) {
+				switch (idGroup.mId) {
 					case 11783021: // 哔哩哔哩番剧出差
 					case 1988098633: // b站_戲劇咖
 					case 2042149112: // b站_綜藝咖
-						$.log("🚧", "Bilibili Official", "mid: " + mid);
-						cache.ss[season_id] = ["HKG", "MAC", "TWN"];
+						cache.ss[idGroup.seasonId] = ["HKG", "MAC", "TWN"];
+						cache.ep[idGroup.epId] = ["HKG", "MAC", "TWN"];
 						episodes.forEach(episode => {
 							cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
 						});
@@ -452,12 +469,14 @@ function setCache(season_title = "", season_id = "", mid = "", episodes = [], ca
 					case undefined: // 无UP主信息
 						let traditional = isTraditional(season_title);
 						if (traditional > 0) { // Traditional Chinese
-							cache.ss[season_id] = ["HKG", "MAC", "TWN"];
+							cache.ss[idGroup.seasonId] = ["HKG", "MAC", "TWN"];
+							cache.ep[idGroup.epId] = ["HKG", "MAC", "TWN"];
 							episodes.forEach(episode => {
 								cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
 							});
 						} else { // Simplified Chinese
-							cache.ss[season_id] = ["CHN"];
+							cache.ss[idGroup.seasonId] = ["CHN"];
+							cache.ep[idGroup.epId] = ["CHN"];
 							episodes.forEach(episode => {
 								cache.ep[episode?.id] = ["CHN"]
 							});
