@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.2(1) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.2(3) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -102,7 +102,7 @@ let $response = undefined;
 											/******************  initialization finish  *******************/
 											url.paths = url.path.split("/");
 											switch (url.paths[0]) {
-												case "bilibili.app.playerunite.v1":
+												case "bilibili.app.playerunite.v1.Player":
 													/******************  initialization start  *******************/
 													class VideoVod$Type extends MessageType {
 														constructor() {
@@ -316,16 +316,14 @@ let $response = undefined;
 																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
 																});
 															};
-															data.forceHost = Settings?.ForceHost ?? 1;
+															data.vod.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewUniteReq.toBinary(data);
-															/*
 															// 判断线路
-															let epId = data?.epId?.toString();
-															let seasonId = data?.seasonId?.toString();
+															let epId = data?.extraContent.ep_id?.toString();
+															let seasonId = data?.extraContent?.season_id?.toString();
 															if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
 															else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
 															else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-															*/
 															break;
 														};
 													};
