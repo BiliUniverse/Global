@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.1(13) request");
+const $ = new Env("📺 BiliBili:Global v0.4.2(4) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -97,8 +97,38 @@ let $response = undefined;
 									switch (url.host) {
 										case "grpc.biliapi.net": // HTTP/2
 										case "app.bilibili.com": // HTTP/1.1
+											/******************  initialization start  *******************/
+											var CodeType;!function(CodeType){CodeType[CodeType.NOCODE=0]="NOCODE",CodeType[CodeType.CODE264=1]="CODE264",CodeType[CodeType.CODE265=2]="CODE265",CodeType[CodeType.CODEAV1=3]="CODEAV1"}(CodeType||(CodeType={}));
+											/******************  initialization finish  *******************/
 											url.paths = url.path.split("/");
 											switch (url.paths[0]) {
+												case "bilibili.app.playerunite.v1.Player":
+													/******************  initialization start  *******************/
+													// protobuf/bilibili/app/playershared/playershared.proto
+													class VideoVod$Type extends MessageType{constructor(){super("bilibili.playershared.VideoVod",[{no:1,name:"aid",kind:"scalar",T:5},{no:2,name:"cid",kind:"scalar",T:5},{no:3,name:"qn",kind:"scalar",T:4,L:2},{no:4,name:"fnver",kind:"scalar",T:5},{no:5,name:"fnval",kind:"scalar",T:5},{no:6,name:"download",kind:"scalar",T:13},{no:7,name:"force_host",kind:"scalar",T:5},{no:8,name:"fourk",kind:"scalar",T:8},{no:9,name:"prefer_codec_type",kind:"enum",T:()=>["bilibili.playershared.CodeType",CodeType]},{no:10,name:"voice_balance",kind:"scalar",T:4,L:2}])}create(value){const message={aid:0,cid:0,qn:0,fnver:0,fnval:0,download:0,forceHost:0,fourk:false,preferCodecType:0,voiceBalance:0};globalThis.Object.defineProperty(message,MESSAGE_TYPE,{enumerable:false,value:this});if(value!==undefined)reflectionMergePartial(this,message,value);return message}internalBinaryRead(reader,length,options,target){let message=target??this.create(),end=reader.pos+length;while(reader.pos<end){let[fieldNo,wireType]=reader.tag();switch(fieldNo){case 1:message.aid=reader.int32();break;case 2:message.cid=reader.int32();break;case 3:message.qn=reader.uint64().toNumber();break;case 4:message.fnver=reader.int32();break;case 5:message.fnval=reader.int32();break;case 6:message.download=reader.uint32();break;case 7:message.forceHost=reader.int32();break;case 8:message.fourk=reader.bool();break;case 9:message.preferCodecType=reader.int32();break;case 10:message.voiceBalance=reader.uint64().toNumber();break;default:let u=options.readUnknownField;if(u==="throw")throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);let d=reader.skip(wireType);if(u!==false)(u===true?UnknownFieldHandler.onRead:u)(this.typeName,message,fieldNo,wireType,d)}}return message}internalBinaryWrite(message,writer,options){if(message.aid!==0)writer.tag(1,WireType.Varint).int32(message.aid);if(message.cid!==0)writer.tag(2,WireType.Varint).int32(message.cid);if(message.qn!==0)writer.tag(3,WireType.Varint).uint64(message.qn);if(message.fnver!==0)writer.tag(4,WireType.Varint).int32(message.fnver);if(message.fnval!==0)writer.tag(5,WireType.Varint).int32(message.fnval);if(message.download!==0)writer.tag(6,WireType.Varint).uint32(message.download);if(message.forceHost!==0)writer.tag(7,WireType.Varint).int32(message.forceHost);if(message.fourk!==false)writer.tag(8,WireType.Varint).bool(message.fourk);if(message.preferCodecType!==0)writer.tag(9,WireType.Varint).int32(message.preferCodecType);if(message.voiceBalance!==0)writer.tag(10,WireType.Varint).uint64(message.voiceBalance);let u=options.writeUnknownFields;if(u!==false)(u==true?UnknownFieldHandler.onWrite:u)(this.typeName,message,writer);return writer}}
+													const VideoVod = new VideoVod$Type();
+													/******************  initialization finish  *******************/
+													switch (url.paths?.[1]) {
+														case "PlayViewUnite": { // 播放地址
+															/******************  initialization start  *******************/
+															// protobuf/bilibili/app/playerunite/playerunite.proto
+															class PlayViewUniteReq$Type extends MessageType{constructor(){super("bilibili.app.playerunite.v1.PlayViewUniteReq",[{no:1,name:"vod",kind:"message",T:()=>VideoVod},{no:2,name:"spmid",kind:"scalar",T:9},{no:3,name:"from_spmid",kind:"scalar",T:9},{no:4,name:"extra_content",kind:"map",K:9,V:{kind:"scalar",T:9}}])}create(value){const message={spmid:"",fromSpmid:"",extraContent:{}};globalThis.Object.defineProperty(message,MESSAGE_TYPE,{enumerable:false,value:this});if(value!==undefined)reflectionMergePartial(this,message,value);return message}internalBinaryRead(reader,length,options,target){let message=target??this.create(),end=reader.pos+length;while(reader.pos<end){let[fieldNo,wireType]=reader.tag();switch(fieldNo){case 1:message.vod=VideoVod.internalBinaryRead(reader,reader.uint32(),options,message.vod);break;case 2:message.spmid=reader.string();break;case 3:message.fromSpmid=reader.string();break;case 4:this.binaryReadMap4(message.extraContent,reader,options);break;default:let u=options.readUnknownField;if(u==="throw")throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);let d=reader.skip(wireType);if(u!==false)(u===true?UnknownFieldHandler.onRead:u)(this.typeName,message,fieldNo,wireType,d)}}return message}binaryReadMap4(map,reader,options){let len=reader.uint32(),end=reader.pos+len,key,val;while(reader.pos<end){let[fieldNo,wireType]=reader.tag();switch(fieldNo){case 1:key=reader.string();break;case 2:val=reader.string();break;default:throw new globalThis.Error("unknown map entry field for field bilibili.app.playerunite.v1.PlayViewUniteReq.extra_content")}}map[key??""]=val??""}internalBinaryWrite(message,writer,options){if(message.vod)VideoVod.internalBinaryWrite(message.vod,writer.tag(1,WireType.LengthDelimited).fork(),options).join();if(message.spmid!=="")writer.tag(2,WireType.LengthDelimited).string(message.spmid);if(message.fromSpmid!=="")writer.tag(3,WireType.LengthDelimited).string(message.fromSpmid);for(let k of Object.keys(message.extraContent))writer.tag(4,WireType.LengthDelimited).fork().tag(1,WireType.LengthDelimited).string(k).tag(2,WireType.LengthDelimited).string(message.extraContent[k]).join();let u=options.writeUnknownFields;if(u!==false)(u==true?UnknownFieldHandler.onWrite:u)(this.typeName,message,writer);return writer}}
+															const PlayViewUniteReq = new PlayViewUniteReq$Type();
+															/******************  initialization finish  *******************/
+															let data = PlayViewUniteReq.fromBinary(body);
+															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															data.vod.forceHost = Settings?.ForceHost ?? 1;
+															body = PlayViewUniteReq.toBinary(data);
+															// 判断线路
+															let epId = data?.extraContent.ep_id?.toString();
+															let seasonId = data?.extraContent?.season_id?.toString();
+															if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
+															else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+															else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+															break;
+														};
+													};
+													break;
 												case "bilibili.app.playurl.v1.PlayURL": // 普通视频
 													switch (url.paths?.[1]) {
 														case "PlayView": // 播放地址
@@ -109,8 +139,7 @@ let $response = undefined;
 													break;
 												case "bilibili.pgc.gateway.player.v2.PlayURL": // 番剧
 													/******************  initialization start  *******************/
-													// proto/bilibili/pgc/gateway/player/v2/playurl.proto
-													var CodeType;(function(CodeType){CodeType[CodeType["NOCODE"]=0]="NOCODE";CodeType[CodeType["CODE264"]=1]="CODE264";CodeType[CodeType["CODE265"]=2]="CODE265"})(CodeType||(CodeType={}));
+													// protobuf/bilibili/pgc/gateway/player/v2/playurl.proto
 													var InlineScene;(function(InlineScene){InlineScene[InlineScene["UNKNOWN"]=0]="UNKNOWN";InlineScene[InlineScene["RELATED_EP"]=1]="RELATED_EP";InlineScene[InlineScene["HE"]=2]="HE";InlineScene[InlineScene["SKIP"]=3]="SKIP"})(InlineScene||(InlineScene={}));
 													class DataControl$Type extends MessageType{constructor(){super("bilibili.pgc.gateway.player.v2.DataControl",[{no:1,name:"need_watch_progress",kind:"scalar",T:8}])}create(value){const message={needWatchProgress:false};globalThis.Object.defineProperty(message,MESSAGE_TYPE,{enumerable:false,value:this});if(value!==undefined)reflectionMergePartial(this,message,value);return message}internalBinaryRead(reader,length,options,target){let message=target??this.create(),end=reader.pos+length;while(reader.pos<end){let[fieldNo,wireType]=reader.tag();switch(fieldNo){case 1:message.needWatchProgress=reader.bool();break;default:let u=options.readUnknownField;if(u==="throw")throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);let d=reader.skip(wireType);if(u!==false)(u===true?UnknownFieldHandler.onRead:u)(this.typeName,message,fieldNo,wireType,d)}}return message}internalBinaryWrite(message,writer,options){if(message.needWatchProgress!==false)writer.tag(1,WireType.Varint).bool(message.needWatchProgress);let u=options.writeUnknownFields;if(u!==false)(u==true?UnknownFieldHandler.onWrite:u)(this.typeName,message,writer);return writer}};
 													const DataControl = new DataControl$Type();

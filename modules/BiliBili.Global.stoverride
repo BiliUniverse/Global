@@ -33,6 +33,13 @@ http:
       require-body: true
       timeout: 15
       argument:
+    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: true
+      timeout: 15
+      binary-mode: true
+      argument:
     - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView(\?.+)?$
       name: BiliBili.Global.request
       type: request
