@@ -530,8 +530,8 @@ function ReReqeust(request = {}, proxyName = undefined) {
 		};
 	};
 	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
-	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
-	//$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
+	//$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
+	$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
 	return request;
 };
 
@@ -546,8 +546,8 @@ async function Fetch(request = {}) {
 	let response = (request?.body ?? request?.bodyBytes)
 		? await $.http.post(request)
 		: await $.http.get(request);
-	$.log(`🎉 ${$.name}, Fetch Ruled Reqeust`, "");
-	//$.log(`🚧 ${$.name}, Fetch Ruled Reqeust`, `Response:${JSON.stringify(response)}`, "");
+	//$.log(`🎉 ${$.name}, Fetch Ruled Reqeust`, "");
+	$.log(`🚧 ${$.name}, Fetch Ruled Reqeust`, `Response:${JSON.stringify(response)}`, "");
 	return response;
 };
 
