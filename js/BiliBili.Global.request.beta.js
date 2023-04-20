@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.2(4) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.2(5) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -425,8 +425,23 @@ let $response = undefined;
 				$response.headers[key.toLowerCase()] = value
 			};
 			$response.headers["content-encoding"] = "identity";
-			if ($.isQuanX()) $.done($response)
-			else $.done({ response: $response });
+			if ($.isQuanX()) {
+				switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
+					case "application/json":
+					case "text/xml":
+					default:
+						$.done({ headers: $response.headers, body: $response.body });
+						break;
+					case "application/x-protobuf":
+					case "application/grpc":
+						$.done({ headers: $response.headers, bodyBytes: $response.bodyBytes });
+						break;
+					case undefined: // 视为无body
+						$.done({ headers: $response.headers });
+						break;
+	
+				};
+			} else $.done({ response: $response });
 			break;
 		case undefined: // 无构造回复数据，发送修改的请求数据
 			//$.log(`🚧 ${$.name}, finally`, `$request:${JSON.stringify($request)}`, "");

@@ -1,0 +1,44 @@
+#!name=📺 BiliBili: 🌐 Global β
+#!desc=(BETA) 哔哩哔哩：全球模式（中国站自动线路及全区搜索）
+#!openUrl=http://boxjs.com/#/app/BiliBili.Global.beta
+#!author=VirgilClyne
+#!homepage=https://github.com/BiliUniverse
+#!manual=https://github.com/BiliUniverse/Global/wiki
+#!icon=https://github.com/BiliUniverse/Global/raw/main/database/icon_rounded_108x.png
+
+#[Script]
+# BiliBili.Global.bangumi.play.html
+^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+
+# BiliBili.Global.season.json
+# ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.season.json
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ url script-response-body https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.response.beta.js
+
+# BiliBili.Global.playerunite.v1.Player.grpc
+^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite(\?.+)?$ url script-analyze-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.player.v2.PlayURL.grpc
+^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView(\?.+)?$ url script-analyze-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.player.playurl.json
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+
+# BiliBili.Global.search.html
+^https?:\/\/search\.bilibili\.com\/all?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.search.grpc
+^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)(\?.+)?$ url script-analyze-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.search.app.json
+^https?:\/\/app\.bilibili\.com\/x\/v2\/search(\/type)?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.search.wbi.json
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.search.pc.json
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/search\/(all\/v2|type)?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+
+# BiliBili.Global.space.app.json
+^https?:\/\/app\.bilibili\.com\/x\/v2\/space(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.space.wbi.json
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/wbi\/acc\/info(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.space.pc.json
+^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/acc\/info(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+
+#[MITM]
+hostname = www.bilibili.com, app.bilibili.com, search.bilibili.com, api.bilibili.com, api.biliapi.net, grpc.biliapi.net
