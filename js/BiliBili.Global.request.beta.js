@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.2(5) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.3(2) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -23,13 +23,13 @@ const DataBase = {
 		"Settings":{"Switch":"true"}
 	}
 };
-
+/*
 // headers转小写
 for (const [key, value] of Object.entries($request.headers)) {
 	delete $request.headers[key]
 	$request.headers[key.toLowerCase()] = value
 };
-
+*/
 // 构造回复数据
 let $response = undefined;
 
@@ -49,6 +49,8 @@ let $response = undefined;
 				$.log("body:" + $request?.body)
 				$.log("$request:" + JSON.stringify($request))
 			}
+			const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0]
+			$.log(`Format: ${Format}`, "");
 			// 创建空数据
 			let body = { "code": 0, "message": "0", "data": {} };
 			switch ($request.method) {
@@ -56,7 +58,7 @@ let $response = undefined;
 				case "PUT":
 				case "PATCH":
 					// 解析格式
-					switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
+					switch (Format) {
 						case "application/x-www-form-urlencoded":
 						case "text/html":
 							break;
@@ -75,7 +77,7 @@ let $response = undefined;
 							//$.log(`🚧 ${$.name}`, `$request.body: ${JSON.stringify($request.body)}`, "");
 							let rawBody = $.isQuanX() ? new Uint8Array($request.bodyBytes) : $request.body;
 							//$.log(`🚧 ${$.name}`, `isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
-							switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
+							switch (Format) {
 								case "application/grpc":
 									/******************  initialization start  *******************/
 									// pako 2.0.4
@@ -413,20 +415,25 @@ let $response = undefined;
 			break;
 	};
 })()
-.catch((e) => $.logErr(e))
-.finally(() => {
+	.catch((e) => $.logErr(e))
+	.finally(() => {
+		const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+		$.log(`🎉 ${$.name}, finally`, `Format:${Format}`, "");
 	switch ($response) {
 		default: // 有构造回复数据，返回构造的回复数据
 			//$.log(`🚧 ${$.name}, finally`, `echo $response:${JSON.stringify($response)}`, "");
 			$.log(`🎉 ${$.name}, finally`, `echo $response`, "");
+			/*
 			// headers转小写
 			for (const [key, value] of Object.entries($response.headers)) {
 				delete $response.headers[key]
 				$response.headers[key.toLowerCase()] = value
 			};
-			$response.headers["content-encoding"] = "identity";
+			*/
+			if ($response.headers["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
+			if ($response.headers["content-encoding"]) $response.headers["content-encoding"] = "identity";
 			if ($.isQuanX()) {
-				switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
+				switch (Format) {
 					case "application/json":
 					case "text/xml":
 					default:
@@ -446,7 +453,7 @@ let $response = undefined;
 		case undefined: // 无构造回复数据，发送修改的请求数据
 			//$.log(`🚧 ${$.name}, finally`, `$request:${JSON.stringify($request)}`, "");
 			$.log(`🎉 ${$.name}, finally`, `$request`, "");
-			switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
+			switch (Format) {
 				case "application/json":
 				case "text/xml":
 				default:
@@ -577,12 +584,14 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 function isResponseAvailability(response = {}) {
     //$.log(`⚠ ${$.name}, Determine Response Availability`, "");
 	$.log(`🚧 ${$.name}, Determine Response Availability`, `statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+	const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+	$.log(`🚧 ${$.name}, Determine Response Availability`, `Format:${Format}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
-			switch ((response?.headers?.["content-type"] || response.headers?.["Content-Type"])?.split(";")?.[0]) {
+			switch (Format) {
 				case "application/grpc":
-					switch (response?.headers?.["grpc-message"] || response.headers?.["Grpc-Message"]) {
+					switch (response?.headers?.["Grpc-Message"] ?? response?.headers?.["grpc-message"]) {
 						case "0":
 							isAvailable = true;
 							break;
