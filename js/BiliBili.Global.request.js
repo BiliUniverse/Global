@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.2(4) request");
+const $ = new Env("📺 BiliBili:Global v0.4.3(5) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -24,12 +24,6 @@ const DataBase = {
 	}
 };
 
-// headers转小写
-for (const [key, value] of Object.entries($request.headers)) {
-	delete $request.headers[key]
-	$request.headers[key.toLowerCase()] = value
-};
-
 // 构造回复数据
 let $response = undefined;
 
@@ -41,14 +35,6 @@ let $response = undefined;
 		default:
 			let url = URL.parse($request.url);
 			$.log(url.path);
-			if ($.isQuanX()) {
-				$.log("是QX")
-				$.log("method:" + $request?.method)
-				$.log("ArrayBuffer.isView(bodyBytes):" + ArrayBuffer.isView($request?.bodyBytes))
-				$.log("bodyBytes:" + $request?.bodyBytes)
-				$.log("body:" + $request?.body)
-				$.log("$request:" + JSON.stringify($request))
-			}
 			// 创建空数据
 			let body = { "code": 0, "message": "0", "data": {} };
 			switch ($request.method) {
@@ -56,7 +42,9 @@ let $response = undefined;
 				case "PUT":
 				case "PATCH":
 					// 解析格式
-					switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
+					const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0]
+					$.log(`Format: ${Format}`, "");
+					switch (Format) {
 						case "application/x-www-form-urlencoded":
 						case "text/html":
 							break;
@@ -74,8 +62,9 @@ let $response = undefined;
 							/******************  initialization finish  *******************/
 							//$.log(`🚧 ${$.name}`, `$request.body: ${JSON.stringify($request.body)}`, "");
 							let rawBody = $.isQuanX() ? new Uint8Array($request.bodyBytes) : $request.body;
+							if ($.isQuanX()) delete $request.body;
 							//$.log(`🚧 ${$.name}`, `isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
-							switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
+							switch (Format) {
 								case "application/grpc":
 									/******************  initialization start  *******************/
 									// pako 2.0.4
@@ -360,54 +349,66 @@ let $response = undefined;
 			break;
 	};
 })()
-.catch((e) => $.logErr(e))
-.finally(() => {
-	switch ($response) {
-		default: // 有构造回复数据，返回构造的回复数据
-			//$.log(`🚧 ${$.name}, finally`, `echo $response:${JSON.stringify($response)}`, "");
-			$.log(`🎉 ${$.name}, finally`, `echo $response`, "");
-			// headers转小写
-			for (const [key, value] of Object.entries($response.headers)) {
-				delete $response.headers[key]
-				$response.headers[key.toLowerCase()] = value
-			};
-			$response.headers["content-encoding"] = "identity";
-			if ($.isQuanX()) $.done($response)
-			else $.done({ response: $response });
-			break;
-		case undefined: // 无构造回复数据，发送修改的请求数据
-			//$.log(`🚧 ${$.name}, finally`, `$request:${JSON.stringify($request)}`, "");
-			$.log(`🎉 ${$.name}, finally`, `$request`, "");
-			switch ($request?.headers?.["content-type"]?.split(";")?.[0]) {
-				case "application/json":
-				case "text/xml":
-				default:
-					// 返回普通数据
-					if ($.isQuanX()) $.done({ headers: $request.headers, body: $request.body, opts: $request.opts })
-					else $.done($request)
-					break;
-				case "application/x-protobuf":
-				case "application/grpc":
-					// 返回二进制数据
-					if ($.isQuanX()) {
-						//$.log(`${$request.bodyBytes.byteLength}---${$request.bodyBytes.buffer.byteLength}`);
-						//$.log(`bodyBytes.byteOffset: ${$request.bodyBytes.byteOffset}}`);
-						$.done({ headers: $request.headers, bodyBytes: $request.bodyBytes.buffer.slice($request.bodyBytes.byteOffset, $request.bodyBytes.byteLength + $request.bodyBytes.byteOffset), opts: $request.opts });
-					} else {
-						//$.log(`${$request.body.byteLength}---${$request.body.buffer.byteLength}`);
-						$.done($request)
-					};
-					break;
-				case undefined: // 视为无body
-					// 返回普通数据
-					if ($.isQuanX()) $.done({ headers: $request.headers, opts: $request.opts })
-					else $.done($request)
-					break;
+	.catch((e) => $.logErr(e))
+	.finally(() => {
+		const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+		$.log(`🎉 ${$.name}, finally`, `Format:${Format}`, "");
+		switch ($response) {
+			default: // 有构造回复数据，返回构造的回复数据
+				//$.log(`🚧 ${$.name}, finally`, `echo $response:${JSON.stringify($response)}`, "");
+				$.log(`🎉 ${$.name}, finally`, `echo $response`, "");
+				if ($response.headers["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
+				if ($response.headers["content-encoding"]) $response.headers["content-encoding"] = "identity";
+				if ($.isQuanX()) {
+					switch (Format) {
+						case "application/json":
+						case "text/xml":
+						default:
+							$.done({ headers: $response.headers, body: $response.body });
+							break;
+						case "application/x-protobuf":
+						case "application/grpc":
+							$.done({ headers: $response.headers, bodyBytes: $response.bodyBytes });
+							break;
+						case undefined: // 视为无body
+							$.done({ headers: $response.headers });
+							break;
 
-			};
-			break;
-	};
-})
+					};
+				} else $.done({ response: $response });
+				break;
+			case undefined: // 无构造回复数据，发送修改的请求数据
+				//$.log(`🚧 ${$.name}, finally`, `$request:${JSON.stringify($request)}`, "");
+				$.log(`🎉 ${$.name}, finally`, `$request`, "");
+				switch (Format) {
+					case "application/json":
+					case "text/xml":
+					default:
+						// 返回普通数据
+						if ($.isQuanX()) $.done({ headers: $request.headers, body: $request.body, opts: $request.opts })
+						else $.done($request)
+						break;
+					case "application/x-protobuf":
+					case "application/grpc":
+						// 返回二进制数据
+						if ($.isQuanX()) {
+							//$.log(`${$request.bodyBytes.byteLength}---${$request.bodyBytes.buffer.byteLength}`);
+							//$.log(`bodyBytes.byteOffset: ${$request.bodyBytes.byteOffset}}`);
+							$.done({ headers: $request.headers, bodyBytes: $request.bodyBytes.buffer.slice($request.bodyBytes.byteOffset, $request.bodyBytes.byteLength + $request.bodyBytes.byteOffset), opts: $request.opts });
+						} else {
+							//$.log(`${$request.body.byteLength}---${$request.body.buffer.byteLength}`);
+							$.done($request)
+						};
+						break;
+					case undefined: // 视为无body
+						// 返回普通数据
+						if ($.isQuanX()) $.done({ headers: $request.headers, opts: $request.opts })
+						else $.done($request)
+						break;
+				};
+				break;
+		};
+	})
 
 /***************** Function *****************/
 /**
@@ -446,13 +447,18 @@ function ReReqeust(request = {}, proxyName = undefined) {
 			case "Stash":
 				request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
 				break;
-			case "Shadowrocket":
 			case "Surge":
 				delete request.id;
 				request.headers["X-Surge-Policy"] = proxyName;
+				//break; // 无需break
+			case "Shadowrocket":
 				request.policy = proxyName;
 				break;
 			case "Quantumult X":
+				delete request.method;
+				delete request.scheme;
+				delete request.seasonIndex;
+				delete request.charset;
 				$.lodash_set(request, "opts.policy", proxyName);
 				break;
 			default:
@@ -507,12 +513,14 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 function isResponseAvailability(response = {}) {
     $.log(`⚠ ${$.name}, Determine Response Availability`, "");
 	//$.log(`🚧 ${$.name}, Determine Response Availability`, `statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+	const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+	$.log(`🚧 ${$.name}, Determine Response Availability`, `Format:${Format}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
-			switch ((response?.headers?.["content-type"] || response.headers?.["Content-Type"])?.split(";")?.[0]) {
+			switch (Format) {
 				case "application/grpc":
-					switch (response?.headers?.["grpc-message"] || response.headers?.["Grpc-Message"]) {
+					switch (response?.headers?.["Grpc-Message"] ?? response?.headers?.["grpc-message"]) {
 						case "0":
 							isAvailable = true;
 							break;
