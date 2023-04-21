@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.4(9) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.4(10) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -20,7 +20,7 @@ const DataBase = {
 		"Settings":{"Switch":"true"}
 	}
 };
-
+/*
 // headers转小写
 for (const [key, value] of Object.entries($request.headers)) {
 	delete $request.headers[key]
@@ -30,7 +30,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 	delete $response.headers[key]
 	$response.headers[key.toLowerCase()] = value
 };
-
+*/
 /***************** Processing *****************/
 (async () => {
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", DataBase);
@@ -46,7 +46,9 @@ for (const [key, value] of Object.entries($response.headers)) {
 				case "PUT":
 				case "PATCH":
 					// 解析格式
-					switch ($response?.headers?.["content-type"]?.split(";")?.[0]) {
+					const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0]
+					$.log(`Format: ${Format}`, "");
+					switch (Format) {
 						case "application/x-www-form-urlencoded":
 						case "text/html":
 							break;
@@ -65,7 +67,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 							//$.log(`🚧 ${$.name}`, `$response.body: ${JSON.stringify($response.body)}`, "");
 							let rawBody = $.isQuanX() ? new Uint8Array($response.bodyBytes) : $response.body;
 							//$.log(`🚧 ${$.name}`, `isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
-							switch ($response?.headers?.["content-type"]?.split(";")?.[0]) {
+							switch (Format) {
 								case "application/grpc":
 									/******************  initialization start  *******************/
 									// pako 2.0.4
@@ -258,9 +260,11 @@ for (const [key, value] of Object.entries($response.headers)) {
 })()
 	.catch((e) => $.logErr(e))
 	.finally(() => {
+		const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+		$.log(`🎉 ${$.name}, finally`, `Format:${Format}`, "");
 		//$.log(`🚧 ${$.name}, finally`, `$response:${JSON.stringify($response)}`, "");
 		$.log(`🎉 ${$.name}, finally`, `$response`, "");
-		switch ($response?.headers?.["content-type"]?.split(";")?.[0]) {
+		switch (Format) {
 			case "application/json":
 			case "text/xml":
 			default:
