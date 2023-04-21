@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.4(10) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.5(3) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -46,7 +46,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 				case "PUT":
 				case "PATCH":
 					// 解析格式
-					const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0]
+					const Format = ($response?.headers?.["Content-Type"] ?? $response?.headers?.["content-type"])?.split(";")?.[0]
 					$.log(`Format: ${Format}`, "");
 					switch (Format) {
 						case "application/x-www-form-urlencoded":
@@ -260,7 +260,7 @@ for (const [key, value] of Object.entries($response.headers)) {
 })()
 	.catch((e) => $.logErr(e))
 	.finally(() => {
-		const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+		const Format = ($response?.headers?.["Content-Type"] ?? $response?.headers?.["content-type"])?.split(";")?.[0];
 		$.log(`🎉 ${$.name}, finally`, `Format:${Format}`, "");
 		//$.log(`🚧 ${$.name}, finally`, `$response:${JSON.stringify($response)}`, "");
 		$.log(`🎉 ${$.name}, finally`, `$response`, "");
@@ -275,14 +275,10 @@ for (const [key, value] of Object.entries($response.headers)) {
 			case "application/x-protobuf":
 			case "application/grpc":
 				// 返回二进制数据
-				if ($.isQuanX()) {
-					$.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
-					$.log(`bodyBytes.byteOffset: ${$response.bodyBytes.byteOffset}}`);
-					$.done({ headers: $response.headers, bodyBytes: $response.bodyBytes.buffer.slice($response.bodyBytes.byteOffset, $response.bodyBytes.byteLength + $response.bodyBytes.byteOffset) });
-				} else {
-					$.log(`${$response.body.byteLength}---${$response.body.buffer.byteLength}`);
-					$.done($response)
-				};
+				if ($.isQuanX()) $.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
+				else $.log(`${$response.body.byteLength}---${$response.body.buffer.byteLength}`);
+				if ($.isQuanX()) $.done({ headers: $response.headers, bodyBytes: $response.bodyBytes.buffer.slice($response.bodyBytes.byteOffset, $response.bodyBytes.byteLength + $response.bodyBytes.byteOffset) });
+				else $.done($response);
 				break;
 			case undefined: // 视为无body
 				// 返回普通数据
@@ -309,7 +305,13 @@ function setENV(name, platform, database) {
 	Settings.ForceHost = parseInt(Settings.ForceHost, 10) // BoxJs字符串转Number
 	if (typeof Settings.Locales === "string") Settings.Locales = Settings.Locales.split(",") // BoxJs字符串转数组
 	$.log(`🎉 ${$.name}, Set Environment Variables`, `Settings: ${typeof Settings}`, `Settings内容: ${JSON.stringify(Settings)}`, "");
-	return { Settings, Caches, Configs }
+	/***************** Caches *****************/
+	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
+	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
+	$.log(`🎉 ${$.name}, Set Environment Variables`, `Caches: ${typeof Caches}`, `Caches内容: ${JSON.stringify(Caches)}`, "");
+	Caches.ss = new Map(Caches?.ss ?? []); // Array转Map
+	Caches.ep = new Map(Caches?.ep ?? []); // Array转Map
+	return { Settings, Caches, Configs };
 };
 
 /**
@@ -409,57 +411,32 @@ function setEpisodes(episodes = []) {
  */
 function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
 	$.log(`⚠ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
-	let isSaved = new Boolean;
-	if (!cache?.ep) cache.ep = {};
-	if (!cache?.ss) cache.ss = {};
+	let isSaved = false;
 	$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
 	//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
 	//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
+	let value = [];
 	if (infoGroup?.seasonTitle) {
 		switch ([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
 			case "港澳台地區":
-				cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
-				cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
-				episodes.forEach(episode => {
-					cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
-				});
+				value = ["HKG", "MAC", "TWN"];
 				break;
 			case "僅限港台地區":
-				cache.ss[infoGroup.seasonId] = ["HKG", "TWN"];
-				cache.ep[infoGroup.epId] = ["HKG", "TWN"];
-				episodes.forEach(episode => {
-					cache.ep[episode?.id] = ["HKG", "TWN"]
-				});
+				value = ["HKG", "TWN"];
 				break;
 			case "僅限港澳地區":
-				cache.ss[infoGroup.seasonId] = ["HKG", "MAC"];
-				cache.ep[infoGroup.epId] = ["HKG", "MAC"];
-				episodes.forEach(episode => {
-					cache.ep[episode?.id] = ["HKG", "MAC"]
-				});
+				value = ["HKG", "MAC"];
 				break;
 			case "僅限台灣地區":
-				cache.ss[infoGroup.seasonId] = ["TWN"];
-				cache.ep[infoGroup.epId] = ["TWN"];
-				episodes.forEach(episode => {
-					cache.ep[episode?.id] = ["TWN"]
-				});
+				value = ["TWN"];
 				break;
 			case "僅限港澳台及其他地區":
-				cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN", "SEA"];
-				cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN", "SEA"];
-				episodes.forEach(episode => {
-					cache.ep[episode?.id] = ["HKG", "MAC", "TWN", "SEA"]
-				});
+				value = ["HKG", "MAC", "TWN", "SEA"];
 				break;
 			case "僅限港澳及其他地區":
-				cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "SEA"];
-				cache.ep[infoGroup.epId] = ["HKG", "MAC", "SEA"];
-				episodes.forEach(episode => {
-					cache.ep[episode?.id] = ["HKG", "MAC", "SEA"]
-				});
+				value = ["HKG", "MAC", "SEA"];
 				break;
 			case undefined:
 			default:
@@ -467,41 +444,30 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 					case 11783021: // 哔哩哔哩番剧出差
 					case 1988098633: // b站_戲劇咖
 					case 2042149112: // b站_綜藝咖
-						cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
-						cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
-						episodes.forEach(episode => {
-							cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
-						});
+						value = ["HKG", "MAC", "TWN"];
 						break;
 					default: // 其他UP主
 						break;
 					case undefined: // 无UP主信息
 						if (isTraditional(infoGroup.seasonTitle) > 0) { // Traditional Chinese
-							cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
-							cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
-							episodes.forEach(episode => {
-								cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
-							});
+							value = ["HKG", "MAC", "TWN"];
 						} else if (isTraditional(infoGroup.evaluate) > 1) { // Traditional Chinese
-							cache.ss[infoGroup.seasonId] = ["HKG", "MAC", "TWN"];
-							cache.ep[infoGroup.epId] = ["HKG", "MAC", "TWN"];
-							episodes.forEach(episode => {
-								cache.ep[episode?.id] = ["HKG", "MAC", "TWN"]
-							});
+							value = ["HKG", "MAC", "TWN"];
 						} else { // Simplified Chinese
-							cache.ss[infoGroup.seasonId] = ["CHN"];
-							cache.ep[infoGroup.epId] = ["CHN"];
-							episodes.forEach(episode => {
-								cache.ep[episode?.id] = ["CHN"]
-							});
+							value = ["CHN"];
 						};
 						break;
 				};
 				break;
 		};
+		if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, value);
+		if (infoGroup?.epId) cache.ep.set(infoGroup.epId, value);
+		episodes.forEach(episode => cache.ep.set(episode?.id, value));
+		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
+		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
 		isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
 	};
-	//$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
+	$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
 	$.log(`🎉 ${$.name}, Set Cache`, `$.setjson ? ${isSaved}`, "");
 	return isSaved;
 };
