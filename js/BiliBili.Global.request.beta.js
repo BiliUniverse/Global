@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(5) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(6) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -556,7 +556,7 @@ async function Fetch(request = {}) {
 		? await $.http.post(request)
 		: await $.http.get(request);
 	$.log(`🎉 ${$.name}, Fetch Ruled Reqeust`, "");
-	//$.log(`🚧 ${$.name}, Fetch Ruled Reqeust`, `Response:${JSON.stringify(response)}`, "");
+	$.log(`🚧 ${$.name}, Fetch Ruled Reqeust`, `Response:${JSON.stringify(response)}`, "");
 	return response;
 };
 
