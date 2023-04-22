@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(3) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(5) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -525,8 +525,10 @@ function ReReqeust(request = {}, proxyName = undefined) {
 			case "Quantumult X":
 				delete request.method;
 				delete request.scheme;
-				delete request.seasonIndex;
+				delete request.sessionIndex;
 				delete request.charset;
+				delete request.headers["Content-Length"];
+				delete request.headers["content-length"];
 				//if (request.opts) request.opts.policy = proxyName;
 				//else request.opts = { "policy": proxyName };
 				$.lodash_set(request, "opts.policy", proxyName);
@@ -536,8 +538,9 @@ function ReReqeust(request = {}, proxyName = undefined) {
 		};
 	};
 	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
+	if (ArrayBuffer.isView(request?.bodyBytes)) request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
 	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
-	//$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
+	$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
 	return request;
 };
 
