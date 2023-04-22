@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.3(5) request");
+const $ = new Env("📺 BiliBili:Global v0.4.4(5) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -109,10 +109,10 @@ let $response = undefined;
 															data.vod.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewUniteReq.toBinary(data);
 															// 判断线路
-															let epId = data?.extraContent.ep_id?.toString();
-															let seasonId = data?.extraContent?.season_id?.toString();
-															if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-															else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+															let epId = data?.extraContent.ep_id;
+															let seasonId = data?.extraContent?.season_id;
+															if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
+															else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
 															else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 															break;
 														};
@@ -146,10 +146,10 @@ let $response = undefined;
 															data.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewReq.toBinary(data);
 															// 判断线路
-															let epId = data?.epId?.toString();
-															let seasonId = data?.seasonId?.toString();
-															if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-															else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+															let epId = data?.epId;
+															let seasonId = data?.seasonId;
+															if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
+															else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
 															else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 															break;
 														};
@@ -273,10 +273,10 @@ let $response = undefined;
 								case "pgc/player/api/playurl": // 番剧-播放地址-api
 								case "pgc/player/web/playurl": // 番剧-播放地址-web
 								case "pgc/player/web/playurl/html5": { // 番剧-播放地址-web-HTML5
-									let epId = url?.params?.ep_id;
-									let seasonId = url?.params?.season_id;
-									if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-									else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+									let epId = parseInt(url?.params?.ep_id, 10);
+									let seasonId = parseInt(url?.params?.season_id, 10);
+									if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
+									else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
 									else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 									break;
 								};
@@ -298,10 +298,10 @@ let $response = undefined;
 								case "pgc/view/web/season": // 番剧-内容-web
 								case "pgc/view/pc/season": // 番剧-内容-pc
 									// 判断线路
-									let epId = url?.params?.ep_id;
-									let seasonId = url?.params?.season_id;
-									if (Caches?.ss?.[seasonId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss[seasonId]));
-									else if (Caches?.ep?.[epId]) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep[epId]));
+									let epId = parseInt(url?.params?.ep_id, 10);
+									let seasonId = parseInt(url?.params?.season_id, 10);
+									if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
+									else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
 									else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 									break;
 								case "x/web-interface/search": // 搜索-全部结果-web（综合）
@@ -391,14 +391,8 @@ let $response = undefined;
 					case "application/x-protobuf":
 					case "application/grpc":
 						// 返回二进制数据
-						if ($.isQuanX()) {
-							//$.log(`${$request.bodyBytes.byteLength}---${$request.bodyBytes.buffer.byteLength}`);
-							//$.log(`bodyBytes.byteOffset: ${$request.bodyBytes.byteOffset}}`);
-							$.done({ headers: $request.headers, bodyBytes: $request.bodyBytes.buffer.slice($request.bodyBytes.byteOffset, $request.bodyBytes.byteLength + $request.bodyBytes.byteOffset), opts: $request.opts });
-						} else {
-							//$.log(`${$request.body.byteLength}---${$request.body.buffer.byteLength}`);
-							$.done($request)
-						};
+						if ($.isQuanX()) $.done({ headers: $request.headers, bodyBytes: $request.bodyBytes.buffer.slice($request.bodyBytes.byteOffset, $request.bodyBytes.byteLength + $request.bodyBytes.byteOffset) });
+						else $.done($request);
 						break;
 					case undefined: // 视为无body
 						// 返回普通数据
@@ -427,7 +421,13 @@ function setENV(name, platform, database) {
 	Settings.ForceHost = parseInt(Settings.ForceHost, 10) // BoxJs字符串转Number
 	if (typeof Settings.Locales === "string") Settings.Locales = Settings.Locales.split(",") // BoxJs字符串转数组
 	$.log(`🎉 ${$.name}, Set Environment Variables`, `Settings: ${typeof Settings}`, `Settings内容: ${JSON.stringify(Settings)}`, "");
-	return { Settings, Caches, Configs }
+	/***************** Caches *****************/
+	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
+	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
+	$.log(`🎉 ${$.name}, Set Environment Variables`, `Caches: ${typeof Caches}`, `Caches内容: ${JSON.stringify(Caches)}`, "");
+	Caches.ss = new Map(Caches?.ss ?? []); // Array转Map
+	Caches.ep = new Map(Caches?.ep ?? []); // Array转Map
+	return { Settings, Caches, Configs };
 };
 
 /**
@@ -457,8 +457,10 @@ function ReReqeust(request = {}, proxyName = undefined) {
 			case "Quantumult X":
 				delete request.method;
 				delete request.scheme;
-				delete request.seasonIndex;
+				delete request.sessionIndex;
 				delete request.charset;
+				delete request.headers["Content-Length"];
+				delete request.headers["content-length"];
 				$.lodash_set(request, "opts.policy", proxyName);
 				break;
 			default:
@@ -466,6 +468,7 @@ function ReReqeust(request = {}, proxyName = undefined) {
 		};
 	};
 	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
+	if (ArrayBuffer.isView(request?.bodyBytes)) request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
 	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
 	//$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
 	return request;
