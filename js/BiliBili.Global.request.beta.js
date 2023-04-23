@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(13) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(16) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -435,6 +435,7 @@ let $response = undefined;
 				if ($response.headers["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				if ($.isQuanX()) {
+					$response.status = "HTTP/1.1 200 OK";
 					switch (Format) {
 						case "application/json":
 						case "text/xml":
@@ -532,7 +533,7 @@ function ReReqeust(request = {}, proxyName = undefined) {
 				request.policy = proxyName;
 				break;
 			case "Quantumult X":
-				delete request.method;
+				//delete request.method;
 				delete request.scheme;
 				delete request.sessionIndex;
 				delete request.charset;
