@@ -2,15 +2,16 @@ name: "📺 BiliBili: 🌐 Global"
 desc: "哔哩哔哩：全球模式（中国站自动线路及全区搜索）"
 openUrl: "http://boxjs.com/#/app/BiliBili.Global"
 author: VirgilClyne
-homepage: "https://github.com/BiliUniverse"
-manual: "https://github.com/BiliUniverse/Global/wiki"
+homepage: "https://global.biliuniverse.io"
+manual: "https://manual.biliuniverse.io"
 icon: "https://github.com/BiliUniverse/Global/raw/main/database/icon_rounded_108x.png"
 
 http:
   mitm:
     - "www.bilibili.com"
-    - "app.bilibili.com"
     - "search.bilibili.com"
+    - "app.bilibili.com"
+    - "app.biliapi.net"
     - "api.bilibili.com"
     - "api.biliapi.net"
     - "grpc.biliapi.net"
@@ -21,13 +22,13 @@ http:
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$
       name: BiliBili.Global.response
       type: response
       require-body: true
@@ -47,7 +48,7 @@ http:
       timeout: 15
       binary-mode: true
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
@@ -66,37 +67,37 @@ http:
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/app\.bilibili\.com\/x\/v2\/search(\/type)?(\?.+)?$
+    - match: ^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/search(\/type)?(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/search\/(all\/v2|type)?(\?.+)?$
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/web-interface\/search\/(all\/v2|type)?(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/app\.bilibili\.com\/x\/v2\/space(\?.+)?$
+    - match: ^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/space(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/wbi\/acc\/info(\?.+)?$
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/space\/wbi\/acc\/info(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/acc\/info(\?.+)?$
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/space\/acc\/info(\?.+)?$
       name: BiliBili.Global.request
       type: request
       require-body: false

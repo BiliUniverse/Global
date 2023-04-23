@@ -2,29 +2,29 @@
 #!desc=(BETA) 哔哩哔哩：全球模式（中国站自动线路及全区搜索）
 #!openUrl=http://boxjs.com/#/app/BiliBili.Global.beta
 #!author=VirgilClyne
-#!homepage=https://github.com/BiliUniverse
-#!manual=https://github.com/BiliUniverse/Global/wiki
+#!homepage=https://global.biliuniverse.io
+#!manual=https://manual.biliuniverse.io
 #!icon=https://github.com/BiliUniverse/Global/raw/main/database/icon_rounded_108x.png
 
 [Script]
 http-request ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?(\?.+)?$ requires-body=1, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.bangumi.play.html, argument=
 
-http-request ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.season.json, argument=
-http-response ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ requires-body=1, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.response.beta.js, tag=BiliBili.Global.season.json, argument=
+http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.season.json, argument=
+http-response ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ requires-body=1, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.response.beta.js, tag=BiliBili.Global.season.json, argument=
 
 http-request ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite(\?.+)?$ requires-body=1, binary-body-mode=1, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.playerunite.v1.Player.grpc, argument=
 http-request ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView(\?.+)?$ requires-body=1, binary-body-mode=1, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.player.v2.PlayURL.grpc, argument=
-http-request ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.player.playurl.json, argument=
+http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.player.playurl.json, argument=
 
 http-request ^https?:\/\/search\.bilibili\.com\/all?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.html, argument=
 http-request ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)(\?.+)?$ requires-body=1, binary-body-mode=1, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.grpc, argument=
-http-request ^https?:\/\/app\.bilibili\.com\/x\/v2\/search(\/type)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.app.json, argument=
-http-request ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.wbi.json, argument=
-http-request ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/web-interface\/search\/(all\/v2|type)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.pc.json, argument=
+http-request ^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/search(\/type)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.app.json, argument=
+http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/web-interface\/wbi\/search\/(all\/v2|type)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.wbi.json, argument=
+http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/web-interface\/search\/(all\/v2|type)?(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.search.pc.json, argument=
 
-http-request ^https?:\/\/app\.bilibili\.com\/x\/v2\/space(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.app.json, argument=
-http-request ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/wbi/acc\/info(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.wbi.json, argument=
-http-request ^https?:\/\/api\.(bilibili\.com|biliapi\.net)\/x\/space\/acc\/info(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.pc.json, argument=
+http-request ^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/space(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.app.json, argument=
+http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/space\/wbi/acc\/info(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.wbi.json, argument=
+http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/space\/acc\/info(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.pc.json, argument=
 
 [MITM]
-hostname = www.bilibili.com, www.bilibili.tv, app.bilibili.com, search.bilibili.com, api.bilibili.com, api.global.bilibili.com, api.biliapi.net, grpc.biliapi.net
+hostname = www.bilibili.com, search.bilibili.com, app.bilibili.com, app.biliapi.net, api.bilibili.com, api.biliapi.net, grpc.biliapi.net
