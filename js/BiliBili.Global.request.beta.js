@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(32) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(33) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -639,7 +639,7 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 function isResponseAvailability(response = {}) {
     //$.log(`⚠ ${$.name}, Determine Response Availability`, "");
 	$.log(`🚧 ${$.name}, Determine Response Availability`, `statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
-	const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+	const Format = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
 	$.log(`🚧 ${$.name}, Determine Response Availability`, `Format:${Format}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
