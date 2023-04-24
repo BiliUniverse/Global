@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(26) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(32) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -356,6 +356,22 @@ let $response = undefined;
 									if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
 									else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
 									else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+									// 兼容性处理
+									switch ($.getEnv()) {
+										case "Loon":
+										case "Stash":
+										case "Surge":
+										default:
+											break;
+										case "Shadowrocket":
+											// 直通请求
+											delete $request?.policy;
+											break;
+										case "Quantumult X":
+											// 直通请求
+											delete $request?.opts?.policy;
+											break;
+									};
 									break;
 								//case "pgc/view/web/season": // 番剧-内容-web
 									//if (Caches.AccessKey) {
@@ -389,15 +405,15 @@ let $response = undefined;
 					case "Loon":
 					case "Stash":
 					case "Surge":
+					default:
+						break;
 					case "Shadowrocket":
+						// 已有指定策略的请求，根据策略fetch
+						if ($request?.policy) $response = await Fetch($request);
 						break;
 					case "Quantumult X":
 						// 已有指定策略的请求，根据策略fetch
 						if ($request?.opts?.policy) $response = await Fetch($request);
-						// 未指定策略的请求，mutiFetch
-						else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-						break;
-					default:
 						break;
 				};
 			};
@@ -433,8 +449,10 @@ let $response = undefined;
 					$response.headers[key.toLowerCase()] = value
 				};
 				*/
-				if ($response.headers["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
-				if ($response.headers["content-encoding"]) $response.headers["content-encoding"] = "identity";
+				if ($response?.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
+				if ($response?.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
+				delete $response?.headers?.["Content-Length"];
+				delete $response?.headers?.["content-length"];
 				if ($.isQuanX()) {
 					$response.status = "HTTP/1.1 200 OK";
 					switch (Format) {
@@ -550,8 +568,8 @@ function ReReqeust(request = {}, proxyName = undefined) {
 				break;
 		};
 	};
-	delete request.headers["Content-Length"];
-	delete request.headers["content-length"];
+	delete request?.headers?.["Content-Length"];
+	delete request?.headers?.["content-length"];
 	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
 	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
 	$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
