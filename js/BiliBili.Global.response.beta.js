@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.5(4) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.5(6) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -210,8 +210,10 @@ const DataBase = {
 									};
 									// 解锁弹幕和评论区等限制
 									if (data?.rights) {
+										data.rights.allow_bp = 1;
 										data.rights.allow_download = 1;
 										data.rights.allow_demand = 1;
+										data.rights.area_limit = 0;
 									};
 									$response.body = JSON.stringify(body);
 									break;
@@ -389,15 +391,15 @@ function setEpisodes(episodes = []) {
 	$.log(`⚠ ${$.name}, Set Episodes`, "");
 	episodes = episodes.map(episode => {
 		if (episode?.badge_info?.text == "受限") {
-			episode.badge_info.text = ""
-			episode.badge_info.bg_color = "#FB7299"
-			episode.badge_info.bg_color_night = "#BB5B76"
+			episode.badge_info.text = "";
+			episode.badge_info.bg_color = "#FB7299";
+			episode.badge_info.bg_color_night = "#BB5B76";
 		};
 		if (episode?.rights) {
-			episode.rights.allow_dm = 1
-			episode.rights.area_limit = 0
-			episode.rights.allow_download = 1
-			episode.rights.allow_demand = 1
+			episode.rights.allow_dm = 1;
+			episode.rights.allow_download = 1;
+			episode.rights.allow_demand = 1;
+			episode.rights.area_limit = 0;
 		};
 		return episode;
 	});
