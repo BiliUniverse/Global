@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(33) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(34) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -436,12 +436,11 @@ let $response = undefined;
 })()
 	.catch((e) => $.logErr(e))
 	.finally(() => {
-		const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
-		$.log(`🎉 ${$.name}, finally`, `Format:${Format}`, "");
 		switch ($response) {
-			default: // 有构造回复数据，返回构造的回复数据
+			default: { // 有构造回复数据，返回构造的回复数据
+				const Format = ($response?.headers?.["Content-Type"] ?? $response?.headers?.["content-type"])?.split(";")?.[0];
+				$.log(`🎉 ${$.name}, finally`, `echo $response`, `Format:${Format}`, "");
 				$.log(`🚧 ${$.name}, finally`, `echo $response:${JSON.stringify($response)}`, "");
-				$.log(`🎉 ${$.name}, finally`, `echo $response`, "");
 				/*
 				// headers转小写
 				for (const [key, value] of Object.entries($response.headers)) {
@@ -476,9 +475,11 @@ let $response = undefined;
 					};
 				} else $.done({ response: $response });
 				break;
-			case undefined: // 无构造回复数据，发送修改的请求数据
+			};
+			case undefined: { // 无构造回复数据，发送修改的请求数据
+				const Format = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
+				$.log(`🎉 ${$.name}, finally`, `$request`, `Format:${Format}`, "");
 				//$.log(`🚧 ${$.name}, finally`, `$request:${JSON.stringify($request)}`, "");
-				$.log(`🎉 ${$.name}, finally`, `$request`, "");
 				switch (Format) {
 					case "application/json":
 					case "text/xml":
@@ -502,6 +503,7 @@ let $response = undefined;
 						break;
 				};
 				break;
+			};
 		};
 	})
 
