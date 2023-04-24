@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(34) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(36) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -344,23 +344,19 @@ let $response = undefined;
 									// 判断线路
 									let epId = parseInt(url?.params?.ep_id, 10);
 									let seasonId = parseInt(url?.params?.season_id, 10);
-									if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
-									else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
-									else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 									// 兼容性处理
 									switch ($.getEnv()) {
 										case "Loon":
 										case "Stash":
 										case "Surge":
 										default:
+											if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
+											else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
+											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 											break;
 										case "Shadowrocket":
-											// 直通请求
-											delete $request?.policy;
-											break;
 										case "Quantumult X":
 											// 直通请求
-											delete $request?.opts?.policy;
 											break;
 									};
 									break;
