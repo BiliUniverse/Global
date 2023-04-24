@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.4(19) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.4(26) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -62,7 +62,6 @@ let $response = undefined;
 						case "application/grpc":
 							//$.log(`🚧 ${$.name}`, `$request.body: ${JSON.stringify($request.body)}`, "");
 							let rawBody = $.isQuanX() ? new Uint8Array($request.bodyBytes) : $request.body;
-							if ($.isQuanX()) delete $request.body;
 							//$.log(`🚧 ${$.name}`, `isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 							/******************  initialization start  *******************/
 							// timostamm/protobuf-ts
@@ -394,7 +393,7 @@ let $response = undefined;
 						break;
 					case "Quantumult X":
 						// 已有指定策略的请求，根据策略fetch
-						if ($request?.opt?.policy) $response = await Fetch($request);
+						if ($request?.opts?.policy) $response = await Fetch($request);
 						// 未指定策略的请求，mutiFetch
 						else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 						break;
@@ -425,7 +424,7 @@ let $response = undefined;
 		$.log(`🎉 ${$.name}, finally`, `Format:${Format}`, "");
 		switch ($response) {
 			default: // 有构造回复数据，返回构造的回复数据
-				//$.log(`🚧 ${$.name}, finally`, `echo $response:${JSON.stringify($response)}`, "");
+				$.log(`🚧 ${$.name}, finally`, `echo $response:${JSON.stringify($response)}`, "");
 				$.log(`🎉 ${$.name}, finally`, `echo $response`, "");
 				/*
 				// headers转小写
@@ -447,6 +446,7 @@ let $response = undefined;
 							break;
 						case "application/x-protobuf":
 						case "application/grpc":
+							if (!ArrayBuffer.isView($response.bodyBytes)) $response.bodyBytes = new Uint8Array($response.bodyBytes);
 							// 返回二进制数据
 							$.done({ status: $response.status, headers: $response.headers, bodyBytes: $response.bodyBytes });
 							break;
@@ -538,12 +538,10 @@ function ReReqeust(request = {}, proxyName = undefined) {
 				request.policy = proxyName;
 				break;
 			case "Quantumult X":
-				//delete request.method;
+				delete request.method;
 				delete request.scheme;
 				delete request.sessionIndex;
 				delete request.charset;
-				delete request.headers["Content-Length"];
-				delete request.headers["content-length"];
 				//if (request.opts) request.opts.policy = proxyName;
 				//else request.opts = { "policy": proxyName };
 				$.lodash_set(request, "opts.policy", proxyName);
@@ -552,6 +550,8 @@ function ReReqeust(request = {}, proxyName = undefined) {
 				break;
 		};
 	};
+	delete request.headers["Content-Length"];
+	delete request.headers["content-length"];
 	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
 	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
 	$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
@@ -568,22 +568,24 @@ async function Fetch(request = {}) {
 	$.log(`⚠ ${$.name}, Fetch Ruled Reqeust`, "");
 	const Format = (request?.headers?.["Content-Type"] ?? request?.headers?.["content-type"])?.split(";")?.[0];
 	$.log(`⚠ ${$.name}, Fetch Ruled Reqeust`, `Format:${Format}`, "");
-	switch (Format) {
-		case "application/json":
-		case "text/xml":
-		default:
-			// 返回普通数据
-			delete request.bodyBytes;
-			break;
-		case "application/x-protobuf":
-		case "application/grpc":
-			// 返回二进制数据
-			delete request.body;
-			request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
-			break;
-		case undefined: // 视为无body
-			// 返回普通数据
-			break;
+	if ($.isQuanX()) {
+		switch (Format) {
+			case "application/json":
+			case "text/xml":
+			default:
+				// 返回普通数据
+				delete request.bodyBytes;
+				break;
+			case "application/x-protobuf":
+			case "application/grpc":
+				// 返回二进制数据
+				delete request.body;
+				if (ArrayBuffer.isView(request.bodyBytes)) request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
+				break;
+			case undefined: // 视为无body
+				// 返回普通数据
+				break;
+		};
 	};
 	let response = (request?.body ?? request?.bodyBytes)
 		? await $.http.post(request)

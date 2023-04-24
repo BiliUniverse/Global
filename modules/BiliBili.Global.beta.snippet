@@ -11,7 +11,7 @@
 ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
 
 # BiliBili.Global.season.json
-# ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ url script-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ url script-request-body https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
 # BiliBili.Global.season.json
 ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season(\?.+)?$ url script-response-body https://raw.githubusercontent.com/BiliUniverse/Global/main/js/BiliBili.Global.response.beta.js
 
