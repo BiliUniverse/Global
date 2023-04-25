@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.4.5(1) request");
+const $ = new Env("📺 BiliBili:Global v0.4.5(6) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -368,6 +368,7 @@ let $response = undefined;
 				if ($response?.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				delete $response?.headers?.["Content-Length"];
 				delete $response?.headers?.["content-length"];
+				delete $response?.headers?.["Transfer-Encoding"];
 				if ($.isQuanX()) {
 					$response.status = "HTTP/1.1 200 OK";
 					switch (Format) {
@@ -379,7 +380,8 @@ let $response = undefined;
 							break;
 						case "application/x-protobuf":
 						case "application/grpc":
-							if (!ArrayBuffer.isView($response.bodyBytes)) $response.bodyBytes = new Uint8Array($response.bodyBytes);
+							//$.log("$response.bodyBytes instanceof ArrayBuffer: " + ($response.bodyBytes instanceof ArrayBuffer));
+							//$.log("ArrayBuffer.isView($response.bodyBytes): " + ArrayBuffer.isView($response.bodyBytes));
 							// 返回二进制数据
 							$.done({ status: $response.status, headers: $response.headers, bodyBytes: $response.bodyBytes });
 							break;
