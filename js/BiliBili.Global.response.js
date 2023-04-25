@@ -1,7 +1,7 @@
 /*
 README:https://github.com/VirgilClyne/BiliBili
 */
-const $ = new Env("📺 BiliBili:Global v0.2.6(1) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.6(2) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -153,8 +153,6 @@ const DataBase = {
 					// 解析链接
 					switch (url.host) {
 						case "www.bilibili.com":
-							if (url.path.includes("bangumi/play/")) {// web版番剧
-							};
 							break;
 						case "app.bilibili.com":
 						case "app.biliapi.net":
@@ -263,28 +261,27 @@ const DataBase = {
 				if ($response?.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				delete $response?.headers?.["Content-Length"];
 				delete $response?.headers?.["content-length"];
-				switch (Format) {
-					case "application/json":
-					case "text/xml":
-					default:
-						// 返回普通数据
-						if ($.isQuanX()) $.done({ headers: $response.headers, body: $response.body })
-						else $.done($response)
-						break;
-					case "application/x-protobuf":
-					case "application/grpc":
-						// 返回二进制数据
-						if ($.isQuanX()) $.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
-						else $.log(`${$response.body.byteLength}---${$response.body.buffer.byteLength}`);
-						if ($.isQuanX()) $.done({ headers: $response.headers, bodyBytes: $response.bodyBytes.buffer.slice($response.bodyBytes.byteOffset, $response.bodyBytes.byteLength + $response.bodyBytes.byteOffset) });
-						else $.done($response);
-						break;
-					case undefined: // 视为无body
-						// 返回普通数据
-						if ($.isQuanX()) $.done({ headers: $response.headers })
-						else $.done($response)
-						break;
-				};
+				delete $response?.headers?.["Transfer-Encoding"];
+				if ($.isQuanX()) {
+					switch (Format) {
+						case "application/json":
+						case "text/xml":
+						default:
+							// 返回普通数据
+							$.done({ headers: $response.headers, body: $response.body });
+							break;
+						case "application/x-protobuf":
+						case "application/grpc":
+							// 返回二进制数据
+							//$.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
+							$.done({ headers: $response.headers, bodyBytes: $response.bodyBytes.buffer.slice($response.bodyBytes.byteOffset, $response.bodyBytes.byteLength + $response.bodyBytes.byteOffset) });
+							break;
+						case undefined: // 视为无body
+							// 返回普通数据
+							$.done({ headers: $response.headers });
+							break;
+					};
+				} else $.done($response);
 				break;
 			};
 			case undefined: { // 无回复数据
