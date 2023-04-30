@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.2.6(6) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.6(7) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -36,21 +36,28 @@ const DataBase = {
 		case "true":
 		default:
 			let url = URL.parse($request?.url);
-			const HOST = url?.host, PATH = url?.path, PATHs = PATH.split("/");
+			const METHOD = $request?.method, HOST = url?.host, PATH = url?.path, PATHs = PATH.split("/");
 			// 解析格式
 			const FORMAT = ($response?.headers?.["Content-Type"] ?? $response?.headers?.["content-type"])?.split(";")?.[0];
-			$.log(`⚠ ${$.name}`, `HOST: ${HOST}`, `PATH: ${PATH}`, `PATHs: ${PATHs}`, `FORMAT: ${FORMAT}`, "");
+			$.log(`⚠ ${$.name}`, `METHOD: ${METHOD}`, `HOST: ${HOST}`, `PATH: ${PATH}`, `PATHs: ${PATHs}`, `FORMAT: ${FORMAT}`, "");
 			// 创建空数据
 			let body = { "code": 0, "message": "0", "data": {} };
+			// 格式判断
 			switch (FORMAT) {
 				case undefined: // 视为无body
 					break;
 				case "application/x-www-form-urlencoded":
+				case "text/plain":
 				case "text/html":
 				default:
 					break;
 				case "text/xml":
+				case "text/plist":
+				case "application/xml":
+				case "application/plist":
+				case "application/x-plist":
 					break;
+				case "text/json":
 				case "application/json":
 					body = JSON.parse($response.body);
 					// 解析链接
@@ -145,6 +152,8 @@ const DataBase = {
 					break;
 				case "application/x-protobuf":
 				case "application/grpc":
+				case "application/grpc+proto":
+				case "applecation/octet-stream":
 					//$.log(`🚧 ${$.name}`, `$response.body: ${JSON.stringify($response.body)}`, "");
 					let rawBody = $.isQuanX() ? new Uint8Array($response.bodyBytes) : $response.body;
 					//$.log(`🚧 ${$.name}`, `isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
@@ -242,7 +251,6 @@ const DataBase = {
 			};
 			break;
 		case "false":
-			$.log(`⚠ ${$.name}, 功能关闭`, "");
 			break;
 	};
 })()
@@ -260,9 +268,19 @@ const DataBase = {
 				delete $response?.headers?.["Transfer-Encoding"];
 				if ($.isQuanX()) {
 					switch (FORMAT) {
+						case undefined: // 视为无body
+							// 返回普通数据
+							$.done({ headers: $response.headers });
+							break;
 						case "application/x-www-form-urlencoded":
+						case "text/plain":
 						case "text/html":
 						case "text/xml":
+						case "text/plist":
+						case "application/xml":
+						case "application/plist":
+						case "application/x-plist":
+						case "text/json":
 						case "application/json":
 						default:
 							// 返回普通数据
@@ -270,13 +288,11 @@ const DataBase = {
 							break;
 						case "application/x-protobuf":
 						case "application/grpc":
+						case "application/grpc+proto":
+						case "applecation/octet-stream":
 							// 返回二进制数据
 							//$.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
 							$.done({ headers: $response.headers, bodyBytes: $response.bodyBytes.buffer.slice($response.bodyBytes.byteOffset, $response.bodyBytes.byteLength + $response.bodyBytes.byteOffset) });
-							break;
-						case undefined: // 视为无body
-							// 返回普通数据
-							$.done({ headers: $response.headers });
 							break;
 					};
 				} else $.done($response);
@@ -307,9 +323,10 @@ function setENV(name, platform, database) {
 	/***************** Caches *****************/
 	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
 	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
-	$.log(`🎉 ${$.name}, Set Environment Variables`, `Caches: ${typeof Caches}`, `Caches内容: ${JSON.stringify(Caches)}`, "");
+	//$.log(`🎉 ${$.name}, Set Environment Variables`, `Caches: ${typeof Caches}`, `Caches内容: ${JSON.stringify(Caches)}`, "");
 	Caches.ss = new Map(Caches?.ss ?? []); // Array转Map
 	Caches.ep = new Map(Caches?.ep ?? []); // Array转Map
+	/***************** Configs *****************/
 	return { Settings, Caches, Configs };
 };
 
