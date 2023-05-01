@@ -433,6 +433,7 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 				value = ["HKG", "TWN"];
 				break;
 			case "僅限港澳地區":
+			case "僅港澳地區":
 				value = ["HKG", "MAC"];
 				break;
 			case "僅限台灣地區":
