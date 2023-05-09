@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.6(7) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.6(9) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -293,6 +293,8 @@ let $response = undefined;
 				case "GET":
 				case "HEAD":
 				case "OPTIONS":
+				case undefined: // QX牛逼，script-echo-response不返回method
+				default:
 					switch (HOST) {
 						case "www.bilibili.com":
 							if (PATH.includes("bangumi/play/")) // 番剧-web
