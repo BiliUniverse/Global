@@ -61,19 +61,17 @@ let $response = undefined;
 						default:
 							break;
 						case "text/xml":
-						case "text/plist":
 						case "application/xml":
+							break;
+						case "text/plist":
 						case "application/plist":
 						case "application/x-plist":
-							//body = await PLIST("plist2json", $request.body);
-							//$.log(body);
-							//$request.body = await PLIST("json2plist", body);
+							break;
+						case "text/vtt":
+						case "application/vtt":
 							break;
 						case "text/json":
 						case "application/json":
-							//body = JSON.parse($request.body);
-							//$.log(body);
-							//$request.body = JSON.stringify(body);
 							break;
 						case "application/x-protobuf":
 						case "application/grpc":
@@ -405,10 +403,12 @@ let $response = undefined;
 						case "text/plain":
 						case "text/html":
 						case "text/xml":
-						case "text/plist":
 						case "application/xml":
+						case "text/plist":
 						case "application/plist":
 						case "application/x-plist":
+						case "text/vtt":
+						case "application/vtt":
 						case "text/json":
 						case "application/json":
 						default:
@@ -441,10 +441,12 @@ let $response = undefined;
 						case "text/plain":
 						case "text/html":
 						case "text/xml":
-						case "text/plist":
 						case "application/xml":
+						case "text/plist":
 						case "application/plist":
 						case "application/x-plist":
+						case "text/vtt":
+						case "application/vtt":
 						case "text/json":
 						case "application/json":
 						default:

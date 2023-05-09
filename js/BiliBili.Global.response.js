@@ -52,10 +52,14 @@ const DataBase = {
 				default:
 					break;
 				case "text/xml":
-				case "text/plist":
 				case "application/xml":
+					break;
+				case "text/plist":
 				case "application/plist":
 				case "application/x-plist":
+					break;
+				case "text/vtt":
+				case "application/vtt":
 					break;
 				case "text/json":
 				case "application/json":
@@ -274,10 +278,12 @@ const DataBase = {
 						case "text/plain":
 						case "text/html":
 						case "text/xml":
-						case "text/plist":
 						case "application/xml":
+						case "text/plist":
 						case "application/plist":
 						case "application/x-plist":
+						case "text/vtt":
+						case "application/vtt":
 						case "text/json":
 						case "application/json":
 						default:
