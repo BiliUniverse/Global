@@ -45,6 +45,16 @@ let $response = undefined;
 			$.log(`⚠ ${$.name}`, `METHOD: ${METHOD}`, `HOST: ${HOST}`, `PATH: ${PATH}`, `PATHs: ${PATHs}`, `FORMAT: ${FORMAT}`, "");
 			// 创建空数据
 			let body = { "code": 0, "message": "0", "data": {} };
+			// 信息组
+			let infoGroup = {
+				"seasonTitle": url?.params?.season_title,
+				"epId": parseInt(url?.params?.ep_id, 10),
+				"seasonId": parseInt(url?.params?.season_id, 10),
+				"mId": parseInt(url?.params?.mid || url?.params?.vmid, 10),
+				"evaluate": undefined,
+				"keyword": decodeURIComponent(url.params?.keyword),
+				"locale": url.params?.locale,
+			};
 			// 方法判断
 			switch (METHOD) {
 				case "POST":
@@ -133,10 +143,10 @@ let $response = undefined;
 															data.vod.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewUniteReq.toBinary(data);
 															// 判断线路
-															let epId = data?.extraContent.ep_id;
-															let seasonId = data?.extraContent?.season_id;
-															if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
-															else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
+															infoGroup.seasonId = data?.extraContent?.season_id;
+															infoGroup.epId = data?.extraContent.ep_id;
+															if (Caches.ss.has(infoGroup?.seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(infoGroup?.seasonId)));
+															else if (Caches.ep.has(infoGroup?.epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(infoGroup?.epId)));
 															else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 															break;
 														};
@@ -170,10 +180,10 @@ let $response = undefined;
 															data.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewReq.toBinary(data);
 															// 判断线路
-															let epId = data?.epId;
-															let seasonId = data?.seasonId;
-															if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
-															else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
+															infoGroup.seasonId = data?.seasonId;
+															infoGroup.epId = data?.epId;
+															if (Caches.ss.has(infoGroup?.seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(infoGroup?.seasonId)));
+															else if (Caches.ep.has(infoGroup?.epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(infoGroup?.epId)));
 															else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 															break;
 														};
@@ -204,9 +214,9 @@ let $response = undefined;
 															/******************  initialization finish  *******************/
 															let data = SearchAllRequest.fromBinary(body);
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
-															let { keyword, locale } = checkKeyword(data.keyword);
-															data.keyword = keyword;
-															$request = ReReqeust($request, Settings.Proxies[locale]);
+															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
+															data.keyword = infoGroup?.keyword;
+															$request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 															body = SearchAllRequest.toBinary(data);
 															break;
@@ -218,9 +228,9 @@ let $response = undefined;
 															/******************  initialization finish  *******************/
 															let data = SearchByTypeRequest.fromBinary(body);
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
-															let { keyword, locale } = checkKeyword(data.keyword);
-															data.keyword = keyword;
-															$request = ReReqeust($request, Settings.Proxies[locale]);
+															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
+															data.keyword = infoGroup?.keyword;
+															$request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 															body = SearchByTypeRequest.toBinary(data);
 															break;
@@ -247,16 +257,27 @@ let $response = undefined;
 				default:
 					switch (HOST) {
 						case "www.bilibili.com":
-							if (PATH.includes("bangumi/play/")) // 番剧-web
-								({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+							switch (PATHs?.[0]) {
+								case "bangumi": // 番剧-web
+									switch (PATHs?.[1]) {
+										case "play": // 番剧-播放页-web
+											const URLRegex = /ss(?<seasonId>[0-9]+)|ep(?<epId>[0-9]+)/;
+											infoGroup.seasonId = parseInt(PATHs?.[2].match(URLRegex)?.groups?.seasonId, 10) ?? infoGroup.seasonId;
+											infoGroup.epId = parseInt(PATHs?.[2].match(URLRegex)?.groups?.epId, 10) ?? infoGroup.epId;
+											if (Caches.ss.has(infoGroup?.seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(infoGroup?.seasonId)));
+											else if (Caches.ep.has(infoGroup?.epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(infoGroup?.epId)));
+											else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+											break;
+									};
+									break;
+							};
 							break;
 						case "search.bilibili.com":
 							switch (PATH) {
 								case "all": // 搜索-全部结果-web（综合）
-									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword));
-									url.params.keyword = encodeURIComponent(keyword);
-									$request.url = URL.stringify(url);
-									$request = ReReqeust($request, Settings.Proxies[locale]);
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword));
+									url.params.keyword = encodeURIComponent(infoGroup?.keyword);
+									$request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 									break;
 							};
 							break;
@@ -265,17 +286,16 @@ let $response = undefined;
 							switch (PATH) {
 								case "x/v2/search": // 搜索-全部结果-api（综合）
 								case "x/v2/search/type": { // 搜索-分类结果-api（番剧、用户、影视、专栏）
-									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword));
-									url.params.keyword = encodeURIComponent(keyword);
-									$request.url = URL.stringify(url);
-									$request = ReReqeust($request, Settings.Proxies[locale]);
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword));
+									url.params.keyword = encodeURIComponent(infoGroup?.keyword);
+									$request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 									break;
 								};
 								case "x/v2/space": // 用户空间
-									switch (url.params?.vmid || url.params?.mid) {
-										case "11783021": // 哔哩哔哩番剧出差
-										case "1988098633": // b站_戲劇咖
-										case "2042149112": // b站_綜藝咖
+									switch (infoGroup?.mId) {
+										case 11783021: // 哔哩哔哩番剧出差
+										case 1988098633: // b站_戲劇咖
+										case 2042149112: // b站_綜藝咖
 											({ request: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
@@ -289,11 +309,11 @@ let $response = undefined;
 							switch (PATH) {
 								case "pgc/player/api/playurl": // 番剧-播放地址-api
 								case "pgc/player/web/playurl": // 番剧-播放地址-web
+								case "pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
+								case "/pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
 								case "pgc/player/web/playurl/html5": { // 番剧-播放地址-web-HTML5
-									let epId = parseInt(url?.params?.ep_id, 10);
-									let seasonId = parseInt(url?.params?.season_id, 10);
-									if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
-									else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
+									if (Caches.ss.has(infoGroup?.seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(infoGroup?.seasonId)));
+									else if (Caches.ep.has(infoGroup?.epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(infoGroup?.epId)));
 									else ({ response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 									break;
 								};
@@ -301,10 +321,10 @@ let $response = undefined;
 									break;
 								case "x/space/acc/info": // 用户空间-账号信息-pc
 								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
-									switch (url.params?.vmid || url.params?.mid) {
-										case "11783021": // 哔哩哔哩番剧出差
-										case "1988098633": // b站_戲劇咖
-										case "2042149112": // b站_綜藝咖
+									switch (infoGroup?.mId) {
+										case 11783021: // 哔哩哔哩番剧出差
+										case 1988098633: // b站_戲劇咖
+										case 2042149112: // b站_綜藝咖
 											({ request: $request } = await processStrategy("randomwithoutCHN", $request, Settings.Proxies, Settings.Locales));
 											break;
 										default:
@@ -314,17 +334,14 @@ let $response = undefined;
 								case "pgc/view/v2/app/season": // 番剧页面-内容-app
 								case "pgc/view/web/season": // 番剧-内容-web
 								case "pgc/view/pc/season": // 番剧-内容-pc
-									// 判断线路
-									let epId = parseInt(url?.params?.ep_id, 10);
-									let seasonId = parseInt(url?.params?.season_id, 10);
 									// 兼容性处理
 									switch ($.getEnv()) {
 										case "Loon":
 										case "Stash":
 										case "Surge":
 										default:
-											if (Caches.ss.has(seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(seasonId)));
-											else if (Caches.ep.has(epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(epId)));
+											if (Caches.ss.has(infoGroup?.seasonId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ss.get(infoGroup?.seasonId)));
+											else if (Caches.ep.has(infoGroup?.epId)) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, Caches.ep.get(infoGroup?.epId)));
 											else ({ request: $request } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 											break;
 										case "Shadowrocket":
@@ -336,22 +353,23 @@ let $response = undefined;
 								case "x/web-interface/search": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
-									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword));
-									url.params.keyword = encodeURIComponent(keyword);
-									$request.url = URL.stringify(url);
-									$request = ReReqeust($request, Settings.Proxies[locale]);
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword));
+									url.params.keyword = encodeURIComponent(infoGroup.keyword);
+									$request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 									break;
 								case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
 								case "x/web-interface/wbi/search/type": { // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
-									let { keyword, locale } = checkKeyword(decodeURIComponent(url.params?.keyword), "+");
-									url.params.keyword = encodeURIComponent(keyword);
-									$request.url = URL.stringify(url);
-									$request = ReReqeust($request, Settings.Proxies[locale]);
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword, "+"));
+									url.params.keyword = encodeURIComponent(infoGroup.keyword);
+									$request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 									break;
 								};
 							};
 							break;
 					};
+					if ($request?.headers?.Host) $request.headers.Host = url.host;
+					$request.url = URL.stringify(url);
+					//$.log(`🚧 ${$.name}, 调试信息`, `$request.url: ${$request.url}`, "");
 					// 兼容性处理
 					if (!$response) { // 无（构造）回复数据
 						switch ($.getEnv()) {
@@ -375,6 +393,7 @@ let $response = undefined;
 				case "TRACE":
 					break;
 			};
+			$.log(`⚠ ${$.name}`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}`, "");
 			break;
 		case "false":
 			break;

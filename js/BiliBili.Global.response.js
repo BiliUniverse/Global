@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.2.6(8) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.7(1) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -42,6 +42,16 @@ const DataBase = {
 			$.log(`⚠ ${$.name}`, `METHOD: ${METHOD}`, `HOST: ${HOST}`, `PATH: ${PATH}`, `PATHs: ${PATHs}`, `FORMAT: ${FORMAT}`, "");
 			// 创建空数据
 			let body = { "code": 0, "message": "0", "data": {} };
+			// 信息组
+			let infoGroup = {
+				"seasonTitle": url?.params?.season_title,
+				"epId": parseInt(url?.params?.ep_id, 10),
+				"seasonId": parseInt(url?.params?.season_id, 10),
+				"mId": parseInt(url?.params?.mid || url?.params?.vmid, 10),
+				"evaluate": undefined,
+				"keyword": decodeURIComponent(url.params?.keyword),
+				"locale": url.params?.locale,
+			};
 			// 格式判断
 			switch (FORMAT) {
 				case undefined: // 视为无body
@@ -73,14 +83,6 @@ const DataBase = {
 							break;
 						case "api.bilibili.com":
 						case "api.biliapi.net":
-							// ID组
-							let infoGroup = {
-								"seasonTitle": url?.params?.season_title,
-								"epId": url?.params?.ep_id,
-								"seasonId": url?.params?.season_id,
-								"mId": url?.params?.mid || url?.params?.vmid,
-								"evaluate": undefined
-							};
 							switch (PATH) {
 								case "pgc/player/api/playurl": // 番剧-播放地址-api
 								case "pgc/player/web/playurl": // 番剧-播放地址-web
@@ -91,10 +93,10 @@ const DataBase = {
 									break;
 								case "x/space/acc/info": // 用户空间-账号信息-pc
 								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
-									switch (url.params?.vmid || url.params?.mid) {
-										case "11783021": // 哔哩哔哩番剧出差
-										case "1988098633": // b站_戲劇咖
-										case "2042149112": // b站_綜藝咖
+									switch (infoGroup?.mId) {
+										case 11783021: // 哔哩哔哩番剧出差
+										case 1988098633: // b站_戲劇咖
+										case 2042149112: // b站_綜藝咖
 											break;
 										default:
 											break;
@@ -102,11 +104,10 @@ const DataBase = {
 									break;
 								case "pgc/view/v2/app/season": // 番剧页面-内容-app
 									let data = body.data;
-									if (data?.season_title) infoGroup.seasonTitle = data.season_title;
-									if (data?.season_id) infoGroup.seasonId = data.season_id;
-									if (data?.up_info?.mid) infoGroup.mId = data.up_info.mid;
-									infoGroup.evaluate = data?.evaluate;
-									$.log(`⚠ ${$.name}`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}`, "");
+									infoGroup.seasonTitle = data?.season_title ?? infoGroup.seasonTitle;
+									infoGroup.seasonId = data?.season_id ?? infoGroup.seasonId;
+									infoGroup.mId = data?.up_info.mid ?? infoGroup.mId;
+									infoGroup.evaluate = data?.evaluate ?? infoGroup.evaluate;
 									// 有剧集信息
 									if (data?.modules) {
 										// 解锁剧集信息限制
@@ -128,11 +129,10 @@ const DataBase = {
 								case "pgc/view/web/season": // 番剧-内容-web
 								case "pgc/view/pc/season": // 番剧-内容-pc
 									let result = body.result;
-									if (result?.season_title) infoGroup.seasonTitle = result.season_title;
-									if (result?.season_id) infoGroup.seasonId = result.season_id;
-									if (result?.up_info?.mid) infoGroup.mId = result.up_info.mid;
-									infoGroup.evaluate = result?.evaluate;
-									$.log(`⚠ ${$.name}`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}`, "");
+									infoGroup.seasonTitle = result.season_title ?? infoGroup.seasonTitle;
+									infoGroup.seasonId = result.season_id ?? infoGroup.seasonId;
+									infoGroup.mId = result.up_info.mid ?? infoGroup.mId;
+									infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
 									// 有剧集信息
 									if (result?.episodes || result?.section) {
 										// 解锁剧集信息限制
@@ -254,6 +254,7 @@ const DataBase = {
 					else $response.body = rawBody;
 					break;
 			};
+			$.log(`⚠ ${$.name}`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}`, "");
 			break;
 		case "false":
 			break;
