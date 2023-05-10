@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.2.7(2) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.7(3) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -481,6 +481,7 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 					default: // 其他UP主
 						break;
 					case undefined: // 无UP主信息
+					case NaN: // 无UP主信息
 						if (isTraditional(infoGroup.seasonTitle) > 0) { // Traditional Chinese
 							value = ["HKG", "MAC", "TWN"];
 						} else if (isTraditional(infoGroup.evaluate) > 1) { // Traditional Chinese

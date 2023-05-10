@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.2.7(2) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.7(3) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -51,6 +51,7 @@ const DataBase = {
 				"evaluate": undefined,
 				"keyword": decodeURIComponent(url.params?.keyword),
 				"locale": url.params?.locale,
+				"locales": undefined,
 			};
 			// 格式判断
 			switch (FORMAT) {
@@ -254,7 +255,7 @@ const DataBase = {
 					else $response.body = rawBody;
 					break;
 			};
-			$.log(`⚠ ${$.name}`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}`, "");
+			$.log(`⚠ ${$.name}，信息组`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
 			break;
 		case "false":
 			break;
@@ -461,6 +462,7 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 					default: // 其他UP主
 						break;
 					case undefined: // 无UP主信息
+					case NaN: // 无UP主信息
 						if (isTraditional(infoGroup.seasonTitle) > 0) { // Traditional Chinese
 							value = ["HKG", "MAC", "TWN"];
 						} else if (isTraditional(infoGroup.evaluate) > 1) { // Traditional Chinese
