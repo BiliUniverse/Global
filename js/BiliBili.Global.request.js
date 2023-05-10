@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.7(5) request");
+const $ = new Env("📺 BiliBili:Global v0.4.7(6) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -259,8 +259,11 @@ let $response = undefined;
 									switch (PATHs?.[1]) {
 										case "play": // 番剧-播放页-web
 											const URLRegex = /ss(?<seasonId>[0-9]+)|ep(?<epId>[0-9]+)/;
-											infoGroup.seasonId = parseInt(PATHs?.[2].match(URLRegex)?.groups?.seasonId, 10) ?? infoGroup.seasonId;
-											infoGroup.epId = parseInt(PATHs?.[2].match(URLRegex)?.groups?.epId, 10) ?? infoGroup.epId;
+											({ seasonId: infoGroup.seasonId, epId: infoGroup.epId } = PATHs?.[2].match(URLRegex)?.groups);
+											infoGroup.seasonId = parseInt(infoGroup.seasonId, 10) || infoGroup.seasonId;
+											infoGroup.epId = parseInt(infoGroup.epId, 10) || infoGroup.epId;
+											if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
+											else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
 											break;
 									};
 									break;
