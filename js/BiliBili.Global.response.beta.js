@@ -51,6 +51,7 @@ const DataBase = {
 				"evaluate": undefined,
 				"keyword": decodeURIComponent(url.params?.keyword),
 				"locale": url.params?.locale,
+				"locales": undefined,
 			};
 			// 格式判断
 			switch (FORMAT) {
@@ -263,7 +264,7 @@ const DataBase = {
 					else $response.body = rawBody;
 					break;
 			};
-			$.log(`⚠ ${$.name}`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}`, "");
+			$.log(`⚠ ${$.name}，信息组`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
 			break;
 		case "false":
 			break;
