@@ -21,6 +21,8 @@
 ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView(\?.+)?$ url script-analyze-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
 # BiliBili.Global.player.playurl.json
 ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?(\?.+)?$ url script-analyze-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
+# BiliBili.Global.player.v2.playurl.json
+^https?:\/\/api\.bili(bili\.com|api\.net)\/\/?pgc\/player\/web\/v2\/playurl(\?.+)?$ url script-analyze-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js
 
 # BiliBili.Global.search.html
 ^https?:\/\/search\.bilibili\.com\/all?(\?.+)?$ url script-analyze-echo-response https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js

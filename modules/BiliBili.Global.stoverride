@@ -54,6 +54,12 @@ http:
       require-body: false
       timeout: 15
       argument:
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/\/?pgc\/player\/web\/v2\/playurl(\?.+)?$
+      name: BiliBili.Global.request
+      type: request
+      require-body: false
+      timeout: 15
+      argument:
     - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)(\?.+)?$
       name: BiliBili.Global.request
       type: request
