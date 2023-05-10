@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.7(4) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.7(5) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -48,9 +48,9 @@ let $response = undefined;
 			// 信息组
 			let infoGroup = {
 				"seasonTitle": url?.params?.season_title,
-				"epId": parseInt(url?.params?.ep_id, 10),
-				"seasonId": parseInt(url?.params?.season_id, 10),
-				"mId": parseInt(url?.params?.mid || url?.params?.vmid, 10),
+				"epId": parseInt(url?.params?.ep_id, 10) || undefined,
+				"seasonId": parseInt(url?.params?.season_id, 10) || undefined,
+				"mId": parseInt(url?.params?.mid || url?.params?.vmid, 10) || undefined,
 				"evaluate": undefined,
 				"keyword": decodeURIComponent(url.params?.keyword),
 				"locale": url.params?.locale,
