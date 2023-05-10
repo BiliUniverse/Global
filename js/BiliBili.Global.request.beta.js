@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.6(9) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.6(10) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -349,6 +349,8 @@ let $response = undefined;
 							switch (PATH) {
 								case "pgc/player/api/playurl": // 番剧-播放地址-api
 								case "pgc/player/web/playurl": // 番剧-播放地址-web
+								case "pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
+								case "/pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
 								case "pgc/player/web/playurl/html5": { // 番剧-播放地址-web-HTML5
 									let epId = parseInt(url?.params?.ep_id, 10);
 									let seasonId = parseInt(url?.params?.season_id, 10);
