@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.2.7(1) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.7(2) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -115,7 +115,7 @@ const DataBase = {
 									let data = body.data;
 									infoGroup.seasonTitle = data?.season_title ?? infoGroup.seasonTitle;
 									infoGroup.seasonId = data?.season_id ?? infoGroup.seasonId;
-									infoGroup.mId = data?.up_info.mid ?? infoGroup.mId;
+									infoGroup.mId = data?.up_info?.mid ?? infoGroup.mId;
 									infoGroup.evaluate = data?.evaluate ?? infoGroup.evaluate;
 									// 有剧集信息
 									if (data?.modules) {
@@ -140,7 +140,7 @@ const DataBase = {
 									let result = body.result;
 									infoGroup.seasonTitle = result.season_title ?? infoGroup.seasonTitle;
 									infoGroup.seasonId = result.season_id ?? infoGroup.seasonId;
-									infoGroup.mId = result.up_info.mid ?? infoGroup.mId;
+									infoGroup.mId = result.up_info?.mid ?? infoGroup.mId;
 									infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
 									// 有剧集信息
 									if (result?.episodes || result?.section) {
