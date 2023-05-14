@@ -27,5 +27,6 @@ http-request ^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/space(\?.+)?$ req
 http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/space\/wbi/acc\/info(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.wbi.json, argument=
 http-request ^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/space\/acc\/info(\?.+)?$ requires-body=0, timeout=15, script-path=https://raw.githubusercontent.com/BiliUniverse/Global/beta/js/BiliBili.Global.request.beta.js, tag=BiliBili.Global.space.pc.json, argument=
 
-[MITM]
+[MitM]
 hostname = www.bilibili.com, search.bilibili.com, app.bilibili.com, app.biliapi.net, api.bilibili.com, api.biliapi.net, grpc.biliapi.net
+h2 = true

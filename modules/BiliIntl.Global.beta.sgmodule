@@ -21,3 +21,4 @@ BiliIntl.Global.all.json = type=http-request, pattern=^https?:\/\/(app|passport)
 
 [MITM]
 hostname = %APPEND% www.bilibili.tv, api.bilibili.tv, app.biliintl.com, passport.biliintl.com
+h2 = true

@@ -29,3 +29,4 @@ BiliBili.Global.space.pc.json = type=http-request, pattern=^https?:\/\/api\.bili
 
 [MITM]
 hostname = %APPEND% www.bilibili.com, search.bilibili.com, app.bilibili.com, app.biliapi.net, api.bilibili.com, api.biliapi.net, grpc.biliapi.net
+h2 = true
