@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.8(1) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.8(2) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -844,7 +844,7 @@ function checkKeyword(keyword = "", delimiter = " ") {
 	$.log(`⚠ ${$.name}, Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
 	$.log(`🚧 ${$.name}, Check Search Keyword`, `keywords: ${keywords}`, "");
-	let locale = "";
+	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
 		case "cn":
