@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.8(3) request");
+const $ = new Env("📺 BiliBili:Global v0.4.8(5) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -349,53 +349,67 @@ let $response = undefined;
 					if ($request?.headers?.Host) $request.headers.Host = url.host;
 					$request.url = URL.stringify(url);
 					//$.log(`🚧 ${$.name}, 调试信息`, `$request.url: ${$request.url}`, "");
-					// 请求策略
-					switch (PATH) {
-						case "pgc/view/v2/app/season": // 番剧页面-内容-app
-						case "pgc/view/web/season": // 番剧-内容-web
-						case "pgc/view/pc/season": // 番剧-内容-pc
-							if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
-							else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-							// 需要http-response，所以不能echo response
-							$response = undefined;
-							break;
-						case "bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果（综合）
-						case "bilibili.polymer.app.search.v1.Search/SearchByType": // 搜索-分类结果（番剧、用户、影视、专栏）
-						case "x/web-interface/search": // 搜索-全部结果-web（综合）
-						case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
-						case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
-						case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
-						case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
-							if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
-							break;
-						default:
-							if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
-							else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-							if (!$response) { // 无（构造）回复数据
-								switch ($.getEnv()) { // 兼容性处理
-									case "Loon":
-									case "Stash":
-									case "Surge":
-									default:
-										break;
-									case "Shadowrocket":
-										// 已有指定策略的请求，根据策略fetch
-										if ($request?.policy) $response = await Fetch($request);
-										break;
-									case "Quantumult X":
-										// 已有指定策略的请求，根据策略fetch
-										if ($request?.opts?.policy) $response = await Fetch($request);
-										break;
-								};
-							};
-							break;
-					};
 					break;
 				case "CONNECT":
 				case "TRACE":
 					break;
 			};
 			$.log(`⚠ ${$.name}，信息组`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
+			// 请求策略
+			switch (PATH) {
+				case "pgc/view/v2/app/season": // 番剧页面-内容-app
+				case "pgc/view/web/season": // 番剧-内容-web
+				case "pgc/view/pc/season": // 番剧-内容-pc
+					if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+					$response = undefined; // 需要http-response，所以不能echo response
+					switch ($.getEnv()) { // 兼容性处理
+						case "Loon":
+						case "Stash":
+						case "Surge":
+						default:
+							break;
+						case "Shadowrocket":
+							// 直通模式，不处理，否则无法进http-response
+							delete $request?.policy;
+							break;
+						case "Quantumult X":
+							// 直通模式，不处理，否则无法进http-response
+							delete $request?.opts?.policy;
+							break;
+					};
+					break;
+				case "bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果（综合）
+				case "bilibili.polymer.app.search.v1.Search/SearchByType": // 搜索-分类结果（番剧、用户、影视、专栏）
+				case "x/web-interface/search": // 搜索-全部结果-web（综合）
+				case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
+				case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
+				case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
+				case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
+					if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
+					break;
+				default:
+					if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
+					break;
+			};
+			if (!$response) { // 无（构造）回复数据
+				switch ($.getEnv()) { // 兼容性处理
+					case "Loon":
+					case "Stash":
+					case "Surge":
+					default:
+						break;
+					case "Shadowrocket":
+						// 已有指定策略的请求，根据策略fetch
+						if ($request?.policy) $response = await Fetch($request);
+						break;
+					case "Quantumult X":
+						// 已有指定策略的请求，根据策略fetch
+						if ($request?.opts?.policy) $response = await Fetch($request);
+						break;
+				};
+			};
 			break;
 		case "false":
 			break;
