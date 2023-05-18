@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.7(6) request");
+const $ = new Env("📺 BiliBili:Global v0.4.8(3) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -349,20 +349,30 @@ let $response = undefined;
 					if ($request?.headers?.Host) $request.headers.Host = url.host;
 					$request.url = URL.stringify(url);
 					//$.log(`🚧 ${$.name}, 调试信息`, `$request.url: ${$request.url}`, "");
-					if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
-					else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
-					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
-					// 兼容性处理
+					// 请求策略
 					switch (PATH) {
 						case "pgc/view/v2/app/season": // 番剧页面-内容-app
 						case "pgc/view/web/season": // 番剧-内容-web
 						case "pgc/view/pc/season": // 番剧-内容-pc
+							if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+							else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 							// 需要http-response，所以不能echo response
 							$response = undefined;
 							break;
+						case "bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果（综合）
+						case "bilibili.polymer.app.search.v1.Search/SearchByType": // 搜索-分类结果（番剧、用户、影视、专栏）
+						case "x/web-interface/search": // 搜索-全部结果-web（综合）
+						case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
+						case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
+						case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
+						case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
+							if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
+							break;
 						default:
+							if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+							else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 							if (!$response) { // 无（构造）回复数据
-								switch ($.getEnv()) {
+								switch ($.getEnv()) { // 兼容性处理
 									case "Loon":
 									case "Stash":
 									case "Surge":
@@ -765,7 +775,7 @@ function checkKeyword(keyword = "", delimiter = " ") {
 	$.log(`⚠ ${$.name}, Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
 	$.log(`🚧 ${$.name}, Check Search Keyword`, `keywords: ${keywords}`, "");
-	let locale = "";
+	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
 		case "cn":
