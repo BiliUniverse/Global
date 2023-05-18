@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.8(2) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.8(3) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -419,8 +419,7 @@ let $response = undefined;
 						case "pgc/view/v2/app/season": // 番剧页面-内容-app
 						case "pgc/view/web/season": // 番剧-内容-web
 						case "pgc/view/pc/season": // 番剧-内容-pc
-							if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
-							else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+							if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 							else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 							// 需要http-response，所以不能echo response
 							$response = undefined;
@@ -435,8 +434,7 @@ let $response = undefined;
 							if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 							break;
 						default:
-							if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
-							else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+							if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 							else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 							if (!$response) { // 无（构造）回复数据
 								switch ($.getEnv()) { // 兼容性处理
