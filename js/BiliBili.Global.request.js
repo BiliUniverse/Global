@@ -48,8 +48,8 @@ let $response = undefined;
 			// 信息组
 			let infoGroup = {
 				"seasonTitle": url?.params?.season_title,
-				"epId": parseInt(url?.params?.ep_id, 10) || undefined,
 				"seasonId": parseInt(url?.params?.season_id, 10) || undefined,
+				"epId": parseInt(url?.params?.ep_id, 10) || undefined,
 				"mId": parseInt(url?.params?.mid || url?.params?.vmid, 10) || undefined,
 				"evaluate": undefined,
 				"keyword": decodeURIComponent(url.params?.keyword),
@@ -354,7 +354,7 @@ let $response = undefined;
 				case "TRACE":
 					break;
 			};
-			$.log(`⚠ ${$.name}，信息组`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
+			$.log(`⚠ ${$.name}，信息组`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
 			// 请求策略
 			switch (PATH) {
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
