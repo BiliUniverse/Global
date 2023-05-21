@@ -33,6 +33,7 @@ http:
       type: response
       require-body: true
       timeout: 15
+      max-size: 262144
       argument:
     - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite(\?.+)?$
       name: BiliBili.Global.request
