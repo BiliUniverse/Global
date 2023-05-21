@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.2.7(4) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.2.7(5) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -478,7 +478,12 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 					case 2042149112: // b站_綜藝咖
 						value = ["HKG", "MAC", "TWN"];
 						break;
+					case 15773384: // 哔哩哔哩电影
+						value = ["CHN"];
+						break;
+					//case 4856007: // 迷影社
 					default: // 其他UP主
+						//value = ["CHN", "HKG", "MAC", "TWN"];
 						break;
 					case undefined: // 无UP主信息
 						if (isTraditional(infoGroup.seasonTitle) > 0) { // Traditional Chinese
@@ -492,15 +497,17 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 				};
 				break;
 		};
-		if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, value);
-		if (infoGroup?.epId) cache.ep.set(infoGroup.epId, value);
-		episodes.forEach(episode => cache.ep.set(episode?.id, value));
-		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
-		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
-		isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
+		if (value?.length > 0) {
+			if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, value);
+			if (infoGroup?.epId) cache.ep.set(infoGroup.epId, value);
+			episodes.forEach(episode => cache.ep.set(episode?.id, value));
+			cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
+			cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
+			isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
+		};
 	};
 	//$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
-	$.log(`🎉 ${$.name}, Set Cache`, `$.setjson ? ${isSaved}`, "");
+	$.log(`🎉 ${$.name}, Set Cache, value: ${value}, isSaved: ${isSaved}`, "");
 	return isSaved;
 };
 
