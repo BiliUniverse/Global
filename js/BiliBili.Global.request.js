@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.8(5) request");
+const $ = new Env("📺 BiliBili:Global v0.4.8(6) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -144,8 +144,8 @@ let $response = undefined;
 															data.vod.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewUniteReq.toBinary(data);
 															// 判断线路
-															infoGroup.seasonId = data?.extraContent?.season_id;
-															infoGroup.epId = data?.extraContent.ep_id;
+															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
 															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
 															break;
