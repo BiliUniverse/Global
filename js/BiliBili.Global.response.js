@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.2.7(6) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.2.7(7) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -45,8 +45,8 @@ const DataBase = {
 			// 信息组
 			let infoGroup = {
 				"seasonTitle": url?.params?.season_title,
-				"epId": parseInt(url?.params?.ep_id, 10) || undefined,
 				"seasonId": parseInt(url?.params?.season_id, 10) || undefined,
+				"epId": parseInt(url?.params?.ep_id, 10) || undefined,
 				"mId": parseInt(url?.params?.mid || url?.params?.vmid, 10) || undefined,
 				"evaluate": undefined,
 				"keyword": decodeURIComponent(url.params?.keyword),
@@ -114,7 +114,7 @@ const DataBase = {
 										// 解锁剧集信息限制
 										data.modules = setModules(data?.modules);
 									};
-									setCache(infoGroup, getEpisodes(data?.modules), Caches);
+									infoGroup.locales = setCache(infoGroup, getEpisodes(data?.modules), Caches);
 									// 解锁地区限制遮罩
 									if (data?.dialog) {
 										if (data?.dialog?.code === 6010001) delete data.dialog;
@@ -140,7 +140,7 @@ const DataBase = {
 										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
 										if (result?.section) result.section = setEpisodes(result.section);
 									};
-									setCache(infoGroup, result?.episodes, Caches);
+									infoGroup.locales = setCache(infoGroup, result?.episodes, Caches);
 									// 解锁弹幕和评论区等限制
 									if (result?.rights) {
 										result.rights.allow_bp = 1;
@@ -255,7 +255,7 @@ const DataBase = {
 					else $response.body = rawBody;
 					break;
 			};
-			$.log(`⚠ ${$.name}，信息组`, `season_title: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
+			$.log(`⚠ ${$.name}，信息组`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
 			break;
 		case "false":
 			break;
@@ -427,29 +427,29 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 	$.log(`⚠ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
 	let isSaved = false;
 	$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
-	let value = [];
+	let locales = [];
 	if (infoGroup?.seasonTitle) {
 		switch ([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
 			case "港澳台地區":
-				value = ["HKG", "MAC", "TWN"];
+				locales = ["HKG", "MAC", "TWN"];
 				break;
 			case "僅限港台地區":
-				value = ["HKG", "TWN"];
+				locales = ["HKG", "TWN"];
 				break;
 			case "僅限港澳地區":
 			case "僅港澳地區":
-				value = ["HKG", "MAC"];
+				locales = ["HKG", "MAC"];
 				break;
 			case "僅限台灣地區":
-				value = ["TWN"];
+				locales = ["TWN"];
 				break;
 			case "僅限港澳台及其他地區":
-				value = ["HKG", "MAC", "TWN", "SEA"];
+				locales = ["HKG", "MAC", "TWN", "SEA"];
 				break;
 			case "僅限港澳及其他地區":
-				value = ["HKG", "MAC", "SEA"];
+				locales = ["HKG", "MAC", "SEA"];
 				break;
 			case undefined:
 			default:
@@ -457,40 +457,40 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 					case 11783021: // 哔哩哔哩番剧出差
 					case 1988098633: // b站_戲劇咖
 					case 2042149112: // b站_綜藝咖
-						value = ["HKG", "MAC", "TWN"];
+						locales = ["HKG", "MAC", "TWN"];
 						break;
 					case 15773384: // 哔哩哔哩电影
-						value = ["CHN"];
+						locales = ["CHN"];
 						break;
 					case 4856007: // 迷影社
 					case 98627270: // 哔哩哔哩国创
-						value = ["CHN", "HKG", "MAC", "TWN"];
+						locales = ["CHN", "HKG", "MAC", "TWN"];
 						break;
 					case undefined: // 无UP主信息
 					default: // 其他UP主
 						if (isTraditional(infoGroup.seasonTitle) > 0) { // Traditional Chinese
-							value = ["HKG", "MAC", "TWN"];
+							locales = ["HKG", "MAC", "TWN"];
 						} else if (isTraditional(infoGroup.evaluate) > 1) { // Traditional Chinese
-							value = ["HKG", "MAC", "TWN"];
+							locales = ["HKG", "MAC", "TWN"];
 						} else { // Simplified Chinese
-							value = ["CHN"];
+							locales = ["CHN"];
 						};
 						break;
 				};
 				break;
 		};
-		if (value?.length > 0) {
-			if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, value);
-			if (infoGroup?.epId) cache.ep.set(infoGroup.epId, value);
-			episodes.forEach(episode => cache.ep.set(episode?.id, value));
+		if (locales?.length > 0) {
+			if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, locales);
+			if (infoGroup?.epId) cache.ep.set(infoGroup.epId, locales);
+			episodes.forEach(episode => cache.ep.set(episode?.id, locales));
 			cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
 			cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
 			isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
 		};
 	};
 	//$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
-	$.log(`🎉 ${$.name}, Set Cache, value: ${value}, isSaved: ${isSaved}`, "");
-	return isSaved;
+	$.log(`🎉 ${$.name}, Set Cache, locales: ${locales}, isSaved: ${isSaved}`, "");
+	return locales;
 };
 
 /**
