@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.8(6) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.8(7) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -451,6 +451,8 @@ let $response = undefined;
 				case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
 				case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
 				case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
+				case "x/v2/search": // 搜索-全部结果-api（综合）
+				case "x/v2/search/type": // 搜索-分类结果-api（番剧、用户、影视、专栏）
 					if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 					break;
 				default:
