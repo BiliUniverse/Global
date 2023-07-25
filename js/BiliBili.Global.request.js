@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.9(2) request");
+const $ = new Env("📺 BiliBili:Global v0.4.9(4) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -45,7 +45,7 @@ const DataBase = {
 let $response = undefined;
 
 /***************** Processing *****************/
-(async () => {
+!(async () => {
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", DataBase);
 	$.log(`⚠ ${$.name}`, `Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings?.Switch) {
@@ -67,6 +67,7 @@ let $response = undefined;
 				"keyword": decodeURIComponent(url.query?.keyword),
 				"locale": url.query?.locale,
 				"locales": undefined,
+				"isPGC": true, // 是否PGC内容
 			};
 			// 方法判断
 			switch (METHOD) {
@@ -156,8 +157,11 @@ let $response = undefined;
 															data.vod.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewUniteReq.toBinary(data);
 															// 判断线路
-															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
-															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															if (Object.keys(data?.extraContent).length === 0) infoGroup.isPGC = false;
+															else {
+																infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
+																infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															};
 															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
 															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
 															break;
@@ -403,7 +407,8 @@ let $response = undefined;
 					if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 					break;
 				default:
-					if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+					if (!infoGroup?.isPGC) {$.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")}
+					else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 					break;
 			};
