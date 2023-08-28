@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliBili:Global v0.4.9(4) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.9(5) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -732,7 +732,7 @@ function isResponseAvailability(response = {}) {
 							isAvailable = true;
 							break;
 						case undefined:
-							if (parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 800) isAvailable = false;
+							if (parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 1200) isAvailable = false;
 							else isAvailable = true;
 							break;
 						case "-404":
