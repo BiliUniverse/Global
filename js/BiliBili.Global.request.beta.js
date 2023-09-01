@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.5.1(1) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.5.1(6) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -170,13 +170,13 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 															class ViewReq$Type extends MessageType {
 																constructor() {
 																	super("bilibili.app.viewunite.v1.ViewReq", [
-																		{ no: 1, name: "aid", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 0 /*LongType.BIGINT*/ },
+																		{ no: 1, name: "aid", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 2 /*LongType.NUMBER*/ },
 																		{ no: 2, name: "bvid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
 																		{ no: 3, name: "from", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
 																		{ no: 4, name: "spmid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
 																		{ no: 5, name: "from_spmid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
 																		{ no: 6, name: "session_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 7, name: "player_args", kind: "message", T: () => PlayerArgs },
+																		//{ no: 7, name: "player_args", kind: "message", T: () => PlayerArgs },
 																		{ no: 8, name: "track_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
 																		{ no: 9, name: "extra_content", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } },
 																		{ no: 10, name: "play_mode", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
@@ -198,10 +198,18 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${JSON.stringify(reader)}, addedNumber: ${addedNumber}`, "");
 																});
 															};
-															body = PlayViewUniteReq.toBinary(data);
+															body = ViewReq.toBinary(data);
+															// 判断线路
+															if (Object.keys(data?.extraContent).length === 0) infoGroup.isPGC = false;
+															else {
+																infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
+																infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															};
+															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
+															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
 															break;
 														};
 														break;
@@ -493,6 +501,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 			$.log(`⚠ ${$.name}，信息组`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
 			// 请求策略
 			switch (PATH) {
+				case "bilibili.app.viewunite.v1.View/View": //
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "pgc/view/web/season": // 番剧-内容-web
 				case "pgc/view/pc/season": // 番剧-内容-pc
