@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.4.2(3) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.3(3) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -69,7 +69,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 				"evaluate": undefined,
 				"keyword": decodeURIComponent(url.query?.keyword),
 				"locale": url.query?.locale,
-				"locales": undefined,
+				"locales": [],
 			};
 			// 格式判断
 			switch (FORMAT) {
@@ -170,7 +170,8 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
 										if (result?.section) result.section = setEpisodes(result.section);
 									};
-									infoGroup.locales = setCache(infoGroup, result?.episodes, Caches);
+									infoGroup.locales = detectLocales(infoGroup);
+									setCache(infoGroup, result?.episodes, Caches);
 									// 解锁弹幕和评论区等限制
 									if (result?.rights) {
 										result.rights.allow_bp = 1;
@@ -441,7 +442,8 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 													infoGroup.seasonId = parseInt(data?.report?.season_id, 10) || data?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
 													infoGroup.mId = data?.owner?.mid || infoGroup.mId;
 													//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
-													infoGroup.locales = setCache(infoGroup, [], Caches);
+													infoGroup.locales = detectLocales(infoGroup);
+													setCache(infoGroup, [], Caches);
 													break;
 											};
 											break;
@@ -660,44 +662,30 @@ function setEpisodes(episodes = []) {
 };
 
 /**
- * Set Cache
+ * Detect Locales
  * @author VirgilClyne
  * @param {Object} info - Info Group: { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}
- * @param {Array} episodes - Episodes info
- * @param {Object} cache - Caches
- * @return {Array<Boolean>} is setJSON success?
+ * @return {String} locales
  */
-function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
-	$.log(`☑️ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
-	let isSaved = false;
-	let locales = [];
+function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}) {
+	$.log(`☑️ ${$.name}, Detect Locales`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
 	switch (infoGroup?.seasonTitle) {
 		case undefined:
-			locales = detectMId(infoGroup?.mId);
+			infoGroup.locales = detectMId(infoGroup?.mId);
 			break;
 		default:
-			$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
-			//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
-			//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
-			locales = detectSeasonTitle(infoGroup?.seasonTitle);
+			infoGroup.locales = detectSeasonTitle(infoGroup?.seasonTitle);
 			break;
 	};
-	if (locales?.length > 0) {
-		if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, locales);
-		if (infoGroup?.epId) cache.ep.set(infoGroup.epId, locales);
-		episodes.forEach(episode => cache.ep.set(episode?.id, locales));
-		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
-		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
-		isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
-	};
-	$.log(`✅ ${$.name}, Set Cache, locales: ${locales}, isSaved: ${isSaved}`, "");
-	//$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
-	return locales;
-
+	$.log(`✅ ${$.name}, Detect Locales, locales: ${infoGroup.locales}`, "");
+	return infoGroup.locales;
 	/***************** Functions *****************/
 	function detectSeasonTitle(seasonTitle){
 		$.log(`☑️ ${$.name}, Detect Season Title`, "");
 		let locales = [];
+		$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+		//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
+		//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
 		switch ([...seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
@@ -791,6 +779,30 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 };
 
 /**
+ * Set Cache
+ * @author VirgilClyne
+ * @param {Object} info - Info Group: { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}
+ * @param {Array} episodes - Episodes info
+ * @param {Object} cache - Caches
+ * @return {Array<Boolean>} is setJSON success?
+ */
+function setCache(infoGroup = { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
+	$.log(`☑️ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
+	let isSaved = false;
+	if (infoGroup?.locales?.length > 0) {
+		if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, infoGroup.locales);
+		if (infoGroup?.epId) cache.ep.set(infoGroup.epId, infoGroup.locales);
+		episodes.forEach(episode => cache.ep.set(episode?.id, infoGroup.locales));
+		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
+		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
+		isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
+	};
+	$.log(`✅ ${$.name}, Set Cache, locales: ${infoGroup.locales}, isSaved: ${isSaved}`, "");
+	//$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
+	return isSaved;
+};
+
+/**
  * Create New Raw Body
  * @author app2smile
  * @param {ArrayBuffer} header - unGzip Header
@@ -820,6 +832,7 @@ function newRawBody({ header, body }, encoding = undefined) {
 		return new Uint8Array(arr);
 	};
 };
+
 /***************** Env *****************/
 // prettier-ignore
 // https://github.com/chavyleung/scripts/blob/master/Env.min.js
