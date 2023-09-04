@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.4.0(4) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.1(3) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -356,33 +356,6 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 										case "bilibili.app.viewunite.v1.View":
 											/******************  initialization start  *******************/
 											// protobuf/bilibili/app/viewunite/v1/viewunite.proto
-											var TabType;
-											(function (TabType) {
-												/**
-												 *
-												 *
-												 * @generated from protobuf enum value: TAB_NONE = 0;
-												 */
-												TabType[TabType["TAB_NONE"] = 0] = "TAB_NONE";
-												/**
-												 * 详情 Tab
-												 *
-												 * @generated from protobuf enum value: TAB_INTRODUCTION = 1;
-												 */
-												TabType[TabType["TAB_INTRODUCTION"] = 1] = "TAB_INTRODUCTION";
-												/**
-												 * 评论区 Tab
-												 *
-												 * @generated from protobuf enum value: TAB_REPLY = 2;
-												 */
-												TabType[TabType["TAB_REPLY"] = 2] = "TAB_REPLY";
-												/**
-												 * OGV 活动信息 Tab
-												 *
-												 * @generated from protobuf enum value: TAB_OGV_ACTIVITY = 3;
-												 */
-												TabType[TabType["TAB_OGV_ACTIVITY"] = 3] = "TAB_OGV_ACTIVITY";
-											})(TabType || (TabType = {}));
 											// @generated message type with reflection information, may provide speed optimized methods
 											class Arc$Type extends MessageType {
 												constructor() {
@@ -404,31 +377,6 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 											 */
 											const Arc = new Arc$Type();
 											// @generated message type with reflection information, may provide speed optimized methods
-											class IntroductionTab$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.IntroductionTab", [
-														{ no: 1, name: "title", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.IntroductionTab
-											 */
-											const IntroductionTab = new IntroductionTab$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
-											class ReplyTab$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.ReplyTab", [
-														{ no: 2, name: "title", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-														{ no: 3, name: "control", kind: "message", T: () => TabControl }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.ReplyTab
-											 */
-											const ReplyTab = new ReplyTab$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
 											class Rights$Type extends MessageType {
 												constructor() {
 													super("bilibili.app.viewunite.v1.Rights", [
@@ -442,69 +390,37 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.Rights
 											 */
 											const Rights = new Rights$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
-											class Tab$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.Tab", [
-														{ no: 1, name: "tab_module", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => TabModule },
-														{ no: 2, name: "tab_bg", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.Tab
-											 */
-											const Tab = new Tab$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
-											class TabControl$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.TabControl", [
-														{ no: 1, name: "limit", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-														{ no: 2, name: "disable", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-														{ no: 3, name: "disable_click_tip", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.TabControl
-											 */
-											const TabControl = new TabControl$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
-											class TabModule$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.TabModule", [
-														{ no: 1, name: "tab_type", kind: "enum", T: () => ["bilibili.app.viewunite.v1.TabType", TabType] },
-														{ no: 2, name: "introduction", kind: "message", oneof: "tab", T: () => IntroductionTab },
-														{ no: 3, name: "reply", kind: "message", oneof: "tab", T: () => ReplyTab },
-														{ no: 4, name: "activity_tab", kind: "message", oneof: "tab", T: () => ActivityTab }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.TabModule
-											 */
-											const TabModule = new TabModule$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
-											class ViewReply$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.ViewReply", [
-														{ no: 2, name: "arc", kind: "message", T: () => Arc },
-														{ no: 4, name: "owner", kind: "message", T: () => Owner },
-														{ no: 5, name: "tab", kind: "message", T: () => Tab },
-														{ no: 6, name: "supplement", kind: "message", T: () => Any },
-														{ no: 10, name: "report", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.ViewReply
-											 */
-											const ViewReply = new ViewReply$Type();
 											/******************  initialization finish  *******************/
 											switch (PATHs?.[1]) {
 												case "View": // 播放页
 													/******************  initialization start  *******************/
 													// protobuf/bilibili/app/viewunite/v1/viewunite.proto
+													// @generated message type with reflection information, may provide speed optimized methods
+													class ViewReply$Type extends MessageType {
+														constructor() {
+															super("bilibili.app.viewunite.v1.ViewReply", [
+																{ no: 2, name: "arc", kind: "message", T: () => Arc },
+																{ no: 4, name: "owner", kind: "message", T: () => Owner },
+																//{ no: 5, name: "tab", kind: "message", T: () => Tab },
+																{ no: 6, name: "supplement", kind: "message", T: () => Any },
+																{ no: 10, name: "report", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
+															]);
+														}
+													}
+													/**
+													 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.ViewReply
+													 */
+													const ViewReply = new ViewReply$Type();
+													// protobuf/bilibili/app/viewunite/pgcanymodel.proto
+													// protobuf/bilibili/app/viewunite/ugcanymodel.proto
+													/*
+													Any.toJson(any, {
+														typeRegistry: [
+															bilibili.app.viewunite.pgcanymodel.ViewPgcAny,
+															bilibili.app.viewunite.ugcanymodel.ViewUgcAny
+														]
+													});
+													*/
 													/******************  initialization finish  *******************/
 													let data = ViewReply.fromBinary(body);
 													$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
@@ -521,6 +437,11 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 														});
 													};
 													body = ViewReply.toBinary(data);
+													infoGroup.seasonTitle = data?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
+													infoGroup.seasonId = data?.report?.season_id ?? data?.supplement?.ogv_data?.season_id ?? infoGroup.seasonId;
+													infoGroup.mId = data?.owner?.mid ?? infoGroup.mId;
+													//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
+													infoGroup.locales = setCache(infoGroup, [], Caches);
 													break;
 											};
 											break;
@@ -747,13 +668,13 @@ function setEpisodes(episodes = []) {
  * @return {Array<Boolean>} is setJSON success?
  */
 function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
-	$.log(`⚠ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
+	$.log(`☑️ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
 	let isSaved = false;
-	$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
-	//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
-	//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
 	let locales = [];
 	if (infoGroup?.seasonTitle) {
+		$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+		//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
+		//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
 		switch ([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
@@ -779,6 +700,9 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 			case undefined:
 			default:
 				switch (infoGroup.mId) {
+					case 928123: // 哔哩哔哩番剧
+						locales = ["CHN"];
+						break;
 					case 11783021: // 哔哩哔哩番剧出差
 					case 1988098633: // b站_戲劇咖
 					case 2042149112: // b站_綜藝咖
@@ -813,8 +737,8 @@ function setCache(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, 
 			isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
 		};
 	};
+	$.log(`✅ ${$.name}, Set Cache, locales: ${locales}, isSaved: ${isSaved}`, "");
 	//$.log(`🚧 ${$.name}, Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
-	$.log(`🎉 ${$.name}, Set Cache, locales: ${locales}, isSaved: ${isSaved}`, "");
 	return locales;
 };
 
