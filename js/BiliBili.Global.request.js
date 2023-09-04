@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.5.1(7) request");
+const $ = new Env("📺 BiliBili:Global v0.5.1(9) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -163,11 +163,9 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 															body = ViewReq.toBinary(data);
 															// 判断线路
-															if (Object.keys(data?.extraContent).length === 0) infoGroup.isPGC = false;
-															else {
-																infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
-																infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
-															};
+															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															if (!infoGroup.seasonId && !infoGroup.epId) infoGroup.isPGC = false;
 															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
 															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
 															break;
@@ -191,11 +189,9 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 															data.vod.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewUniteReq.toBinary(data);
 															// 判断线路
-															if (Object.keys(data?.extraContent).length === 0) infoGroup.isPGC = false;
-															else {
-																infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
-																infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
-															};
+															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															if (!infoGroup.seasonId && !infoGroup.epId) infoGroup.isPGC = false;
 															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
 															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
 															break;
@@ -403,14 +399,15 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 				case "TRACE":
 					break;
 			};
-			$.log(`⚠ ${$.name}，信息组`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}, keyword: ${infoGroup?.keyword}, locale: ${infoGroup?.locale}, locales: ${infoGroup?.locales}`, "");
+			$.log(`🚧 ${$.name}，信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			// 请求策略
 			switch (PATH) {
 				case "bilibili.app.viewunite.v1.View/View": //
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "pgc/view/web/season": // 番剧-内容-web
 				case "pgc/view/pc/season": // 番剧-内容-pc
-					if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
+					if (!infoGroup?.isPGC) {$.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")}
+					else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 					$response = undefined; // 需要http-response，所以不能echo response
 					switch ($.getEnv()) { // 兼容性处理
