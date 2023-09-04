@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.5.1(6) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.5.1(7) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -59,7 +59,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", DataBase);
 	$.log(`⚠ ${$.name}`, `Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
-		case "true":
+		case true:
 		default:
 			// 创建空数据
 			let body = { "code": 0, "message": "0", "data": {} };
@@ -162,29 +162,13 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 											switch (PATHs?.[0]) {
 												case "bilibili.app.viewunite.v1.View":
 													/******************  initialization start  *******************/
+													// protobuf/bilibili/app/viewunite/v1/viewunite.proto
 													/******************  initialization finish  *******************/
 													switch(PATHs?.[1]) {
 														case "View": // 播放页
 															/******************  initialization start  *******************/
 															// protobuf/bilibili/app/viewunite/v1/viewunite.proto
-															class ViewReq$Type extends MessageType {
-																constructor() {
-																	super("bilibili.app.viewunite.v1.ViewReq", [
-																		{ no: 1, name: "aid", kind: "scalar", T: 4 /*ScalarType.UINT64*/, L: 2 /*LongType.NUMBER*/ },
-																		{ no: 2, name: "bvid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 3, name: "from", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 4, name: "spmid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 5, name: "from_spmid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 6, name: "session_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		//{ no: 7, name: "player_args", kind: "message", T: () => PlayerArgs },
-																		{ no: 8, name: "track_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 9, name: "extra_content", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } },
-																		{ no: 10, name: "play_mode", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 12, name: "biz_extra", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-																		{ no: 13, name: "ad_extra", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-																	]);
-																}
-															}
+															class ViewReq$Type extends MessageType{constructor(){super("bilibili.app.viewunite.v1.ViewReq",[{no:1,name:"aid",kind:"scalar",T:4,L:2},{no:2,name:"bvid",kind:"scalar",T:9},{no:3,name:"from",kind:"scalar",T:9},{no:4,name:"spmid",kind:"scalar",T:9},{no:5,name:"from_spmid",kind:"scalar",T:9},{no:6,name:"session_id",kind:"scalar",T:9},{no:8,name:"track_id",kind:"scalar",T:9},{no:9,name:"extra_content",kind:"map",K:9,V:{kind:"scalar",T:9}},{no:10,name:"play_mode",kind:"scalar",T:9},{no:12,name:"biz_extra",kind:"scalar",T:9},{no:13,name:"ad_extra",kind:"scalar",T:9}])}}
 															const ViewReq = new ViewReq$Type();
 															/******************  initialization finish  *******************/
 															let data = ViewReq.fromBinary(body);
@@ -637,15 +621,15 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
  * @return {Object} { Settings, Caches, Configs }
  */
 function setENV(name, platforms, database) {
-	$.log(`⚠ ${$.name}, Set Environment Variables`, "");
+	$.log(`☑️ ${$.name}, Set Environment Variables`, "");
 	let { Settings, Caches, Configs } = getENV(name, platforms, database);
 	/***************** Settings *****************/
 	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
-	$.log(`🎉 ${$.name}, Set Environment Variables`, `Settings: ${typeof Settings}`, `Settings内容: ${JSON.stringify(Settings)}`, "");
+	$.log(`✅ ${$.name}, Set Environment Variables`, `Settings: ${typeof Settings}`, `Settings内容: ${JSON.stringify(Settings)}`, "");
 	/***************** Caches *****************/
 	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
 	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
-	//$.log(`🎉 ${$.name}, Set Environment Variables`, `Caches: ${typeof Caches}`, `Caches内容: ${JSON.stringify(Caches)}`, "");
+	//$.log(`✅ ${$.name}, Set Environment Variables`, `Caches: ${typeof Caches}`, `Caches内容: ${JSON.stringify(Caches)}`, "");
 	Caches.ss = new Map(Caches?.ss ?? []); // Array转Map
 	Caches.ep = new Map(Caches?.ep ?? []); // Array转Map
 	/***************** Configs *****************/
@@ -758,8 +742,8 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    //$.log(`⚠ ${$.name}, Determine Response Availability`, "");
-	$.log(`🚧 ${$.name}, Determine Response Availability`, `statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+    $.log(`☑️ ${$.name}, Determine Response Availability`, "");
+	$.log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
 	$.log(`🚧 ${$.name}, Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
@@ -834,7 +818,7 @@ function isResponseAvailability(response = {}) {
 			isAvailable = false;
 			break;
 	};
-	$.log(`🎉 ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	$.log(`✅ ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
 };
 
