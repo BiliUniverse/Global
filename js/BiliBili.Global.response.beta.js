@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.4.3(3) repsonse.beta");
+const $ = new Env("📺 BiliBili:Global v0.4.3(4) repsonse.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -438,9 +438,9 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 														});
 													};
 													body = ViewReply.toBinary(data);
-													infoGroup.seasonTitle = data?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
+													infoGroup.seasonTitle = data?.arc?.title ?? data?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
 													infoGroup.seasonId = parseInt(data?.report?.season_id, 10) || data?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
-													infoGroup.mId = data?.owner?.mid || infoGroup.mId;
+													infoGroup.mId = parseInt(data?.report?.up_mid, 10) || data?.owner?.mid || infoGroup.mId;
 													//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
 													infoGroup.locales = detectLocales(infoGroup);
 													setCache(infoGroup, [], Caches);

@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.4.3(3) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.4.3(4) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -291,7 +291,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 																{ no: 2, name: "arc", kind: "message", T: () => Arc },
 																{ no: 4, name: "owner", kind: "message", T: () => Owner },
 																//{ no: 5, name: "tab", kind: "message", T: () => Tab },
-																{ no: 6, name: "supplement", kind: "message", T: () => Any },
+																//{ no: 6, name: "supplement", kind: "message", T: () => Any },
 																{ no: 10, name: "report", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
 															]);
 														}
@@ -304,9 +304,9 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 													let data = ViewReply.fromBinary(body);
 													$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 													body = ViewReply.toBinary(data);
-													infoGroup.seasonTitle = data?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
+													infoGroup.seasonTitle = data?.arc?.title ?? data?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
 													infoGroup.seasonId = parseInt(data?.report?.season_id, 10) || data?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
-													infoGroup.mId = data?.owner?.mid || infoGroup.mId;
+													infoGroup.mId = parseInt(data?.report?.up_mid, 10) || data?.owner?.mid || infoGroup.mId;
 													//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
 													infoGroup.locales = detectLocales(infoGroup);
 													setCache(infoGroup, [], Caches);
