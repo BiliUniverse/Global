@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.5.1(9) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.5.2(1) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -783,6 +783,15 @@ function isResponseAvailability(response = {}) {
 								case "shjd":
 								case undefined:
 								default:
+									switch (data?.video_info?.code) {
+										case 0:
+										default:
+											isAvailable = true;
+											break;
+										case undefined:
+											isAvailable = false;
+											break;
+									};
 									switch (data?.dialog?.code) {
 										case undefined:
 											isAvailable = true;
