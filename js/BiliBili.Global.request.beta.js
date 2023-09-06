@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.5.2(1) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.5.2(2) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -855,41 +855,37 @@ function checkLocales(responses = {}) {
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function processStrategy(type = undefined, request = {}, proxies = {}, locales = [], availableLocales = []) {
-	$.log(`⚠ ${$.name}, Process Strategy`, `type: ${type}`, "");
-	let response = {};
-	let randomLocale = "";
+	$.log(`☑️ ${$.name}, Process Strategy, type: ${type}`, "");
+	let response = undefined;
+	let locale = undefined;
+	let responses = undefined;
 	switch (type) {
 		case "locales": // 本地已有可用地区缓存
 			availableLocales = availableLocales.filter(locale => locales.includes(locale));
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
 			break;
 		case "mutiFetch": // 本地无可用地区缓存，并发请求
-			let responses = await mutiFetch(request, proxies, locales);
+			responses = await mutiFetch(request, proxies, locales);
 			availableLocales = checkLocales(responses);
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
-			response = responses[randomLocale]; // 随机用一个
 			break;
 		case "random": // 随机用一个
 			availableLocales = locales;
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
 			break;
 		case "randomwithoutCHN": // 随机用一个，但不用CHN
 			availableLocales = locales.filter(locale => locale !== "CHN");
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
 			break;
 		case undefined:
 		default:
+			availableLocales = [];
 			break;
 	};
-	$.log(`🎉 ${$.name}, Process Strategy`, `Available Locales: ${availableLocales}`, `Random Locale: ${randomLocale}`, "");
+	$.log(`🚧 ${$.name}, Process Strategy, availableLocales: ${availableLocales}`, "");
+	//if (availableLocales.includes("CHN")) locale = "CHN";
+	//else if (availableLocales.includes("HKG")) locale = "HKG";
+	//else locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+	locale = availableLocales[0]; // 用第一个
+	request = ReReqeust(request, proxies[locale]); // 用第一个
+	response = responses?.[locale]; // 随机用一个
+	$.log(`✅ ${$.name}, Process Strategy, Available Locales: ${availableLocales}, Locale: ${locale}`, "");
 	return { request, response };
 };
 
