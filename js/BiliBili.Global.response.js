@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.4.3(4) repsonse");
+const $ = new Env("📺 BiliBili:Global v0.4.3(5) repsonse");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -135,7 +135,8 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 										// 解锁剧集信息限制
 										data.modules = setModules(data?.modules);
 									};
-									infoGroup.locales = setCache(infoGroup, getEpisodes(data?.modules), Caches);
+									infoGroup.locales = detectLocales(infoGroup);
+									setCache(infoGroup, getEpisodes(data?.modules), Caches);
 									// 解锁地区限制遮罩
 									if (data?.dialog) {
 										if (data?.dialog?.code === 6010001) delete data.dialog;
@@ -475,7 +476,7 @@ function setModules(modules = []) {
 	modules = modules.map(module => {
 		switch (module?.style) {
 			case "positive": // 选集
-			case "section": // SP				
+			case "section": // SP
 				// 解锁弹幕和评论区
 				module.data.episodes = setEpisodes(module?.data?.episodes);
 				break;
