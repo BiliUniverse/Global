@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.5.1(9) request");
+const $ = new Env("📺 BiliBili:Global v0.5.2(3) request");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -406,7 +406,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "pgc/view/web/season": // 番剧-内容-web
 				case "pgc/view/pc/season": // 番剧-内容-pc
-					if (!infoGroup?.isPGC) {$.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")}
+					if (!infoGroup?.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
 					else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 					$response = undefined; // 需要http-response，所以不能echo response
@@ -426,8 +426,9 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 							break;
 					};
 					break;
-				case "bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果（综合）
-				case "bilibili.polymer.app.search.v1.Search/SearchByType": // 搜索-分类结果（番剧、用户、影视、专栏）
+				case "all": // 搜索-全部结果-html（综合）
+				case "bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果-proto（综合）
+				case "bilibili.polymer.app.search.v1.Search/SearchByType": // 搜索-分类结果-proto（番剧、用户、影视、专栏）
 				case "x/web-interface/search": // 搜索-全部结果-web（综合）
 				case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
 				case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
@@ -438,7 +439,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 					if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 					break;
 				default:
-					if (!infoGroup?.isPGC) {$.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")}
+					if (!infoGroup?.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
 					else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 					break;
@@ -699,6 +700,15 @@ function isResponseAvailability(response = {}) {
 								case "shjd":
 								case undefined:
 								default:
+									switch (data?.video_info?.code) {
+										case 0:
+										default:
+											isAvailable = true;
+											break;
+										case undefined:
+											isAvailable = false;
+											break;
+									};
 									switch (data?.dialog?.code) {
 										case undefined:
 											isAvailable = true;
@@ -762,41 +772,34 @@ function checkLocales(responses = {}) {
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function processStrategy(type = undefined, request = {}, proxies = {}, locales = [], availableLocales = []) {
-	$.log(`⚠ ${$.name}, Process Strategy`, `type: ${type}`, "");
-	let response = {};
-	let randomLocale = "";
+	$.log(`☑️ ${$.name}, Process Strategy, type: ${type}`, "");
+	let response = undefined;
+	let locale = undefined;
+	let responses = undefined;
 	switch (type) {
 		case "locales": // 本地已有可用地区缓存
 			availableLocales = availableLocales.filter(locale => locales.includes(locale));
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
 			break;
 		case "mutiFetch": // 本地无可用地区缓存，并发请求
-			let responses = await mutiFetch(request, proxies, locales);
+			responses = await mutiFetch(request, proxies, locales);
 			availableLocales = checkLocales(responses);
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
-			response = responses[randomLocale]; // 随机用一个
 			break;
 		case "random": // 随机用一个
 			availableLocales = locales;
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
 			break;
 		case "randomwithoutCHN": // 随机用一个，但不用CHN
 			availableLocales = locales.filter(locale => locale !== "CHN");
-			$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-			randomLocale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-			request = ReReqeust(request, proxies[randomLocale]); // 随机用一个
 			break;
 		case undefined:
 		default:
+			availableLocales = [];
 			break;
 	};
-	$.log(`🎉 ${$.name}, Process Strategy`, `Available Locales: ${availableLocales}`, `Random Locale: ${randomLocale}`, "");
+	$.log(`🚧 ${$.name}, Process Strategy, availableLocales: ${availableLocales}`, "");
+	locale = availableLocales[0]; // 用第一个
+	request = ReReqeust(request, proxies[locale]); // 用第一个
+	response = responses?.[locale]; // 随机用一个
+	$.log(`✅ ${$.name}, Process Strategy, Available Locales: ${availableLocales}, Locale: ${locale}`, "");
 	return { request, response };
 };
 
