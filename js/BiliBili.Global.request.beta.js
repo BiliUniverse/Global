@@ -3,7 +3,7 @@ WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
 
-const $ = new Env("📺 BiliBili:Global v0.5.2(2) request.beta");
+const $ = new Env("📺 BiliBili:Global v0.5.2(3) request.beta");
 const URL = new URLs();
 const DataBase = {
 	"Enhanced":{
@@ -485,7 +485,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "pgc/view/web/season": // 番剧-内容-web
 				case "pgc/view/pc/season": // 番剧-内容-pc
-					if (!infoGroup?.isPGC) {$.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")}
+					if (!infoGroup?.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
 					else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 					$response = undefined; // 需要http-response，所以不能echo response
@@ -505,8 +505,9 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 							break;
 					};
 					break;
-				case "bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果（综合）
-				case "bilibili.polymer.app.search.v1.Search/SearchByType": // 搜索-分类结果（番剧、用户、影视、专栏）
+				case "all": // 搜索-全部结果-html（综合）
+				case "bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果-proto（综合）
+				case "bilibili.polymer.app.search.v1.Search/SearchByType": // 搜索-分类结果-proto（番剧、用户、影视、专栏）
 				case "x/web-interface/search": // 搜索-全部结果-web（综合）
 				case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
 				case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
@@ -517,7 +518,7 @@ $.log(`⚠ ${$.name}, FORMAT: ${FORMAT}`, "");
 					if (infoGroup?.locale) $request = ReReqeust($request, Settings.Proxies[infoGroup?.locale]);
 					break;
 				default:
-					if (!infoGroup?.isPGC) {$.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")}
+					if (!infoGroup?.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
 					else if (infoGroup?.locales) ({ request: $request } = await processStrategy("locales", $request, Settings.Proxies, Settings.Locales, infoGroup?.locales));
 					else ({ request: $request, response: $response } = await processStrategy("mutiFetch", $request, Settings.Proxies, Settings.Locales));
 					break;
