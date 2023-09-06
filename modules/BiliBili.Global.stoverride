@@ -70,7 +70,7 @@ http:
       require-body: false
       timeout: 15
       argument:
-    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/\/?pgc\/player\/web\/v2\/playurl\?
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/player\/web\/v2\/playurl\?
       name: BiliBili.Global.request
       type: request
       require-body: false
