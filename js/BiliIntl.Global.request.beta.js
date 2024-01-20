@@ -2,7 +2,7 @@
 WEBSITE: https://biliuniverse.io
 README: https://github.com/BiliUniverse
 */
-const $ = new Env("📺 BiliIntl:Global v0.4.0(1) request.beta");
+const $ = new Env("📺 BiliIntl: 🌐 Global v0.4.0(1) request.beta");
 const URI = new URIs();
 const DataBase = {
 	"Enhanced":{
