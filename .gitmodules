@@ -1,12 +1,21 @@
 [submodule "BoxJs"]
 	path = BoxJs
 	url = https://github.com/BiliUniverse/BoxJs.git
-[submodule "function"]
-	path = function
-	url = https://github.com/BiliUniverse/function.git
-[submodule "protobuf"]
-	path = protobuf
-	url = https://github.com/BiliUniverse/protobuf.git
 [submodule "example"]
 	path = example
 	url = https://github.com/BiliUniverse/example.git
+[submodule "src/protobuf"]
+	path = src/protobuf
+	url = https://github.com/BiliUniverse/protobuf.git
+[submodule "src/ENV"]
+	path = src/ENV
+	url = https://github.com/NanoCat-Me/ENV.git
+[submodule "src/URI"]
+	path = src/URI
+	url = https://github.com/NanoCat-Me/URI.git
+[submodule "src/text-encoding"]
+	path = src/text-encoding
+	url = https://github.com/inexorabletash/text-encoding.git
+[submodule "src/pako"]
+	path = src/pako
+	url = https://github.com/nodeca/pako.git
