@@ -4,7 +4,7 @@ import URIs from "./URI/URI.mjs";
 import Database from "./database/BiliIntl.mjs";
 import setENV from "./function/setENV.mjs";
 
-const $ = new ENVs("📺 BiliIntl: 🌐 Global v0.4.0(1) request.beta");
+const $ = new ENVs("📺 BiliIntl: 🌐 Global v0.5.0(1) request.beta");
 const URI = new URIs();
 
 // 构造回复数据
@@ -264,64 +264,48 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 
 /***************** Function *****************/
 /**
- * Construct Redirect Reqeusts
+ * Construct Redirect Requests
  * @author VirgilClyne
  * @param {Object} request - Original Request Content
  * @param {Object} proxyName - Proxies Name
  * @return {Object} Modify Request Content with Policy
  */
-function ReReqeust(request = {}, proxyName = "") {
-	$.log(`⚠ ${$.name}, Construct Redirect Reqeusts`, "");
+function redirectRequest(request = {}, proxyName = undefined) {
+	$.log(`⚠ ${$.name}, Construct Redirect Requests`, "");
 	if (proxyName) {
-		if ($.isLoon()) request.node = proxyName;
-		if ($.isQuanX()) {
-			if (request.opts) request.opts.policy = proxyName;
-			else request.opts = { "policy": proxyName };
+		switch ($.platform()) {
+			case "Loon":
+				request.node = proxyName;
+				break;
+			case "Stash":
+				request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
+				break;
+			case "Surge":
+				delete request.id;
+				request.headers["X-Surge-Policy"] = proxyName;
+				//break; // 无需break
+			case "Shadowrocket":
+				request.policy = proxyName;
+				break;
+			case "Quantumult X":
+				delete request.method;
+				delete request.scheme;
+				delete request.sessionIndex;
+				delete request.charset;
+				//if (request.opts) request.opts.policy = proxyName;
+				//else request.opts = { "policy": proxyName };
+				$.lodash_set(request, "opts.policy", proxyName);
+				break;
+			default:
+				break;
 		};
-		if ($.isSurge()) {
-			delete request.id;
-			request.headers["X-Surge-Policy"] = proxyName;
-			request.policy = proxyName;
-		};
-		if ($.isStash()) request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
-		if ($.isShadowrocket()) $.logErr(`❗️${$.name}, ${Fetch.name}执行失败`, `不支持的app: Shadowrocket`, "");
-	}
-	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
-	//$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
+	};
+	delete request?.headers?.["Content-Length"];
+	delete request?.headers?.["content-length"];
+	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
+	$.log(`🎉 ${$.name}, Construct Redirect Requests`, "");
+	//$.log(`🚧 ${$.name}, Construct Redirect Requests`, `Request:${JSON.stringify(request)}`, "");
 	return request;
-};
-
-/**
- * Fetch Ruled Reqeust
- * @author VirgilClyne
- * @param {Object} request - Original Request Content
- * @return {Promise<*>}
- */
-async function Fetch(request = {}) {
-	$.log(`⚠ ${$.name}, Fetch Ruled Reqeust`, "");
-	let response = (request?.body ?? request?.bodyBytes)
-		? await $.http.post(request)
-		: await $.http.get(request);
-	$.log(`🎉 ${$.name}, Fetch Ruled Reqeust`, "");
-	//$.log(`🚧 ${$.name}, Fetch Ruled Reqeust`, `Response:${JSON.stringify(response)}`, "");
-	return response;
-};
-
-/**
- * Fetch Muti-Locales Reqeusts
- * @author VirgilClyne
- * @param {Object} request - Original Request Content
- * @param {Object} proxies - Proxies Name
- * @param {Array} locales - Locales Names
- * @return {Promise<*>}
- */
-async function mutiFetch(request = {}, proxies = {}, locales = []) {
-    $.log(`⚠ ${$.name}, Fetch Muti-Locales Reqeusts`, `locales = [${locales}]`, "");
-    let responses = {};
-	await Promise.allSettled(locales.map(async locale => { responses[locale] = await Fetch(ReReqeust(request, proxies[locale])) }));
-	$.log(`🎉 ${$.name}, Fetch Muti-Locales Reqeusts`, "");
-	//$.log(`🚧 ${$.name}, Fetch Muti-Locales Reqeusts`, `Responses:${JSON.stringify(responses)}`, "");
-    return responses;
 };
 
 /**
@@ -331,19 +315,22 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    //$.log(`⚠ ${$.name}, Determine Response Availability`, "");
-	$.log(`🚧 ${$.name}, Determine Response Availability`, `statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+    $.log(`☑️ ${$.name}, Determine Response Availability`, "");
+	$.log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
+	$.log(`🚧 ${$.name}, Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
-			switch ((response?.headers?.["content-type"] || response.headers?.["Content-Type"])?.split(";")?.[0]) {
+			switch (FORMAT) {
 				case "application/grpc":
-					switch (response?.headers?.["grpc-message"] || response.headers?.["Grpc-Message"]) {
+				case "application/grpc+proto":
+					switch (response?.headers?.["Grpc-Message"] ?? response?.headers?.["grpc-message"]) {
 						case "0":
 							isAvailable = true;
 							break;
 						case undefined:
-							if (parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 800) isAvailable = false;
+							if (parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 1200) isAvailable = false;
 							else isAvailable = true;
 							break;
 						case "-404":
@@ -352,14 +339,15 @@ function isResponseAvailability(response = {}) {
 							break;
 					};
 					break;
+				case "text/json":
 				case "application/json":
 					switch (response?.headers?.["bili-status-code"]) {
 						case "0":
 						case undefined:
-							switch (response?.headers?.["idc"]) {
+							let data = JSON.parse(response?.body).data;
+							switch (response?.headers?.idc) {
 								case "sgp001":
 								case "sgp002":
-									let data = JSON.parse(response?.body).data;
 									switch (data?.limit) {
 										case "":
 										case undefined:
@@ -370,12 +358,31 @@ function isResponseAvailability(response = {}) {
 											break;
 									};
 									break;
+								case "shjd":
 								case undefined:
 								default:
-									isAvailable = true;
+									switch (data?.video_info?.code) {
+										case 0:
+										default:
+											isAvailable = true;
+											break;
+										case undefined:
+											isAvailable = false;
+											break;
+									};
+									switch (data?.dialog?.code) {
+										case undefined:
+											isAvailable = true;
+											break;
+										case 6010001:
+										default:
+											isAvailable = false;
+											break;
+									};
 									break;
 							};
 							break;
+						case "-404": // 啥都木有
 						case "-10403":
 						case "10015001": // 版权地区受限
 						default:
@@ -395,25 +402,49 @@ function isResponseAvailability(response = {}) {
 			isAvailable = false;
 			break;
 	};
-	$.log(`🎉 ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	$.log(`✅ ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
 };
 
 /**
- * Check Locales Availability
+ * Fetch
  * @author VirgilClyne
- * @param {Object} responses - Several Original Response Content
- * @return {Array} available Locales Code
+ * @param {Object} request - Original Request Content
+ * @param {Object} proxies - Proxies Name
+ * @param {Array} locales - Locales Names
+ * @param {array} availableLocales - Available Locales @ Caches
+ * @return {Promise<request>} modified request
  */
-function checkLocales(responses = {}) {
-	$.log(`⚠ ${$.name}, Check Locales Availability`, `allLocales: ${Object.keys(responses)}`, "");
-	for (let locale in responses) {
-		if (!isResponseAvailability(responses[locale])) delete responses[locale];
-	};
+async function availableFetch(request = {}, proxies = {}, locales = [], availableLocales = []) {
+	$.log(`☑️ availableFetch`, `availableLocales: ${availableLocales}`, "");
+	availableLocales = availableLocales.filter(locale => locales.includes(locale));
+	let locale = "";
+	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+	request = redirectRequest(request, proxies[locale]); // 用第一个
+	$.log(`✅ availableFetch`, `locale: ${locale}`, "");
+	return request;
+}
+/**
+ * mutiFetch
+ * @author VirgilClyne
+ * @param {Object} request - Original Request Content
+ * @param {Object} proxies - Proxies Name
+ * @param {Array} locales - Locales Names
+ * @return {Promise<{request, response}>} modified { request, response }
+ */
+async function mutiFetch(request = {}, proxies = {}, locales = []) {
+	$.log(`☑️ mutiFetch`, `locales: $: {locales}`, "");
+	let responses = {};
+	await Promise.allSettled(locales.map(async locale => { responses[locale] = await $.fetch(request, { "policy": proxies[locale] }) }));
+	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; };
 	let availableLocales = Object.keys(responses);
-	$.log(`🎉 ${$.name}, Check Locales Availability`, `Available Locales: ${availableLocales}`, "");
-	return availableLocales;
-};
+	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
+	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+	request = redirectRequest(request, proxies[locale]);
+	let response = responses[locale];
+	$.log(`✅ mutiFetch`, `locale: ${locale}`, "");
+	return { request, response };
+}
 
 /**
  * Check Search Keyword
@@ -426,7 +457,7 @@ function checkKeyword(keyword = "", delimiter = " ") {
 	$.log(`⚠ ${$.name}, Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
 	$.log(`🚧 ${$.name}, Check Search Keyword`, `keywords: ${keywords}`, "");
-	let locale = "";
+	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
 		case "cn":
