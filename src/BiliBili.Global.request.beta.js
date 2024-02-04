@@ -9,7 +9,7 @@ import addgRPCHeader from "./function/addgRPCHeader.mjs";
 import { TextEncoder , TextDecoder } from "./text-encoding/index.js";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
-const $ = new ENVs("📺 BiliBili: 🌐 Global v0.6.0(2) request.beta");
+const $ = new ENVs("📺 BiliBili: 🌐 Global v0.6.0(3) request.beta");
 const URI = new URIs();
 
 // 构造回复数据
@@ -617,7 +617,7 @@ function redirectRequest(request = {}, proxyName = undefined) {
 				delete request.charset;
 				//if (request.opts) request.opts.policy = proxyName;
 				//else request.opts = { "policy": proxyName };
-				$.lodash_set(request, "opts.policy", proxyName);
+				$.lodash.set(request, "opts.policy", proxyName);
 				break;
 			default:
 				break;

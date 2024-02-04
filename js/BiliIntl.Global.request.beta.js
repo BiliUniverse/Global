@@ -1,19 +1,57 @@
 /* README: https://github.com/BiliUniverse */
+class Lodash {
+	constructor() {
+		this.name = "Lodash";
+		this.version = '1.0.0';
+		console.log(`\n${this.name} v${this.version}\n`);
+	}
+
+	get(object = {}, path = "", defaultValue = undefined) {
+		// translate array case to dot case, then split with .
+		// a[0].b -> a.0.b -> ['a', '0', 'b']
+		if (!Array.isArray(path)) path = this.toPath(path);
+
+		const result = path.reduce((previousValue, currentValue) => {
+			return Object(previousValue)[currentValue]; // null undefined get attribute will throwError, Object() can return a object 
+		}, object);
+		return (result === undefined) ? defaultValue : result;
+	}
+
+	set(object = {}, path = "", value) {
+		if (!Array.isArray(path)) path = this.toPath(path);
+		path
+			.slice(0, -1)
+			.reduce(
+				(previousValue, currentValue, currentIndex) =>
+					(Object(previousValue[currentValue]) === previousValue[currentValue])
+						? previousValue[currentValue]
+						: previousValue[currentValue] = (/^\d+$/.test(path[currentIndex + 1]) ? [] : {}),
+				object
+			)[path[path.length - 1]] = value;
+		return object
+	}
+
+	toPath(value) {
+		return value.replace(/\[(\d+)\]/g, '.$1').split('.').filter(Boolean);
+	}
+
+}
+
 class ENV {
 	constructor(name, opts) {
 		this.name = name;
-		this.version = '1.2.0';
-		this.http = new Http(this);
+		this.version = '1.4.0';
 		this.data = null;
 		this.dataFile = 'box.dat';
 		this.logs = [];
 		this.isMute = false;
-		this.isNeedRewrite = false;
 		this.logSeparator = '\n';
 		this.encoding = 'utf-8';
 		this.startTime = new Date().getTime();
 		Object.assign(this, opts);
-		this.log('', `🏁 开始! ENV v${this.version}, ${this.name}`, '');
+		this.log('', '🚩 开始!', `ENV v${this.version}`, '');
+		this.lodash = new Lodash(this.name);
+		this.log('', this.name, '');
 	}
 
 	platform() {
@@ -164,32 +202,6 @@ class ENV {
 			}
 		}
 	}
-
-	lodash_get(object = {}, path = "", defaultValue = undefined) {
-		// translate array case to dot case, then split with .
-		// a[0].b -> a.0.b -> ['a', '0', 'b']
-		if (!Array.isArray(path)) path = path.replace(/\[(\d+)\]/g, '.$1').split('.').filter(Boolean);
-		
-		const result = path.reduce((previousValue, currentValue) => {
-			return Object(previousValue)[currentValue]; // null undefined get attribute will throwError, Object() can return a object 
-		}, object);
-		return (result === undefined) ? defaultValue : result;
-	}
-
-	lodash_set(object = {}, path = "", value) {
-		if (!Array.isArray(path)) path = path.replace(/\[(\d+)\]/g, '.$1').split('.').filter(Boolean);
-		path
-			.slice(0, -1)
-			.reduce(
-				(previousValue, currentValue, currentIndex) =>
-					(Object(previousValue[currentValue]) === previousValue[currentValue])
-						? previousValue[currentValue]
-						: previousValue[currentValue] = (/^\d+$/.test(path[currentIndex + 1]) ? [] : {}),
-				object
-			)[path[path.length - 1]] = value;
-		return object
-	}
-
 	getdata(key) {
 		let val = this.getval(key);
 		// 如果以 @
@@ -199,7 +211,7 @@ class ENV {
 			if (objval) {
 				try {
 					const objedval = JSON.parse(objval);
-					val = objedval ? this.lodash_get(objedval, paths, '') : val;
+					val = objedval ? this.lodash.get(objedval, paths, '') : val;
 				} catch (e) {
 					val = '';
 				}
@@ -220,11 +232,11 @@ class ENV {
 				: '{}';
 			try {
 				const objedval = JSON.parse(objval);
-				this.lodash_set(objedval, paths, val);
+				this.lodash.set(objedval, paths, val);
 				issuc = this.setval(JSON.stringify(objedval), objkey);
 			} catch (e) {
 				const objedval = {};
-				this.lodash_set(objedval, paths, val);
+				this.lodash.set(objedval, paths, val);
 				issuc = this.setval(JSON.stringify(objedval), objkey);
 			}
 		} else {
@@ -281,55 +293,87 @@ class ENV {
 		}
 	}
 
-	get(request, callback = () => { }) {
-		delete request?.headers?.['Content-Length'];
-		delete request?.headers?.['content-length'];
-
+	async fetch(request = {} || "", option = {}) {
+		switch (request.constructor) {
+			case Object:
+				request = { ...request, ...option };
+				break;
+			case String:
+				request = { "url": request, ...option };
+				break;
+		}		if (!request.method) {
+			request.method = "GET";
+			if (request.body ?? request.bodyBytes) request.method = "POST";
+		}		delete request.headers?.['Content-Length'];
+		delete request.headers?.['content-length'];
+		const method = request.method.toLocaleLowerCase();
 		switch (this.platform()) {
-			case 'Surge':
 			case 'Loon':
+			case 'Surge':
 			case 'Stash':
 			case 'Shadowrocket':
 			default:
-				if (this.isSurge() && this.isNeedRewrite) {
-					this.lodash_set(request, 'headers.X-Surge-Skip-Scripting', false);
-				}
-				$httpClient.get(request, (error, response, body) => {
-					if (!error && response) {
-						response.body = body;
-						response.statusCode = response.status ? response.status : response.statusCode;
-						response.status = response.statusCode;
-					}
-					callback(error, response, body);
+				// 移除不可写字段
+				delete request.id;
+				// 添加策略组
+				if (request.policy) {
+					if (this.isLoon()) request.node = request.policy;
+					if (this.isStash()) this.lodash.set(request, "headers.X-Stash-Selected-Proxy", encodeURI(request.policy));
+				}				// 判断请求数据类型
+				if (ArrayBuffer.isView(request.body)) request["binary-mode"] = true;
+				// 发送请求
+				return await new Promise((resolve, reject) => {
+					$httpClient[method](request, (error, response, body) => {
+						if (error) reject(error);
+						else {
+							response.ok = /^2\d\d$/.test(response.status);
+							response.statusCode = response.status;
+							if (body) {
+								response.body = body;
+								if (request["binary-mode"] == true) response.bodyBytes = body;
+							}							resolve(response);
+						}
+					});
 				});
-				break
 			case 'Quantumult X':
-				if (this.isNeedRewrite) {
-					this.lodash_set(request, 'opts.hints', false);
-				}
-				$task.fetch(request).then(
-					(response) => {
-						const {
-							statusCode: status,
-							statusCode,
-							headers,
-							body,
-							bodyBytes
-						} = response;
-						callback(
-							null,
-							{ status, statusCode, headers, body, bodyBytes },
-							body,
-							bodyBytes
-						);
+				// 移除不可写字段
+				delete request.scheme;
+				delete request.sessionIndex;
+				delete request.charset;
+				// 添加策略组
+				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
+				// 判断请求数据类型
+				switch ((request?.headers?.["Content-Type"] ?? request?.headers?.["content-type"])?.split(";")?.[0]) {
+					default:
+						// 返回普通数据
+						delete request.bodyBytes;
+						break;
+					case "application/protobuf":
+					case "application/x-protobuf":
+					case "application/vnd.google.protobuf":
+					case "application/grpc":
+					case "application/grpc+proto":
+					case "application/octet-stream":
+						// 返回二进制数据
+						delete request.body;
+						if (ArrayBuffer.isView(request.bodyBytes)) request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
+						break;
+					case undefined: // 视为构造请求或无body
+						// 返回普通数据
+						break;
+				}				// 发送请求
+				return await $task.fetch(request).then(
+					response => {
+						response.ok = /^2\d\d$/.test(response.statusCode);
+						response.status = response.statusCode;
+						return response;
 					},
-					(error) => callback((error && error.error) || 'UndefinedError')
-				);
-				break
+					reason => Promise.reject(reason.error));
 			case 'Node.js':
 				let iconv = require('iconv-lite');
 				this.initGotEnv(request);
-				this.got(request)
+				const { url, ...option } = request;
+				return await this.got[method](url, option)
 					.on('redirect', (response, nextOpts) => {
 						try {
 							if (response.headers['set-cookie']) {
@@ -347,119 +391,15 @@ class ENV {
 						// this.ckjar.setCookieSync(response.headers['set-cookie'].map(Cookie.parse).toString())
 					})
 					.then(
-						(response) => {
-							const {
-								statusCode: status,
-								statusCode,
-								headers,
-								rawBody
-							} = response;
-							const body = iconv.decode(rawBody, this.encoding);
-							callback(
-								null,
-								{ status, statusCode, headers, rawBody, body },
-								body
-							);
+						response => {
+							response.statusCode = response.status;
+							response.body = iconv.decode(response.rawBody, this.encoding);
+							response.bodyBytes = response.rawBody;
+							return response;
 						},
-						(err) => {
-							const { message: error, response: response } = err;
-							callback(
-								error,
-								response,
-								response && iconv.decode(response.rawBody, this.encoding)
-							);
-						}
-					);
-				break
-		}
-	}
+						error => Promise.reject(error.message));
+		}	};
 
-	post(request, callback = () => { }) {
-		const method = request.method
-			? request.method.toLocaleLowerCase()
-			: 'post';
-
-		// 如果指定了请求体, 但没指定 `Content-Type`、`content-type`, 则自动生成。
-		if (
-			request.body &&
-			request.headers &&
-			!request.headers['Content-Type'] &&
-			!request.headers['content-type']
-		) {
-			// HTTP/1、HTTP/2 都支持小写 headers
-			request.headers['content-type'] = 'application/x-www-form-urlencoded';
-		}
-		// 为避免指定错误 `content-length` 这里删除该属性，由工具端 (HttpClient) 负责重新计算并赋值
-		delete request?.headers?.['Content-Length'];
-		delete request?.headers?.['content-length'];
-		switch (this.platform()) {
-			case 'Surge':
-			case 'Loon':
-			case 'Stash':
-			case 'Shadowrocket':
-			default:
-				if (this.isSurge() && this.isNeedRewrite) {
-					this.lodash_set(request, 'headers.X-Surge-Skip-Scripting', false);
-				}
-				$httpClient[method](request, (error, response, body) => {
-					if (!error && response) {
-						response.body = body;
-						response.statusCode = response.status ? response.status : response.statusCode;
-						response.status = response.statusCode;
-					}
-					callback(error, response, body);
-				});
-				break
-			case 'Quantumult X':
-				request.method = method;
-				if (this.isNeedRewrite) {
-					this.lodash_set(request, 'opts.hints', false);
-				}
-				$task.fetch(request).then(
-					(response) => {
-						const {
-							statusCode: status,
-							statusCode,
-							headers,
-							body,
-							bodyBytes
-						} = response;
-						callback(
-							null,
-							{ status, statusCode, headers, body, bodyBytes },
-							body,
-							bodyBytes
-						);
-					},
-					(error) => callback((error && error.error) || 'UndefinedError')
-				);
-				break
-			case 'Node.js':
-				let iconv = require('iconv-lite');
-				this.initGotEnv(request);
-				const { url, ..._request } = request;
-				this.got[method](url, _request).then(
-					(response) => {
-						const { statusCode: status, statusCode, headers, rawBody } = response;
-						const body = iconv.decode(rawBody, this.encoding);
-						callback(
-							null,
-							{ status, statusCode, headers, rawBody, body },
-							body
-						);
-					},
-					(err) => {
-						const { message: error, response: response } = err;
-						callback(
-							error,
-							response,
-							response && iconv.decode(response.rawBody, this.encoding)
-						);
-					}
-				);
-				break
-		}
-	}
 	/**
 	 *
 	 * 示例:$.time('yyyy-MM-dd qq HH:mm:ss.S')
@@ -663,7 +603,7 @@ class ENV {
 				//this.log(`🎉 ${this.name}, $Argument`);
 				let arg = Object.fromEntries($argument.split("&").map((item) => item.split("=").map(i => i.replace(/\"/g, ''))));
 				//this.log(JSON.stringify(arg));
-				for (let item in arg) this.lodash_set(Argument, item, arg[item]);
+				for (let item in arg) this.lodash.set(Argument, item, arg[item]);
 				//this.log(JSON.stringify(Argument));
 			}			//this.log(`✅ ${this.name}, Get Environment Variables`, `Argument类型: ${typeof Argument}`, `Argument内容: ${JSON.stringify(Argument)}`, "");
 		}		/***************** Store *****************/
@@ -691,34 +631,6 @@ class ENV {
 	/***************** function *****************/
 	traverseObject(o, c) { for (var t in o) { var n = o[t]; o[t] = "object" == typeof n && null !== n ? this.traverseObject(n, c) : c(t, n); } return o }
 	string2number(string) { if (string && !isNaN(string)) string = parseInt(string, 10); return string }
-}
-
-class Http {
-	constructor(env) {
-		this.env = env;
-	}
-
-	send(opts, method = 'GET') {
-		opts = typeof opts === 'string' ? { url: opts } : opts;
-		let sender = this.get;
-		if (method === 'POST') {
-			sender = this.post;
-		}
-		return new Promise((resolve, reject) => {
-			sender.call(this, opts, (error, response, body) => {
-				if (error) reject(error);
-				else resolve(response);
-			});
-		})
-	}
-
-	get(opts) {
-		return this.send.call(this.env, opts)
-	}
-
-	post(opts) {
-		return this.send.call(this.env, opts, 'POST')
-	}
 }
 
 let URI$1 = class URI {
@@ -862,7 +774,7 @@ function setENV($, name, platforms, database) {
 	return { Settings, Caches, Configs };
 }
 
-const $ = new ENV("📺 BiliIntl: 🌐 Global v0.4.0(1) request.beta");
+const $ = new ENV("📺 BiliIntl: 🌐 Global v0.5.0(2) request.beta");
 const URI = new URI$1();
 
 // 构造回复数据
@@ -1052,60 +964,44 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 
 /***************** Function *****************/
 /**
- * Construct Redirect Reqeusts
+ * Construct Redirect Requests
  * @author VirgilClyne
  * @param {Object} request - Original Request Content
  * @param {Object} proxyName - Proxies Name
  * @return {Object} Modify Request Content with Policy
  */
-function ReReqeust(request = {}, proxyName = "") {
-	$.log(`⚠ ${$.name}, Construct Redirect Reqeusts`, "");
+function redirectRequest(request = {}, proxyName = undefined) {
+	$.log(`⚠ ${$.name}, Construct Redirect Requests`, "");
 	if (proxyName) {
-		if ($.isLoon()) request.node = proxyName;
-		if ($.isQuanX()) {
-			if (request.opts) request.opts.policy = proxyName;
-			else request.opts = { "policy": proxyName };
-		}		if ($.isSurge()) {
-			delete request.id;
-			request.headers["X-Surge-Policy"] = proxyName;
-			request.policy = proxyName;
-		}		if ($.isStash()) request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
-		if ($.isShadowrocket()) $.logErr(`❗️${$.name}, ${Fetch.name}执行失败`, `不支持的app: Shadowrocket`, "");
-	}
-	$.log(`🎉 ${$.name}, Construct Redirect Reqeusts`, "");
-	//$.log(`🚧 ${$.name}, Construct Redirect Reqeusts`, `Request:${JSON.stringify(request)}`, "");
+		switch ($.platform()) {
+			case "Loon":
+				request.node = proxyName;
+				break;
+			case "Stash":
+				request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
+				break;
+			case "Surge":
+				delete request.id;
+				request.headers["X-Surge-Policy"] = proxyName;
+				//break; // 无需break
+			case "Shadowrocket":
+				request.policy = proxyName;
+				break;
+			case "Quantumult X":
+				delete request.method;
+				delete request.scheme;
+				delete request.sessionIndex;
+				delete request.charset;
+				//if (request.opts) request.opts.policy = proxyName;
+				//else request.opts = { "policy": proxyName };
+				$.lodash.set(request, "opts.policy", proxyName);
+				break;
+		}	}	delete request?.headers?.["Content-Length"];
+	delete request?.headers?.["content-length"];
+	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
+	$.log(`🎉 ${$.name}, Construct Redirect Requests`, "");
+	//$.log(`🚧 ${$.name}, Construct Redirect Requests`, `Request:${JSON.stringify(request)}`, "");
 	return request;
-}
-/**
- * Fetch Ruled Reqeust
- * @author VirgilClyne
- * @param {Object} request - Original Request Content
- * @return {Promise<*>}
- */
-async function Fetch(request = {}) {
-	$.log(`⚠ ${$.name}, Fetch Ruled Reqeust`, "");
-	let response = (request?.body ?? request?.bodyBytes)
-		? await $.http.post(request)
-		: await $.http.get(request);
-	$.log(`🎉 ${$.name}, Fetch Ruled Reqeust`, "");
-	//$.log(`🚧 ${$.name}, Fetch Ruled Reqeust`, `Response:${JSON.stringify(response)}`, "");
-	return response;
-}
-/**
- * Fetch Muti-Locales Reqeusts
- * @author VirgilClyne
- * @param {Object} request - Original Request Content
- * @param {Object} proxies - Proxies Name
- * @param {Array} locales - Locales Names
- * @return {Promise<*>}
- */
-async function mutiFetch(request = {}, proxies = {}, locales = []) {
-    $.log(`⚠ ${$.name}, Fetch Muti-Locales Reqeusts`, `locales = [${locales}]`, "");
-    let responses = {};
-	await Promise.allSettled(locales.map(async locale => { responses[locale] = await Fetch(ReReqeust(request, proxies[locale])); }));
-	$.log(`🎉 ${$.name}, Fetch Muti-Locales Reqeusts`, "");
-	//$.log(`🚧 ${$.name}, Fetch Muti-Locales Reqeusts`, `Responses:${JSON.stringify(responses)}`, "");
-    return responses;
 }
 /**
  * Determine Response Availability
@@ -1114,19 +1010,22 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    //$.log(`⚠ ${$.name}, Determine Response Availability`, "");
-	$.log(`🚧 ${$.name}, Determine Response Availability`, `statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+    $.log(`☑️ ${$.name}, Determine Response Availability`, "");
+	$.log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
+	$.log(`🚧 ${$.name}, Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
-			switch ((response?.headers?.["content-type"] || response.headers?.["Content-Type"])?.split(";")?.[0]) {
+			switch (FORMAT) {
 				case "application/grpc":
-					switch (response?.headers?.["grpc-message"] || response.headers?.["Grpc-Message"]) {
+				case "application/grpc+proto":
+					switch (response?.headers?.["Grpc-Message"] ?? response?.headers?.["grpc-message"]) {
 						case "0":
 							isAvailable = true;
 							break;
 						case undefined:
-							if (parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 800) isAvailable = false;
+							if (parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 1200) isAvailable = false;
 							else isAvailable = true;
 							break;
 						case "-404":
@@ -1134,14 +1033,15 @@ function isResponseAvailability(response = {}) {
 							isAvailable = false;
 							break;
 					}					break;
+				case "text/json":
 				case "application/json":
 					switch (response?.headers?.["bili-status-code"]) {
 						case "0":
 						case undefined:
-							switch (response?.headers?.["idc"]) {
+							let data = JSON.parse(response?.body).data;
+							switch (response?.headers?.idc) {
 								case "sgp001":
 								case "sgp002":
-									let data = JSON.parse(response?.body).data;
 									switch (data?.limit) {
 										case "":
 										case undefined:
@@ -1151,11 +1051,28 @@ function isResponseAvailability(response = {}) {
 											isAvailable = false;
 											break;
 									}									break;
+								case "shjd":
 								case undefined:
 								default:
-									isAvailable = true;
-									break;
+									switch (data?.video_info?.code) {
+										case 0:
+										default:
+											isAvailable = true;
+											break;
+										case undefined:
+											isAvailable = false;
+											break;
+									}									switch (data?.dialog?.code) {
+										case undefined:
+											isAvailable = true;
+											break;
+										case 6010001:
+										default:
+											isAvailable = false;
+											break;
+									}									break;
 							}							break;
+						case "-404": // 啥都木有
 						case "-10403":
 						case "10015001": // 版权地区受限
 						default:
@@ -1172,23 +1089,29 @@ function isResponseAvailability(response = {}) {
 		default:
 			isAvailable = false;
 			break;
-	}	$.log(`🎉 ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	}	$.log(`✅ ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
-}
-/**
- * Check Locales Availability
+}/**
+ * mutiFetch
  * @author VirgilClyne
- * @param {Object} responses - Several Original Response Content
- * @return {Array} available Locales Code
+ * @param {Object} request - Original Request Content
+ * @param {Object} proxies - Proxies Name
+ * @param {Array} locales - Locales Names
+ * @return {Promise<{request, response}>} modified { request, response }
  */
-function checkLocales(responses = {}) {
-	$.log(`⚠ ${$.name}, Check Locales Availability`, `allLocales: ${Object.keys(responses)}`, "");
-	for (let locale in responses) {
-		if (!isResponseAvailability(responses[locale])) delete responses[locale];
-	}	let availableLocales = Object.keys(responses);
-	$.log(`🎉 ${$.name}, Check Locales Availability`, `Available Locales: ${availableLocales}`, "");
-	return availableLocales;
+async function mutiFetch(request = {}, proxies = {}, locales = []) {
+	$.log(`☑️ mutiFetch`, `locales: $: {locales}`, "");
+	let responses = {};
+	await Promise.allSettled(locales.map(async locale => { responses[locale] = await $.fetch(request, { "policy": proxies[locale] }); }));
+	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; }	let availableLocales = Object.keys(responses);
+	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
+	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+	request = redirectRequest(request, proxies[locale]);
+	let response = responses[locale];
+	$.log(`✅ mutiFetch`, `locale: ${locale}`, "");
+	return { request, response };
 }
+
 /**
  * Check Search Keyword
  * @author VirgilClyne
@@ -1200,7 +1123,7 @@ function checkKeyword(keyword = "", delimiter = " ") {
 	$.log(`⚠ ${$.name}, Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
 	$.log(`🚧 ${$.name}, Check Search Keyword`, `keywords: ${keywords}`, "");
-	let locale = "";
+	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
 		case "cn":
