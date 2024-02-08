@@ -13980,7 +13980,7 @@ class MessageType {
     }
 }
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.0(3) request.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.0(5) request.beta");
 const URI = new URI$1();
 
 // 构造回复数据
@@ -14322,6 +14322,11 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									break;
 								case "x/v2/space": // 用户空间
 									switch (infoGroup?.mId) {
+										case 928123: // 哔哩哔哩番剧
+										case 15773384: // 哔哩哔哩电影
+										default:
+											infoGroup.locales = ["CHN"];
+											break;
 										case 11783021: // 哔哩哔哩番剧出差
 										case 1988098633: // b站_戲劇咖
 										case 2042149112: // b站_綜藝咖
@@ -14348,6 +14353,11 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 								case "x/space/acc/info": // 用户空间-账号信息-pc
 								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
 									switch (infoGroup?.mId) {
+										case 928123: // 哔哩哔哩番剧
+										case 15773384: // 哔哩哔哩电影
+										default:
+											infoGroup.locales = ["CHN"];
+											break;
 										case 11783021: // 哔哩哔哩番剧出差
 										case 1988098633: // b站_戲劇咖
 										case 2042149112: // b站_綜藝咖
@@ -14652,7 +14662,7 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
-	$.log(`☑️ mutiFetch`, `locales: $: {locales}`, "");
+	$.log(`☑️ mutiFetch`, `locales: ${locales}`, "");
 	let responses = {};
 	await Promise.allSettled(locales.map(async locale => { responses[locale] = await $.fetch(request, { "policy": proxies[locale] }); }));
 	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; }	let availableLocales = Object.keys(responses);
