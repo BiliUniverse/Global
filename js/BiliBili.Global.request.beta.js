@@ -74,7 +74,7 @@ class Lodash {
 class ENV {
 	constructor(name, opts) {
 		this.name = name;
-		this.version = '1.5.11';
+		this.version = '1.6.0';
 		this.data = null;
 		this.dataFile = 'box.dat';
 		this.logs = [];
@@ -378,34 +378,25 @@ class ENV {
 					});
 				});
 			case 'Quantumult X':
+				// 添加策略组
+				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
 				// 移除不可写字段
 				delete request.charset;
+				delete request.host;
 				delete request.path;
+				delete request.policy;
 				delete request.scheme;
 				delete request.sessionIndex;
 				delete request.statusCode;
-				// 添加策略组
-				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
 				// 判断请求数据类型
-				switch ((request?.headers?.["Content-Type"] ?? request?.headers?.["content-type"])?.split(";")?.[0]) {
-					default:
-						// 返回普通数据
-						delete request.bodyBytes;
-						break;
-					case "application/protobuf":
-					case "application/x-protobuf":
-					case "application/vnd.google.protobuf":
-					case "application/grpc":
-					case "application/grpc+proto":
-					case "application/octet-stream":
-						// 返回二进制数据
-						delete request.body;
-						if (ArrayBuffer.isView(request.bodyBytes)) request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
-						break;
-					case undefined: // 视为构造请求或无body
-						// 返回普通数据
-						break;
-				}				// 发送请求
+				if (request.body instanceof ArrayBuffer) {
+					request.bodyBytes = request.body;
+					delete request.body;
+				} else if (ArrayBuffer.isView(request.body)) {
+					request.bodyBytes = request.body.buffer.slice(request.body.byteOffset, request.body.byteLength + request.body.byteOffset);
+					delete object.body;
+				} else if (request.body) delete request.bodyBytes;
+				// 发送请求
 				return await $task.fetch(request).then(
 					response => {
 						response.ok = /^2\d\d$/.test(response.statusCode);
@@ -614,19 +605,33 @@ class ENV {
 		this.log("", `🚩 ${this.name}, 结束! 🕛 ${costTime} 秒`, "");
 		switch (this.platform()) {
 			case 'Surge':
+				if (object.policy) this.lodash.set(object, "headers.X-Surge-Policy", object.policy);
+				$done(object);
+				break;
 			case 'Loon':
+				if (object.policy) object.node = object.policy;
+				$done(object);
+				break;
 			case 'Stash':
+				if (object.policy) this.lodash.set(object, "headers.X-Stash-Selected-Proxy", encodeURI(object.policy));
+				$done(object);
+				break;
 			case 'Egern':
+				$done(object);
+				break;
 			case 'Shadowrocket':
 			default:
 				$done(object);
 				break;
 			case 'Quantumult X':
+				if (object.policy) this.lodash.set(object, "opts.policy", object.policy);
 				// 移除不可写字段
 				delete object.charset;
 				delete object.host;
 				delete object.method; // 1.4.x 不可写
-				delete object.path;
+				delete object.opt; // $task.fetch() 参数, 不可写
+				delete object.path; // 可写, 但会与 url 冲突
+				delete object.policy;
 				delete object.scheme;
 				delete object.sessionIndex;
 				delete object.statusCode;
@@ -14045,7 +14050,7 @@ class MessageType {
     }
 }
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.0(5) request.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.1(1) request.beta");
 const URI = new URI$1();
 
 // 构造回复数据
@@ -14470,10 +14475,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 					else ({ request: $request } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					switch ($.platform()) { // 直通模式，不处理，否则无法进http-response
 						case "Shadowrocket":
-							delete $request?.policy;
-							break;
 						case "Quantumult X":
-							delete $request?.opts?.policy;
+							delete $request.policy;
 							break;
 					}					break;
 				case "all": // 搜索-全部结果-html（综合）
@@ -14486,8 +14489,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
 				case "x/v2/search": // 搜索-全部结果-api（综合）
 				case "x/v2/search/type": // 搜索-分类结果-api（番剧、用户、影视、专栏）
-					if (infoGroup.locale) $request = redirectRequest($request, Settings.Proxies[infoGroup.locale]);
-					//if (infoGroup.locale) $response = await $.fetch(request, { "policy": Settings.Proxies[infoGroup.locale] });
+					$request.policy = Settings.Proxies[infoGroup.locale];
 					break;
 				default:
 					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "");
@@ -14497,10 +14499,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 			}			if (!$response) { // 无（构造）回复数据
 				switch ($.platform()) { // 已有指定策略的请求，根据策略fetch
 					case "Shadowrocket":
-						if ($request.policy) $response = await $.fetch($request);
-						break;
 					case "Quantumult X":
-						if ($request.opts?.policy) $response = await $.fetch($request);
+						if ($request.policy) $response = await $.fetch($request);
 						break;
 				}			}			break;
 		case false:
@@ -14528,46 +14528,6 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 		}	});
 
 /***************** Function *****************/
-/**
- * Construct Redirect Requests
- * @author VirgilClyne
- * @param {Object} request - Original Request Content
- * @param {Object} proxyName - Proxies Name
- * @return {Object} Modify Request Content with Policy
- */
-function redirectRequest(request = {}, proxyName = undefined) {
-	$.log(`⚠ ${$.name}, Construct Redirect Requests`, "");
-	if (proxyName) {
-		switch ($.platform()) {
-			case "Loon":
-				request.node = proxyName;
-				break;
-			case "Stash":
-				request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
-				break;
-			case "Surge":
-				delete request.id;
-				request.headers["X-Surge-Policy"] = proxyName;
-				//break; // 无需break
-			case "Shadowrocket":
-				request.policy = proxyName;
-				break;
-			case "Quantumult X":
-				delete request.method;
-				delete request.scheme;
-				delete request.sessionIndex;
-				delete request.charset;
-				//if (request.opts) request.opts.policy = proxyName;
-				//else request.opts = { "policy": proxyName };
-				$.lodash.set(request, "opts.policy", proxyName);
-				break;
-		}	}	delete request?.headers?.["Content-Length"];
-	delete request?.headers?.["content-length"];
-	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
-	$.log(`🎉 ${$.name}, Construct Redirect Requests`, "");
-	//$.log(`🚧 ${$.name}, Construct Redirect Requests`, `Request:${JSON.stringify(request)}`, "");
-	return request;
-}
 /**
  * Determine Response Availability
  * @author VirgilClyne
@@ -14671,7 +14631,7 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
 	availableLocales = availableLocales.filter(locale => locales.includes(locale));
 	let locale = "";
 	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-	request = redirectRequest(request, proxies[locale]); // 用第一个
+	request.policy = proxies[locale];
 	$.log(`✅ availableFetch`, `locale: ${locale}`, "");
 	return request;
 }
@@ -14690,7 +14650,7 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; }	let availableLocales = Object.keys(responses);
 	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
 	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-	request = redirectRequest(request, proxies[locale]);
+	request.policy = proxies[locale];
 	let response = responses[locale];
 	$.log(`✅ mutiFetch`, `locale: ${locale}`, "");
 	return { request, response };

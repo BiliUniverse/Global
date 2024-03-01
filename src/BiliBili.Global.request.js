@@ -9,7 +9,7 @@ import addgRPCHeader from "./function/addgRPCHeader.mjs";
 import { TextEncoder , TextDecoder } from "./text-encoding/index.js";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
-const $ = new ENVs("📺 BiliBili: 🌐 Global v0.6.0(5) request");
+const $ = new ENVs("📺 BiliBili: 🌐 Global v0.6.1(1) request");
 const URI = new URIs();
 
 // 构造回复数据
@@ -403,10 +403,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 					else ({ request: $request } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					switch ($.platform()) { // 直通模式，不处理，否则无法进http-response
 						case "Shadowrocket":
-							delete $request?.policy;
-							break;
 						case "Quantumult X":
-							delete $request?.opts?.policy;
+							delete $request.policy;
 							break;
 					};
 					break;
@@ -420,8 +418,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
 				case "x/v2/search": // 搜索-全部结果-api（综合）
 				case "x/v2/search/type": // 搜索-分类结果-api（番剧、用户、影视、专栏）
-					if (infoGroup.locale) $request = redirectRequest($request, Settings.Proxies[infoGroup.locale]);
-				break;
+					$request.policy = Settings.Proxies[infoGroup.locale];
+					break;
 				default:
 					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
 					else if (infoGroup.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
@@ -431,10 +429,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 			if (!$response) { // 无（构造）回复数据
 				switch ($.platform()) { // 已有指定策略的请求，根据策略fetch
 					case "Shadowrocket":
-						if ($request.policy) $response = await $.fetch($request);
-						break;
 					case "Quantumult X":
-						if ($request.opts?.policy) $response = await $.fetch($request);
+						if ($request.policy) $response = await $.fetch($request);
 						break;
 				};
 			};
@@ -464,49 +460,6 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 	})
 
 /***************** Function *****************/
-/**
- * Construct Redirect Requests
- * @author VirgilClyne
- * @param {Object} request - Original Request Content
- * @param {Object} proxyName - Proxies Name
- * @return {Object} Modify Request Content with Policy
- */
-function redirectRequest(request = {}, proxyName = undefined) {
-	$.log(`⚠ ${$.name}, Construct Redirect Requests`, "");
-	if (proxyName) {
-		switch ($.platform()) {
-			case "Loon":
-				request.node = proxyName;
-				break;
-			case "Stash":
-				request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
-				break;
-			case "Surge":
-				delete request.id;
-				request.headers["X-Surge-Policy"] = proxyName;
-				//break; // 无需break
-			case "Shadowrocket":
-				request.policy = proxyName;
-				break;
-			case "Quantumult X":
-				delete request.method;
-				delete request.scheme;
-				delete request.sessionIndex;
-				delete request.charset;
-				$.lodash.set(request, "opts.policy", proxyName);
-				break;
-			default:
-				break;
-		};
-	};
-	delete request?.headers?.["Content-Length"];
-	delete request?.headers?.["content-length"];
-	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
-	$.log(`🎉 ${$.name}, Construct Redirect Requests`, "");
-	//$.log(`🚧 ${$.name}, Construct Redirect Requests`, `Request:${JSON.stringify(request)}`, "");
-	return request;
-};
-
 /**
  * Determine Response Availability
  * @author VirgilClyne
@@ -618,7 +571,7 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
 	availableLocales = availableLocales.filter(locale => locales.includes(locale));
 	let locale = "";
 	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-	request = redirectRequest(request, proxies[locale]); // 用第一个
+	request.policy = proxies[locale];
 	$.log(`✅ availableFetch`, `locale: ${locale}`, "");
 	return request;
 }
@@ -638,7 +591,7 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	let availableLocales = Object.keys(responses);
 	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
 	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-	request = redirectRequest(request, proxies[locale]);
+	request.policy = proxies[locale];
 	let response = responses[locale];
 	$.log(`✅ mutiFetch`, `locale: ${locale}`, "");
 	return { request, response };

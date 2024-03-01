@@ -74,7 +74,7 @@ class Lodash {
 class ENV {
 	constructor(name, opts) {
 		this.name = name;
-		this.version = '1.5.11';
+		this.version = '1.6.0';
 		this.data = null;
 		this.dataFile = 'box.dat';
 		this.logs = [];
@@ -378,34 +378,25 @@ class ENV {
 					});
 				});
 			case 'Quantumult X':
+				// 添加策略组
+				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
 				// 移除不可写字段
 				delete request.charset;
+				delete request.host;
 				delete request.path;
+				delete request.policy;
 				delete request.scheme;
 				delete request.sessionIndex;
 				delete request.statusCode;
-				// 添加策略组
-				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
 				// 判断请求数据类型
-				switch ((request?.headers?.["Content-Type"] ?? request?.headers?.["content-type"])?.split(";")?.[0]) {
-					default:
-						// 返回普通数据
-						delete request.bodyBytes;
-						break;
-					case "application/protobuf":
-					case "application/x-protobuf":
-					case "application/vnd.google.protobuf":
-					case "application/grpc":
-					case "application/grpc+proto":
-					case "application/octet-stream":
-						// 返回二进制数据
-						delete request.body;
-						if (ArrayBuffer.isView(request.bodyBytes)) request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
-						break;
-					case undefined: // 视为构造请求或无body
-						// 返回普通数据
-						break;
-				}				// 发送请求
+				if (request.body instanceof ArrayBuffer) {
+					request.bodyBytes = request.body;
+					delete request.body;
+				} else if (ArrayBuffer.isView(request.body)) {
+					request.bodyBytes = request.body.buffer.slice(request.body.byteOffset, request.body.byteLength + request.body.byteOffset);
+					delete object.body;
+				} else if (request.body) delete request.bodyBytes;
+				// 发送请求
 				return await $task.fetch(request).then(
 					response => {
 						response.ok = /^2\d\d$/.test(response.statusCode);
@@ -614,19 +605,33 @@ class ENV {
 		this.log("", `🚩 ${this.name}, 结束! 🕛 ${costTime} 秒`, "");
 		switch (this.platform()) {
 			case 'Surge':
+				if (object.policy) this.lodash.set(object, "headers.X-Surge-Policy", object.policy);
+				$done(object);
+				break;
 			case 'Loon':
+				if (object.policy) object.node = object.policy;
+				$done(object);
+				break;
 			case 'Stash':
+				if (object.policy) this.lodash.set(object, "headers.X-Stash-Selected-Proxy", encodeURI(object.policy));
+				$done(object);
+				break;
 			case 'Egern':
+				$done(object);
+				break;
 			case 'Shadowrocket':
 			default:
 				$done(object);
 				break;
 			case 'Quantumult X':
+				if (object.policy) this.lodash.set(object, "opts.policy", object.policy);
 				// 移除不可写字段
 				delete object.charset;
 				delete object.host;
 				delete object.method; // 1.4.x 不可写
-				delete object.path;
+				delete object.opt; // $task.fetch() 参数, 不可写
+				delete object.path; // 可写, 但会与 url 冲突
+				delete object.policy;
 				delete object.scheme;
 				delete object.sessionIndex;
 				delete object.statusCode;
@@ -839,7 +844,7 @@ function setENV($, name, platforms, database) {
 	return { Settings, Caches, Configs };
 }
 
-const $ = new ENV("📺 BiliIntl: 🌐 Global v0.5.0(2) request.beta");
+const $ = new ENV("📺 BiliIntl: 🌐 Global v0.5.1(1) request.beta");
 const URI = new URI$1();
 
 // 构造回复数据
@@ -877,16 +882,16 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 					switch (HOST) {
 						case "www.bilibili.tv":
 							if (PATH.includes("/anime")) { // 番剧-web
-								$request = ReReqeust($request, Settings.Proxies["SEA"]); // 默认用SEA
+								$request.policy = Settings.Proxies["SEA"]; // 默认用SEA
 							} else if (PATH.includes("/play/")) { // 番剧-播放页-web
 								let epid = URL.query?.ep_id;
 								$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
 								if (Caches?.ep?.[epid]) {
 									let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
 									$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-									$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+									$request.policy = Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 								} else {
-									$request = ReReqeust($request, Settings.Proxies["SEA"]); // 默认用SEA
+									$request.policy = Settings.Proxies["SEA"]; // 默认用SEA
 								}							}							break;
 						case "api.bilibili.tv":
 							switch (PATH) {
@@ -896,9 +901,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									if (Caches?.ep?.[epid]) {
 										let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
 										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-										$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+										$request.policy = Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 									} else {
-										$request = ReReqeust($request, Settings.Proxies["SEA"]); // 默认用SEA
+										$request.policy = Settings.Proxies["SEA"]; // 默认用SEA
 									}									break;
 								}							}							break;
 						case "app.biliintl.com": // app
@@ -922,7 +927,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 											if (Caches?.ep?.[epid]) {
 												let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
 												$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
-												$request = ReReqeust($request, Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]); // 随机用一个
+												$request.policy = Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 											} else {
 												let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales.filter(locale => locale !== "CHN")); // 国际版不含中国大陆
 												let availableLocales = checkLocales(responses);
@@ -933,7 +938,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 											let { keyword, locale } = checkKeyword(decodeURIComponent(URL.query?.keyword));
 											URL.query.keyword = encodeURIComponent(keyword);
 											$request.url = URI.stringify(url);
-											$request = ReReqeust($request, Settings.Proxies[locale]);
+											$request.policy = Settings.Proxies[locale];
 											break;
 										case "intl/gateway/v2/ogv/view/app/season2": // 番剧-详情页-app
 											let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales.filter(locale => locale !== "CHN")); // 国际版不含中国大陆
@@ -986,46 +991,6 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 	}});
 
 /***************** Function *****************/
-/**
- * Construct Redirect Requests
- * @author VirgilClyne
- * @param {Object} request - Original Request Content
- * @param {Object} proxyName - Proxies Name
- * @return {Object} Modify Request Content with Policy
- */
-function redirectRequest(request = {}, proxyName = undefined) {
-	$.log(`⚠ ${$.name}, Construct Redirect Requests`, "");
-	if (proxyName) {
-		switch ($.platform()) {
-			case "Loon":
-				request.node = proxyName;
-				break;
-			case "Stash":
-				request.headers["X-Stash-Selected-Proxy"] = encodeURI(proxyName);
-				break;
-			case "Surge":
-				delete request.id;
-				request.headers["X-Surge-Policy"] = proxyName;
-				//break; // 无需break
-			case "Shadowrocket":
-				request.policy = proxyName;
-				break;
-			case "Quantumult X":
-				delete request.method;
-				delete request.scheme;
-				delete request.sessionIndex;
-				delete request.charset;
-				//if (request.opts) request.opts.policy = proxyName;
-				//else request.opts = { "policy": proxyName };
-				$.lodash.set(request, "opts.policy", proxyName);
-				break;
-		}	}	delete request?.headers?.["Content-Length"];
-	delete request?.headers?.["content-length"];
-	if (ArrayBuffer.isView(request?.body)) request["binary-mode"] = true;
-	$.log(`🎉 ${$.name}, Construct Redirect Requests`, "");
-	//$.log(`🚧 ${$.name}, Construct Redirect Requests`, `Request:${JSON.stringify(request)}`, "");
-	return request;
-}
 /**
  * Determine Response Availability
  * @author VirgilClyne
@@ -1114,7 +1079,8 @@ function isResponseAvailability(response = {}) {
 			break;
 	}	$.log(`✅ ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
-}/**
+}
+/**
  * mutiFetch
  * @author VirgilClyne
  * @param {Object} request - Original Request Content
@@ -1129,7 +1095,7 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; }	let availableLocales = Object.keys(responses);
 	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
 	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
-	request = redirectRequest(request, proxies[locale]);
+	request.policy = proxies[locale];
 	let response = responses[locale];
 	$.log(`✅ mutiFetch`, `locale: ${locale}`, "");
 	return { request, response };

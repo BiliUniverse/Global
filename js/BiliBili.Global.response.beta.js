@@ -74,7 +74,7 @@ class Lodash {
 class ENV {
 	constructor(name, opts) {
 		this.name = name;
-		this.version = '1.5.11';
+		this.version = '1.6.0';
 		this.data = null;
 		this.dataFile = 'box.dat';
 		this.logs = [];
@@ -378,34 +378,25 @@ class ENV {
 					});
 				});
 			case 'Quantumult X':
+				// 添加策略组
+				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
 				// 移除不可写字段
 				delete request.charset;
+				delete request.host;
 				delete request.path;
+				delete request.policy;
 				delete request.scheme;
 				delete request.sessionIndex;
 				delete request.statusCode;
-				// 添加策略组
-				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
 				// 判断请求数据类型
-				switch ((request?.headers?.["Content-Type"] ?? request?.headers?.["content-type"])?.split(";")?.[0]) {
-					default:
-						// 返回普通数据
-						delete request.bodyBytes;
-						break;
-					case "application/protobuf":
-					case "application/x-protobuf":
-					case "application/vnd.google.protobuf":
-					case "application/grpc":
-					case "application/grpc+proto":
-					case "application/octet-stream":
-						// 返回二进制数据
-						delete request.body;
-						if (ArrayBuffer.isView(request.bodyBytes)) request.bodyBytes = request.bodyBytes.buffer.slice(request.bodyBytes.byteOffset, request.bodyBytes.byteLength + request.bodyBytes.byteOffset);
-						break;
-					case undefined: // 视为构造请求或无body
-						// 返回普通数据
-						break;
-				}				// 发送请求
+				if (request.body instanceof ArrayBuffer) {
+					request.bodyBytes = request.body;
+					delete request.body;
+				} else if (ArrayBuffer.isView(request.body)) {
+					request.bodyBytes = request.body.buffer.slice(request.body.byteOffset, request.body.byteLength + request.body.byteOffset);
+					delete object.body;
+				} else if (request.body) delete request.bodyBytes;
+				// 发送请求
 				return await $task.fetch(request).then(
 					response => {
 						response.ok = /^2\d\d$/.test(response.statusCode);
@@ -614,19 +605,33 @@ class ENV {
 		this.log("", `🚩 ${this.name}, 结束! 🕛 ${costTime} 秒`, "");
 		switch (this.platform()) {
 			case 'Surge':
+				if (object.policy) this.lodash.set(object, "headers.X-Surge-Policy", object.policy);
+				$done(object);
+				break;
 			case 'Loon':
+				if (object.policy) object.node = object.policy;
+				$done(object);
+				break;
 			case 'Stash':
+				if (object.policy) this.lodash.set(object, "headers.X-Stash-Selected-Proxy", encodeURI(object.policy));
+				$done(object);
+				break;
 			case 'Egern':
+				$done(object);
+				break;
 			case 'Shadowrocket':
 			default:
 				$done(object);
 				break;
 			case 'Quantumult X':
+				if (object.policy) this.lodash.set(object, "opts.policy", object.policy);
 				// 移除不可写字段
 				delete object.charset;
 				delete object.host;
 				delete object.method; // 1.4.x 不可写
-				delete object.path;
+				delete object.opt; // $task.fetch() 参数, 不可写
+				delete object.path; // 可写, 但会与 url 冲突
+				delete object.policy;
 				delete object.scheme;
 				delete object.sessionIndex;
 				delete object.statusCode;
