@@ -9,7 +9,7 @@ import addgRPCHeader from "./function/addgRPCHeader.mjs";
 import { TextEncoder , TextDecoder } from "./text-encoding/index.js";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
-const $ = new ENVs("📺 BiliBili: 🌐 Global v0.6.1(1) request");
+const $ = new ENVs("📺 BiliBili: 🌐 Global v0.6.1(2) request");
 const URI = new URIs();
 
 // 构造回复数据
@@ -586,7 +586,11 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	$.log(`☑️ mutiFetch`, `locales: ${locales}`, "");
 	let responses = {};
-	await Promise.allSettled(locales.map(async locale => { responses[locale] = await $.fetch(request, { "policy": proxies[locale] }) }));
+	await Promise.allSettled(locales.map(async locale => {
+		request["policy"] = proxies[locale];
+		if ($.isQuanX()) request.body = request.bodyBytes;
+		responses[locale] = await $.fetch(request);
+	}));
 	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; };
 	let availableLocales = Object.keys(responses);
 	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");

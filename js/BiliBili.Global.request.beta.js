@@ -14050,7 +14050,7 @@ class MessageType {
     }
 }
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.1(1) request.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.1(2) request.beta");
 const URI = new URI$1();
 
 // 构造回复数据
@@ -14646,7 +14646,11 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	$.log(`☑️ mutiFetch`, `locales: ${locales}`, "");
 	let responses = {};
-	await Promise.allSettled(locales.map(async locale => { responses[locale] = await $.fetch(request, { "policy": proxies[locale] }); }));
+	await Promise.allSettled(locales.map(async locale => {
+		request["policy"] = proxies[locale];
+		if ($.isQuanX()) request.body = request.bodyBytes;
+		responses[locale] = await $.fetch(request);
+	}));
 	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; }	let availableLocales = Object.keys(responses);
 	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
 	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
