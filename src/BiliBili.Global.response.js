@@ -90,7 +90,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									break;
 								case "x/space/acc/info": // 用户空间-账号信息-pc
 								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
-									switch (infoGroup?.mId) {
+									switch (infoGroup.mId) {
 										case 11783021: // 哔哩哔哩番剧出差
 										case 1988098633: // b站_戲劇咖
 										case 2042149112: // b站_綜藝咖
@@ -436,13 +436,13 @@ function setEpisodes(episodes = []) {
  * @return {String} locales
  */
 function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}) {
-	$.log(`☑️ ${$.name}, Detect Locales`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
-	switch (infoGroup?.seasonTitle) {
+	$.log(`☑️ ${$.name}, Detect Locales`, `seasonTitle: ${infoGroup.seasonTitle}, seasonId: ${infoGroup.seasonId}, epId: ${infoGroup.epId}, mId: ${infoGroup.mId}`, "");
+	switch (infoGroup.seasonTitle) {
 		case undefined:
-			infoGroup.locales = detectMId(infoGroup?.mId);
+			infoGroup.locales = detectMId(infoGroup.mId);
 			break;
 		default:
-			infoGroup.locales = detectSeasonTitle(infoGroup?.seasonTitle);
+			infoGroup.locales = detectSeasonTitle(infoGroup.seasonTitle);
 			break;
 	};
 	$.log(`✅ ${$.name}, Detect Locales, locales: ${infoGroup.locales}`, "");
@@ -451,7 +451,7 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 	function detectSeasonTitle(seasonTitle){
 		$.log(`☑️ ${$.name}, Detect Season Title`, "");
 		let locales = [];
-		$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+		$.log([...infoGroup.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
 		switch ([...seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
@@ -552,11 +552,11 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
  * @return {Array<Boolean>} is setJSON success?
  */
 function setCache(infoGroup = { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
-	$.log(`☑️ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
+	$.log(`☑️ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup.seasonTitle}, seasonId: ${infoGroup.seasonId}, epId: ${infoGroup.epId}, mId: ${infoGroup.mId}`, "");
 	let isSaved = false;
-	if (infoGroup?.locales?.length > 0) {
-		if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, infoGroup.locales);
-		if (infoGroup?.epId) cache.ep.set(infoGroup.epId, infoGroup.locales);
+	if (infoGroup.locales?.length > 0) {
+		if (infoGroup.seasonId) cache.ss.set(infoGroup.seasonId, infoGroup.locales);
+		if (infoGroup.epId) cache.ep.set(infoGroup.epId, infoGroup.locales);
 		episodes.forEach(episode => cache.ep.set(episode?.id, infoGroup.locales));
 		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
 		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小

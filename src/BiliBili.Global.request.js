@@ -134,8 +134,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
 															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (!infoGroup.seasonId && !infoGroup.epId) infoGroup.isPGC = false;
-															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
-															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
+															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
 														};
 														break;
@@ -160,8 +160,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
 															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (!infoGroup.seasonId && !infoGroup.epId) infoGroup.isPGC = false;
-															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
-															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
+															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
 														};
 													};
@@ -196,8 +196,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															// 判断线路
 															infoGroup.seasonId = data?.seasonId;
 															infoGroup.epId = data?.epId;
-															if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
-															else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
+															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
 														};
 														case "PlayConf": // 播放配置
@@ -228,7 +228,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															let data = SearchAllRequest.fromBinary(body);
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
-															data.keyword = infoGroup?.keyword;
+															data.keyword = infoGroup.keyword;
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 															body = SearchAllRequest.toBinary(data);
 															break;
@@ -241,7 +241,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															let data = SearchByTypeRequest.fromBinary(body);
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
-															data.keyword = infoGroup?.keyword;
+															data.keyword = infoGroup.keyword;
 															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
 															body = SearchByTypeRequest.toBinary(data);
 															break;
@@ -276,8 +276,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 											({ seasonId: infoGroup.seasonId, epId: infoGroup.epId } = PATHs?.[2].match(URLRegex)?.groups);
 											infoGroup.seasonId = parseInt(infoGroup.seasonId, 10) || infoGroup.seasonId;
 											infoGroup.epId = parseInt(infoGroup.epId, 10) || infoGroup.epId;
-											if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
-											else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
+											if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+											else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 											break;
 									};
 									break;
@@ -286,8 +286,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "search.bilibili.com":
 							switch (PATH) {
 								case "all": // 搜索-全部结果-web（综合）
-									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword));
-									URL.query.keyword = encodeURIComponent(infoGroup?.keyword);
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup.keyword));
+									URL.query.keyword = encodeURIComponent(infoGroup.keyword);
 									break;
 							};
 							break;
@@ -308,11 +308,11 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									break;
 								case "x/v2/search": // 搜索-全部结果-api（综合）
 								case "x/v2/search/type": // 搜索-分类结果-api（番剧、用户、影视、专栏）
-									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword));
-									URL.query.keyword = encodeURIComponent(infoGroup?.keyword);
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup.keyword));
+									URL.query.keyword = encodeURIComponent(infoGroup.keyword);
 									break;
 								case "x/v2/space": // 用户空间
-									switch (infoGroup?.mId) {
+									switch (infoGroup.mId) {
 										case 928123: // 哔哩哔哩番剧
 										case 15773384: // 哔哩哔哩电影
 										default:
@@ -335,8 +335,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 								case "pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
 								case "/pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
 								case "pgc/player/web/playurl/html5": // 番剧-播放地址-web-HTML5
-									if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
-									else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
+									if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+									else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 									break;
 								case "pgc/page/bangumi": // 追番页
 								case "pgc/page/cinema/tab": // 观影页
@@ -345,7 +345,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									break;
 								case "x/space/acc/info": // 用户空间-账号信息-pc
 								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
-									switch (infoGroup?.mId) {
+									switch (infoGroup.mId) {
 										case 928123: // 哔哩哔哩番剧
 										case 15773384: // 哔哩哔哩电影
 										default:
@@ -361,18 +361,18 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 								case "pgc/view/v2/app/season": // 番剧页面-内容-app
 								case "pgc/view/web/season": // 番剧-内容-web
 								case "pgc/view/pc/season": // 番剧-内容-pc
-									if (Caches.ss.has(infoGroup?.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup?.seasonId)
-									else if (Caches.ep.has(infoGroup?.epId)) infoGroup.locales = Caches.ep.get(infoGroup?.epId);
+									if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+									else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 									break;
 								case "x/web-interface/search": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
 								case "x/web-interface/search/type": // 搜索-分类结果-web（番剧、用户、影视、专栏）
-									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword));
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup.keyword));
 									URL.query.keyword = encodeURIComponent(infoGroup.keyword);
 									break;
 								case "x/web-interface/wbi/search/all/v2": // 搜索-全部结果-wbi（综合）
 								case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
-									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup?.keyword, "+"));
+									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup.keyword, "+"));
 									URL.query.keyword = encodeURIComponent(infoGroup.keyword);
 									break;
 							};
@@ -398,8 +398,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "pgc/view/web/season": // 番剧-内容-web
 				case "pgc/view/pc/season": // 番剧-内容-pc
-					if (!infoGroup?.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
-					else if (infoGroup?.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
+					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
+					else if (infoGroup.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
 					else ({ request: $request } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					switch ($.platform()) { // 直通模式，不处理，否则无法进http-response
 						case "Shadowrocket":
@@ -420,11 +420,11 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				case "x/web-interface/wbi/search/type": // 搜索-分类结果-wbi（番剧、用户、影视、专栏）
 				case "x/v2/search": // 搜索-全部结果-api（综合）
 				case "x/v2/search/type": // 搜索-分类结果-api（番剧、用户、影视、专栏）
-					if (infoGroup?.locale) $request = redirectRequest($request, Settings.Proxies[infoGroup?.locale]);
+					if (infoGroup.locale) $request = redirectRequest($request, Settings.Proxies[infoGroup.locale]);
 				break;
 				default:
-					if (!infoGroup?.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
-					else if (infoGroup?.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
+					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
+					else if (infoGroup.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
 					else ({ request: $request, response: $response } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					break;
 			};

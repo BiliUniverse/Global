@@ -14137,7 +14137,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									break;
 								case "x/space/acc/info": // 用户空间-账号信息-pc
 								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
-									switch (infoGroup?.mId) {
+									switch (infoGroup.mId) {
 																			}									break;
 								case "pgc/view/v2/app/season": // 番剧页面-内容-app
 									let data = body.data;
@@ -14564,13 +14564,13 @@ function setEpisodes(episodes = []) {
  * @return {String} locales
  */
 function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}) {
-	$.log(`☑️ ${$.name}, Detect Locales`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
-	switch (infoGroup?.seasonTitle) {
+	$.log(`☑️ ${$.name}, Detect Locales`, `seasonTitle: ${infoGroup.seasonTitle}, seasonId: ${infoGroup.seasonId}, epId: ${infoGroup.epId}, mId: ${infoGroup.mId}`, "");
+	switch (infoGroup.seasonTitle) {
 		case undefined:
-			infoGroup.locales = detectMId(infoGroup?.mId);
+			infoGroup.locales = detectMId(infoGroup.mId);
 			break;
 		default:
-			infoGroup.locales = detectSeasonTitle(infoGroup?.seasonTitle);
+			infoGroup.locales = detectSeasonTitle(infoGroup.seasonTitle);
 			break;
 	}	$.log(`✅ ${$.name}, Detect Locales, locales: ${infoGroup.locales}`, "");
 	return infoGroup.locales;
@@ -14578,9 +14578,9 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 	function detectSeasonTitle(seasonTitle){
 		$.log(`☑️ ${$.name}, Detect Season Title`, "");
 		let locales = [];
-		$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
-		//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
-		//$.log([...infoGroup?.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
+		$.log([...infoGroup.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+		//$.log([...infoGroup.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
+		//$.log([...infoGroup.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
 		switch ([...seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
@@ -14674,11 +14674,11 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
  * @return {Array<Boolean>} is setJSON success?
  */
 function setCache(infoGroup = { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
-	$.log(`☑️ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup?.seasonTitle}, seasonId: ${infoGroup?.seasonId}, epId: ${infoGroup?.epId}, mId: ${infoGroup?.mId}`, "");
+	$.log(`☑️ ${$.name}, Set Cache`, `seasonTitle: ${infoGroup.seasonTitle}, seasonId: ${infoGroup.seasonId}, epId: ${infoGroup.epId}, mId: ${infoGroup.mId}`, "");
 	let isSaved = false;
-	if (infoGroup?.locales?.length > 0) {
-		if (infoGroup?.seasonId) cache.ss.set(infoGroup.seasonId, infoGroup.locales);
-		if (infoGroup?.epId) cache.ep.set(infoGroup.epId, infoGroup.locales);
+	if (infoGroup.locales?.length > 0) {
+		if (infoGroup.seasonId) cache.ss.set(infoGroup.seasonId, infoGroup.locales);
+		if (infoGroup.epId) cache.ep.set(infoGroup.epId, infoGroup.locales);
 		episodes.forEach(episode => cache.ep.set(episode?.id, infoGroup.locales));
 		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
 		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
