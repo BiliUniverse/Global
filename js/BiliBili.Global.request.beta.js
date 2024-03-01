@@ -2,7 +2,7 @@
 class Lodash {
 	constructor() {
 		this.name = "Lodash";
-		this.version = '1.0.0';
+		this.version = '1.2.0';
 		console.log(`\n${this.name} v${this.version}\n`);
 	}
 
@@ -31,8 +31,42 @@ class Lodash {
 		return object
 	}
 
+	unset(object = {}, path = "") {
+		if (!Array.isArray(path)) path = this.toPath(path);
+		let result = path.reduce((previousValue, currentValue, currentIndex) => {
+			if (currentIndex === path.length - 1) {
+				delete previousValue[currentValue];
+				return true
+			}
+			return Object(previousValue)[currentValue]
+		}, object);
+		return result
+	}
+
 	toPath(value) {
 		return value.replace(/\[(\d+)\]/g, '.$1').split('.').filter(Boolean);
+	}
+
+	escape(string) {
+		const map = {
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			'"': '&quot;',
+			"'": '&#39;',
+		};
+		return string.replace(/[&<>"']/g, m => map[m])
+	};
+
+	unescape(string) {
+		const map = {
+			'&amp;': '&',
+			'&lt;': '<',
+			'&gt;': '>',
+			'&quot;': '"',
+			'&#39;': "'",
+		};
+		return string.replace(/&amp;|&lt;|&gt;|&quot;|&#39;/g, m => map[m])
 	}
 
 }
@@ -40,7 +74,7 @@ class Lodash {
 class ENV {
 	constructor(name, opts) {
 		this.name = name;
-		this.version = '1.4.0';
+		this.version = '1.5.11';
 		this.data = null;
 		this.dataFile = 'box.dat';
 		this.logs = [];
@@ -63,6 +97,7 @@ class ENV {
 		if ('undefined' !== typeof $task) return 'Quantumult X'
 		if ('undefined' !== typeof $loon) return 'Loon'
 		if ('undefined' !== typeof $rocket) return 'Shadowrocket'
+		if ('undefined' !== typeof Egern) return 'Egern'
 	}
 
 	isNode() {
@@ -87,6 +122,10 @@ class ENV {
 
 	isStash() {
 		return 'Stash' === this.platform()
+	}
+
+	isEgern() {
+		return 'Egern' === this.platform()
 	}
 
 	toObj(str, defaultValue = null) {
@@ -250,6 +289,7 @@ class ENV {
 			case 'Surge':
 			case 'Loon':
 			case 'Stash':
+			case 'Egern':
 			case 'Shadowrocket':
 				return $persistentStore.read(key)
 			case 'Quantumult X':
@@ -267,6 +307,7 @@ class ENV {
 			case 'Surge':
 			case 'Loon':
 			case 'Stash':
+			case 'Egern':
 			case 'Shadowrocket':
 				return $persistentStore.write(val, key)
 			case 'Quantumult X':
@@ -311,6 +352,7 @@ class ENV {
 			case 'Loon':
 			case 'Surge':
 			case 'Stash':
+			case 'Egern':
 			case 'Shadowrocket':
 			default:
 				// 移除不可写字段
@@ -337,9 +379,11 @@ class ENV {
 				});
 			case 'Quantumult X':
 				// 移除不可写字段
+				delete request.charset;
+				delete request.path;
 				delete request.scheme;
 				delete request.sessionIndex;
-				delete request.charset;
+				delete request.statusCode;
 				// 添加策略组
 				if (request.policy) this.lodash.set(request, "opts.policy", request.policy);
 				// 判断请求数据类型
@@ -462,6 +506,7 @@ class ENV {
 					switch (this.platform()) {
 						case 'Surge':
 						case 'Stash':
+						case 'Egern':
 						default:
 							return { url: rawopts }
 						case 'Loon':
@@ -476,6 +521,7 @@ class ENV {
 					switch (this.platform()) {
 						case 'Surge':
 						case 'Stash':
+						case 'Egern':
 						case 'Shadowrocket':
 						default: {
 							let openUrl =
@@ -512,6 +558,7 @@ class ENV {
 				case 'Surge':
 				case 'Loon':
 				case 'Stash':
+				case 'Egern':
 				case 'Shadowrocket':
 				default:
 					$notification.post(title, subt, desc, toEnvOpts(opts));
@@ -545,6 +592,7 @@ class ENV {
 			case 'Surge':
 			case 'Loon':
 			case 'Stash':
+			case 'Egern':
 			case 'Shadowrocket':
 			case 'Quantumult X':
 			default:
@@ -560,23 +608,40 @@ class ENV {
 		return new Promise((resolve) => setTimeout(resolve, time))
 	}
 
-	done(val = {}) {
+	done(object = {}) {
 		const endTime = new Date().getTime();
 		const costTime = (endTime - this.startTime) / 1000;
-		this.log('', `🚩 ${this.name}, 结束! 🕛 ${costTime} 秒`);
-		this.log();
+		this.log("", `🚩 ${this.name}, 结束! 🕛 ${costTime} 秒`, "");
 		switch (this.platform()) {
 			case 'Surge':
 			case 'Loon':
 			case 'Stash':
+			case 'Egern':
 			case 'Shadowrocket':
-			case 'Quantumult X':
 			default:
-				$done(val);
-				break
+				$done(object);
+				break;
+			case 'Quantumult X':
+				// 移除不可写字段
+				delete object.charset;
+				delete object.host;
+				delete object.method; // 1.4.x 不可写
+				delete object.path;
+				delete object.scheme;
+				delete object.sessionIndex;
+				delete object.statusCode;
+				if (object.body instanceof ArrayBuffer) {
+					object.bodyBytes = object.body;
+					delete object.body;
+				} else if (ArrayBuffer.isView(object.body)) {
+					object.bodyBytes = object.body.buffer.slice(object.body.byteOffset, object.body.byteLength + object.body.byteOffset);
+					delete object.body;
+				} else if (object.body) delete object.bodyBytes;
+				$done(object);
+				break;
 			case 'Node.js':
 				process.exit(1);
-				break
+				break;
 		}
 	}
 
@@ -14268,8 +14333,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									rawBody = addgRPCHeader({ header, body }); // gzip压缩有问题，别用
 									break;
 							}							// 写入二进制数据
-							if ($.isQuanX()) $request.bodyBytes = rawBody;
-							else $request.body = rawBody;
+							$request.body = rawBody;
 							break;
 					}					//break; // 不中断，继续处理URL
 				case "GET":
@@ -14445,65 +14509,23 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 	.catch((e) => $.logErr(e))
 	.finally(() => {
 		switch ($response) {
-			default: { // 有构造回复数据，返回构造的回复数据
-				const FORMAT = ($response?.headers?.["Content-Type"] ?? $response?.headers?.["content-type"])?.split(";")?.[0];
-				$.log(`🎉 ${$.name}, finally`, `echo $response`, `FORMAT: ${FORMAT}`, "");
-				//$.log(`🚧 ${$.name}, finally`, `echo $response: ${JSON.stringify($response)}`, "");
-				if ($response?.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
-				if ($response?.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
+			default: // 有构造回复数据，返回构造的回复数据
+				//$.log(`🚧 ${$.name}, finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
+				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
+				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				if ($.isQuanX()) {
-					$response.status = "HTTP/1.1 200 OK";
-					delete $response?.headers?.["Content-Length"];
-					delete $response?.headers?.["content-length"];
-					delete $response?.headers?.["Transfer-Encoding"];
-					switch (FORMAT) {
-						case undefined: // 视为无body
-							// 返回普通数据
-							$.done({ status: $response.status, headers: $response.headers });
-							break;
-						default:
-							// 返回普通数据
-							$.done({ status: $response.status, headers: $response.headers, body: $response.body });
-							break;
-						case "application/protobuf":
-						case "application/x-protobuf":
-						case "application/vnd.google.protobuf":
-						case "application/grpc":
-						case "application/grpc+proto":
-						case "application/octet-stream":
-							// 返回二进制数据
-							//$.log(`${$response.bodyBytes.byteLength}---${$response.bodyBytes.buffer.byteLength}`);
-							$.done({ status: $response.status, headers: $response.headers, bodyBytes: $response.bodyBytes });
-							break;
-					}				} else $.done({ response: $response });
+					if (!$response.status) $response.status = "HTTP/1.1 200 OK";
+					delete $response.headers?.["Content-Length"];
+					delete $response.headers?.["content-length"];
+					delete $response.headers?.["Transfer-Encoding"];
+					$.done($response);
+				} else $.done({ response: $response });
 				break;
-			}			case undefined: { // 无构造回复数据，发送修改的请求数据
-				//const FORMAT = ($request?.headers?.["Content-Type"] ?? $request?.headers?.["content-type"])?.split(";")?.[0];
-				$.log(`🎉 ${$.name}, finally`, `$request`, `FORMAT: ${FORMAT}`, "");
-				//$.log(`🚧 ${$.name}, finally`, `$request: ${JSON.stringify($request)}`, "");
-				if ($.isQuanX()) {
-					switch (FORMAT) {
-						case undefined: // 视为无body
-							// 返回普通数据
-							$.done({ url: $request.url, headers: $request.headers });
-							break;
-						default:
-							// 返回普通数据
-							$.done({ url: $request.url, headers: $request.headers, body: $request.body });
-							break;
-						case "application/protobuf":
-						case "application/x-protobuf":
-						case "application/vnd.google.protobuf":
-						case "application/grpc":
-						case "application/grpc+proto":
-						case "application/octet-stream":
-							// 返回二进制数据
-							//$.log(`${$request.bodyBytes.byteLength}---${$request.bodyBytes.buffer.byteLength}`);
-							$.done({ url: $request.url, headers: $request.headers, bodyBytes: $request.bodyBytes.buffer.slice($request.bodyBytes.byteOffset, $request.bodyBytes.byteLength + $request.bodyBytes.byteOffset) });
-							break;
-					}				} else $.done($request);
+			case undefined: // 无构造回复数据，发送修改的请求数据
+				//$.log(`🚧 ${$.name}, finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
+				$.done($request);
 				break;
-			}		}	});
+		}	});
 
 /***************** Function *****************/
 /**
