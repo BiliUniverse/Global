@@ -294,7 +294,7 @@ class $Storage {
 
 class ENV {
 	static name = "ENV"
-	static version = '1.6.4'
+	static version = '1.7.1'
 	static about() { return console.log(`\n🟧 ${this.name} v${this.version}\n`) }
 
 	constructor(name, opts) {
@@ -302,6 +302,7 @@ class ENV {
 		this.name = name;
 		this.logs = [];
 		this.isMute = false;
+		this.isMuteLog = false;
 		this.logSeparator = '\n';
 		this.encoding = 'utf-8';
 		this.startTime = new Date().getTime();
@@ -349,33 +350,28 @@ class ENV {
 		return 'Egern' === this.platform()
 	}
 
-	getScript(url) {
-		return new Promise((resolve) => {
-			this.get({ url }, (error, response, body) => resolve(body));
-		})
+	async getScript(url) {
+		return await this.fetch(url).then(response => response.body);
 	}
 
-	runScript(script, runOpts) {
-		return new Promise((resolve) => {
-			let httpapi = this.Storage.getItem('@chavy_boxjs_userCfgs.httpapi');
-			httpapi = httpapi ? httpapi.replace(/\n/g, '').trim() : httpapi;
-			let httpapi_timeout = this.Storage.getItem('@chavy_boxjs_userCfgs.httpapi_timeout');
-			httpapi_timeout = httpapi_timeout ? httpapi_timeout * 1 : 20;
-			httpapi_timeout =
-				runOpts && runOpts.timeout ? runOpts.timeout : httpapi_timeout;
-			const [key, addr] = httpapi.split('@');
-			const opts = {
-				url: `http://${addr}/v1/scripting/evaluate`,
-				body: {
-					script_text: script,
-					mock_type: 'cron',
-					timeout: httpapi_timeout
-				},
-				headers: { 'X-Key': key, 'Accept': '*/*' },
+	async runScript(script, runOpts) {
+		let httpapi = $Storage.getItem('@chavy_boxjs_userCfgs.httpapi');
+		httpapi = httpapi?.replace?.(/\n/g, '')?.trim();
+		let httpapi_timeout = $Storage.getItem('@chavy_boxjs_userCfgs.httpapi_timeout');
+		httpapi_timeout = (httpapi_timeout * 1) ?? 20;
+		httpapi_timeout = runOpts?.timeout ?? httpapi_timeout;
+		const [password, address] = httpapi.split('@');
+		const request = {
+			url: `http://${address}/v1/scripting/evaluate`,
+			body: {
+				script_text: script,
+				mock_type: 'cron',
 				timeout: httpapi_timeout
-			};
-			this.post(opts, (error, response, body) => resolve(body));
-		}).catch((e) => this.logErr(e))
+			},
+			headers: { 'X-Key': password, 'Accept': '*/*' },
+			timeout: httpapi_timeout
+		};
+		await this.fetch(request).then(response => response.body, error => this.logErr(error));
 	}
 
 	initGotEnv(opts) {
@@ -705,58 +701,6 @@ class ENV {
 				break;
 		}
 	}
-
-	/**
-	 * Get Environment Variables
-	 * @link https://github.com/VirgilClyne/GetSomeFries/blob/main/function/getENV/getENV.js
-	 * @author VirgilClyne
-	 * @param {String} key - Persistent Store Key
-	 * @param {Array} names - Platform Names
-	 * @param {Object} database - Default Database
-	 * @return {Object} { Settings, Caches, Configs }
-	 */
-	getENV(key, names, database) {
-		//this.log(`☑️ ${this.name}, Get Environment Variables`, "");
-		/***************** BoxJs *****************/
-		// 包装为局部变量，用完释放内存
-		// BoxJs的清空操作返回假值空字符串, 逻辑或操作符会在左侧操作数为假值时返回右侧操作数。
-		let BoxJs = $Storage.getItem(key, database);
-		//this.log(`🚧 ${this.name}, Get Environment Variables`, `BoxJs类型: ${typeof BoxJs}`, `BoxJs内容: ${JSON.stringify(BoxJs)}`, "");
-		/***************** Argument *****************/
-		let Argument = {};
-		if (typeof $argument !== "undefined") {
-			if (Boolean($argument)) {
-				//this.log(`🎉 ${this.name}, $Argument`);
-				let arg = Object.fromEntries($argument.split("&").map((item) => item.split("=").map(i => i.replace(/\"/g, ''))));
-				//this.log(JSON.stringify(arg));
-				for (let item in arg) Lodash.set(Argument, item, arg[item]);
-				//this.log(JSON.stringify(Argument));
-			}			//this.log(`✅ ${this.name}, Get Environment Variables`, `Argument类型: ${typeof Argument}`, `Argument内容: ${JSON.stringify(Argument)}`, "");
-		}		/***************** Store *****************/
-		const Store = { Settings: database?.Default?.Settings || {}, Configs: database?.Default?.Configs || {}, Caches: {} };
-		if (!Array.isArray(names)) names = [names];
-		//this.log(`🚧 ${this.name}, Get Environment Variables`, `names类型: ${typeof names}`, `names内容: ${JSON.stringify(names)}`, "");
-		for (let name of names) {
-			Store.Settings = { ...Store.Settings, ...database?.[name]?.Settings, ...Argument, ...BoxJs?.[name]?.Settings };
-			Store.Configs = { ...Store.Configs, ...database?.[name]?.Configs };
-			if (BoxJs?.[name]?.Caches && typeof BoxJs?.[name]?.Caches === "string") BoxJs[name].Caches = JSON.parse(BoxJs?.[name]?.Caches);
-			Store.Caches = { ...Store.Caches, ...BoxJs?.[name]?.Caches };
-		}		//this.log(`🚧 ${this.name}, Get Environment Variables`, `Store.Settings类型: ${typeof Store.Settings}`, `Store.Settings: ${JSON.stringify(Store.Settings)}`, "");
-		this.traverseObject(Store.Settings, (key, value) => {
-			//this.log(`🚧 ${this.name}, traverseObject`, `${key}: ${typeof value}`, `${key}: ${JSON.stringify(value)}`, "");
-			if (value === "true" || value === "false") value = JSON.parse(value); // 字符串转Boolean
-			else if (typeof value === "string") {
-				if (value.includes(",")) value = value.split(",").map(item => this.string2number(item)); // 字符串转数组转数字
-				else value = this.string2number(value); // 字符串转数字
-			}			return value;
-		});
-		//this.log(`✅ ${this.name}, Get Environment Variables`, `Store: ${typeof Store.Caches}`, `Store内容: ${JSON.stringify(Store)}`, "");
-		return Store;
-	};
-
-	/***************** function *****************/
-	traverseObject(o, c) { for (var t in o) { var n = o[t]; o[t] = "object" == typeof n && null !== n ? this.traverseObject(n, c) : c(t, n); } return o }
-	string2number(string) { if (string && !isNaN(string)) string = parseInt(string, 10); return string }
 }
 
 class URI {
@@ -870,6 +814,58 @@ var Database$1 = Database = {
 };
 
 /**
+ * Get Storage Variables
+ * @link https://github.com/NanoCat-Me/ENV/blob/main/getStorage.mjs
+ * @author VirgilClyne
+ * @param {String} key - Persistent Store Key
+ * @param {Array} names - Platform Names
+ * @param {Object} database - Default Database
+ * @return {Object} { Settings, Caches, Configs }
+ */
+function getStorage(key, names, database) {
+    //console.log(`☑️ ${this.name}, Get Environment Variables`, "");
+    /***************** BoxJs *****************/
+    // 包装为局部变量，用完释放内存
+    // BoxJs的清空操作返回假值空字符串, 逻辑或操作符会在左侧操作数为假值时返回右侧操作数。
+    let BoxJs = $Storage.getItem(key, database);
+    //console.log(`🚧 ${this.name}, Get Environment Variables`, `BoxJs类型: ${typeof BoxJs}`, `BoxJs内容: ${JSON.stringify(BoxJs)}`, "");
+    /***************** Argument *****************/
+    let Argument = {};
+    if (typeof $argument !== "undefined") {
+        if (Boolean($argument)) {
+            //console.log(`🎉 ${this.name}, $Argument`);
+            let arg = Object.fromEntries($argument.split("&").map((item) => item.split("=").map(i => i.replace(/\"/g, ''))));
+            //console.log(JSON.stringify(arg));
+            for (let item in arg) Lodash.set(Argument, item, arg[item]);
+            //console.log(JSON.stringify(Argument));
+        }        //console.log(`✅ ${this.name}, Get Environment Variables`, `Argument类型: ${typeof Argument}`, `Argument内容: ${JSON.stringify(Argument)}`, "");
+    }    /***************** Store *****************/
+    const Store = { Settings: database?.Default?.Settings || {}, Configs: database?.Default?.Configs || {}, Caches: {} };
+    if (!Array.isArray(names)) names = [names];
+    //console.log(`🚧 ${this.name}, Get Environment Variables`, `names类型: ${typeof names}`, `names内容: ${JSON.stringify(names)}`, "");
+    for (let name of names) {
+        Store.Settings = { ...Store.Settings, ...database?.[name]?.Settings, ...Argument, ...BoxJs?.[name]?.Settings };
+        Store.Configs = { ...Store.Configs, ...database?.[name]?.Configs };
+        if (BoxJs?.[name]?.Caches && typeof BoxJs?.[name]?.Caches === "string") BoxJs[name].Caches = JSON.parse(BoxJs?.[name]?.Caches);
+        Store.Caches = { ...Store.Caches, ...BoxJs?.[name]?.Caches };
+    }    //console.log(`🚧 ${this.name}, Get Environment Variables`, `Store.Settings类型: ${typeof Store.Settings}`, `Store.Settings: ${JSON.stringify(Store.Settings)}`, "");
+    traverseObject(Store.Settings, (key, value) => {
+        //console.log(`🚧 ${this.name}, traverseObject`, `${key}: ${typeof value}`, `${key}: ${JSON.stringify(value)}`, "");
+        if (value === "true" || value === "false") value = JSON.parse(value); // 字符串转Boolean
+        else if (typeof value === "string") {
+            if (value.includes(",")) value = value.split(",").map(item => string2number(item)); // 字符串转数组转数字
+            else value = string2number(value); // 字符串转数字
+        }        return value;
+    });
+    //console.log(`✅ ${this.name}, Get Environment Variables`, `Store: ${typeof Store.Caches}`, `Store内容: ${JSON.stringify(Store)}`, "");
+    return Store;
+
+    /***************** function *****************/
+    function traverseObject(o, c) { for (var t in o) { var n = o[t]; o[t] = "object" == typeof n && null !== n ? traverseObject(n, c) : c(t, n); } return o }
+    function string2number(string) { if (string && !isNaN(string)) string = parseInt(string, 10); return string }
+}
+
+/**
  * Set Environment Variables
  * @author VirgilClyne
  * @param {Object} $ - ENV
@@ -878,9 +874,9 @@ var Database$1 = Database = {
  * @param {Object} database - Default DataBase
  * @return {Object} { Settings, Caches, Configs }
  */
-function setENV($, name, platforms, database) {
+function setENV(name, platforms, database) {
 	console.log(`☑️ Set Environment Variables`, "");
-	let { Settings, Caches, Configs } = $.getENV(name, platforms, database);
+	let { Settings, Caches, Configs } = getStorage(name, platforms, database);
 	/***************** Settings *****************/
 	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
 	console.log(`✅ Set Environment Variables, Settings: ${typeof Settings}, Settings内容: ${JSON.stringify(Settings)}`, "");
@@ -14105,7 +14101,7 @@ class MessageType {
     }
 }
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.2(1) request.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.2(2) request.beta");
 
 // 构造回复数据
 let $response = undefined;
@@ -14113,17 +14109,17 @@ let $response = undefined;
 /***************** Processing *****************/
 // 解构URL
 const URL = URI.parse($request.url);
-$.log(`⚠ ${$.name}`, `URL: ${JSON.stringify(URL)}`, "");
+$.log(`⚠ URL: ${JSON.stringify(URL)}`, "");
 // 获取连接参数
 const METHOD = $request.method, HOST = URL.host, PATH = URL.path, PATHs = URL.paths;
-$.log(`⚠ ${$.name}`, `METHOD: ${METHOD}`, "");
+$.log(`⚠ METHOD: ${METHOD}`, "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
-$.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
+$.log(`⚠ FORMAT: ${FORMAT}`, "");
 (async () => {
 	// 读取设置
-	const { Settings, Caches, Configs } = setENV($, "BiliBili", "Global", Database$1);
-	$.log(`⚠ ${$.name}`, `Settings.Switch: ${Settings?.Switch}`, "");
+	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", Database$1);
+	$.log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
 		case true:
 		default:
@@ -14160,7 +14156,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/vnd.apple.mpegurl":
 						case "audio/mpegurl":
 							//body = M3U8.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = M3U8.stringify(body);
 							break;
 						case "text/xml":
@@ -14170,19 +14166,19 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/plist":
 						case "application/x-plist":
 							//body = XML.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = XML.stringify(body);
 							break;
 						case "text/vtt":
 						case "application/vtt":
 							//body = VTT.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = VTT.stringify(body);
 							break;
 						case "text/json":
 						case "application/json":
 							//body = JSON.parse($request.body ?? "{}");
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = JSON.stringify(body);
 							break;
 						case "application/protobuf":
@@ -14191,9 +14187,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/grpc":
 						case "application/grpc+proto":
 						case "application/octet-stream":
-							//$.log(`🚧 ${$.name}`, `$request.body: ${JSON.stringify($request.body)}`, "");
+							//$.log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
 							let rawBody = $.isQuanX() ? new Uint8Array($request.bodyBytes ?? []) : $request.body ?? new Uint8Array();
-							//$.log(`🚧 ${$.name}`, `isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
+							//$.log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 							switch (FORMAT) {
 								case "application/protobuf":
 								case "application/x-protobuf":
@@ -14234,9 +14230,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const ViewReq = new ViewReq$Type();
 															/******************  initialization finish  *******************/
 															let data = ViewReq.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -14244,7 +14240,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${JSON.stringify(reader)}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${JSON.stringify(reader)}, addedNumber: ${addedNumber}`, "");
 																});
 															}															body = ViewReq.toBinary(data);
 															// 判断线路
@@ -14269,9 +14265,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const PlayViewUniteReq = new PlayViewUniteReq$Type();
 															/******************  initialization finish  *******************/
 															let data = PlayViewUniteReq.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -14279,7 +14275,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
 																});
 															}															data.vod.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewUniteReq.toBinary(data);
@@ -14309,9 +14305,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const PlayViewReq = new PlayViewReq$Type();
 															/******************  initialization finish  *******************/
 															let data = PlayViewReq.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -14319,7 +14315,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
 																});
 															}															data.forceHost = Settings?.ForceHost ?? 1;
 															body = PlayViewReq.toBinary(data);
@@ -14346,9 +14342,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const SearchAllRequest = new SearchAllRequest$Type();
 															/******************  initialization finish  ******************/
 															let data = SearchAllRequest.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -14356,11 +14352,11 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
 																});
 															}															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
 															data.keyword = infoGroup.keyword;
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															body = SearchAllRequest.toBinary(data);
 															break;
 														}														case "SearchByType": { // 分类结果（番剧、用户、影视、专栏）
@@ -14369,9 +14365,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const SearchByTypeRequest = new SearchByTypeRequest$Type();
 															/******************  initialization finish  *******************/
 															let data = SearchByTypeRequest.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -14379,11 +14375,11 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
 																});
 															}															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
 															data.keyword = infoGroup.keyword;
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															body = SearchByTypeRequest.toBinary(data);
 															break;
 														}													}													break;
@@ -14516,7 +14512,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 					break;
 			}			if ($request.headers?.Host) $request.headers.Host = URL.host;
 			$request.url = URI.stringify(URL);
-			$.log(`🚧 ${$.name}, 调试信息`, `$request.url: ${$request.url}`, "");
+			$.log(`🚧 调试信息`, `$request.url: ${$request.url}`, "");
 			$.log(`🚧 ${$.name}，信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			// 请求策略
 			switch (PATH) {
@@ -14524,7 +14520,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "pgc/view/web/season": // 番剧-内容-web
 				case "pgc/view/pc/season": // 番剧-内容-pc
-					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "");
+					if (!infoGroup.isPGC) $.log(`⚠ 不是 PGC, 跳过`, "");
 					else if (infoGroup.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
 					else ({ request: $request } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					switch ($.platform()) { // 直通模式，不处理，否则无法进http-response
@@ -14546,7 +14542,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 					$request.policy = Settings.Proxies[infoGroup.locale];
 					break;
 				default:
-					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "");
+					if (!infoGroup.isPGC) $.log(`⚠ 不是 PGC, 跳过`, "");
 					else if (infoGroup.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
 					else ({ request: $request, response: $response } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					break;
@@ -14564,7 +14560,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 	.finally(() => {
 		switch ($response) {
 			default: // 有构造回复数据，返回构造的回复数据
-				//$.log(`🚧 ${$.name}, finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
+				//$.log(`🚧 finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
 				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				if ($.isQuanX()) {
@@ -14576,7 +14572,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				} else $.done({ response: $response });
 				break;
 			case undefined: // 无构造回复数据，发送修改的请求数据
-				//$.log(`🚧 ${$.name}, finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
+				//$.log(`🚧 finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
 				$.done($request);
 				break;
 		}	});
@@ -14589,10 +14585,10 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    $.log(`☑️ ${$.name}, Determine Response Availability`, "");
+    $.log(`☑️ Determine Response Availability`, "");
 	$.log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
-	$.log(`🚧 ${$.name}, Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
+	$.log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
@@ -14668,7 +14664,7 @@ function isResponseAvailability(response = {}) {
 		default:
 			isAvailable = false;
 			break;
-	}	$.log(`✅ ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	}	$.log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
 }
 /**
@@ -14722,9 +14718,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	$.log(`⚠ ${$.name}, Check Search Keyword`, `Original Keyword: ${keyword}`, "");
+	$.log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
-	$.log(`🚧 ${$.name}, Check Search Keyword`, `keywords: ${keywords}`, "");
+	$.log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -14810,6 +14806,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keywords.pop();
 			keyword = keywords.join(delimiter);
 			break;
-	}	$.log(`🎉 ${$.name}, Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
+	}	$.log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
 	return { keyword, locale };
 }

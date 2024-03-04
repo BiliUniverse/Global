@@ -11,7 +11,7 @@ import addgRPCHeader from "./function/addgRPCHeader.mjs";
 import { TextEncoder , TextDecoder } from "./text-encoding/index.js";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.2(1) request.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.2(2) request.beta");
 
 // 构造回复数据
 let $response = undefined;
@@ -19,17 +19,17 @@ let $response = undefined;
 /***************** Processing *****************/
 // 解构URL
 const URL = URI.parse($request.url);
-$.log(`⚠ ${$.name}`, `URL: ${JSON.stringify(URL)}`, "");
+$.log(`⚠ URL: ${JSON.stringify(URL)}`, "");
 // 获取连接参数
 const METHOD = $request.method, HOST = URL.host, PATH = URL.path, PATHs = URL.paths;
-$.log(`⚠ ${$.name}`, `METHOD: ${METHOD}`, "");
+$.log(`⚠ METHOD: ${METHOD}`, "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
-$.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
+$.log(`⚠ FORMAT: ${FORMAT}`, "");
 (async () => {
 	// 读取设置
-	const { Settings, Caches, Configs } = setENV($, "BiliBili", "Global", Database);
-	$.log(`⚠ ${$.name}`, `Settings.Switch: ${Settings?.Switch}`, "");
+	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", Database);
+	$.log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
 		case true:
 		default:
@@ -66,7 +66,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/vnd.apple.mpegurl":
 						case "audio/mpegurl":
 							//body = M3U8.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = M3U8.stringify(body);
 							break;
 						case "text/xml":
@@ -76,19 +76,19 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/plist":
 						case "application/x-plist":
 							//body = XML.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = XML.stringify(body);
 							break;
 						case "text/vtt":
 						case "application/vtt":
 							//body = VTT.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = VTT.stringify(body);
 							break;
 						case "text/json":
 						case "application/json":
 							//body = JSON.parse($request.body ?? "{}");
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = JSON.stringify(body);
 							break;
 						case "application/protobuf":
@@ -97,9 +97,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/grpc":
 						case "application/grpc+proto":
 						case "application/octet-stream":
-							//$.log(`🚧 ${$.name}`, `$request.body: ${JSON.stringify($request.body)}`, "");
+							//$.log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
 							let rawBody = $.isQuanX() ? new Uint8Array($request.bodyBytes ?? []) : $request.body ?? new Uint8Array();
-							//$.log(`🚧 ${$.name}`, `isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
+							//$.log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 							switch (FORMAT) {
 								case "application/protobuf":
 								case "application/x-protobuf":
@@ -141,9 +141,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const ViewReq = new ViewReq$Type();
 															/******************  initialization finish  *******************/
 															let data = ViewReq.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -151,7 +151,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${JSON.stringify(reader)}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${JSON.stringify(reader)}, addedNumber: ${addedNumber}`, "");
 																});
 															};
 															body = ViewReq.toBinary(data);
@@ -178,9 +178,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const PlayViewUniteReq = new PlayViewUniteReq$Type();
 															/******************  initialization finish  *******************/
 															let data = PlayViewUniteReq.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -188,7 +188,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
 																});
 															};
 															data.vod.forceHost = Settings?.ForceHost ?? 1;
@@ -227,9 +227,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const PlayViewReq = new PlayViewReq$Type();
 															/******************  initialization finish  *******************/
 															let data = PlayViewReq.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -237,7 +237,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
 																});
 															};
 															data.forceHost = Settings?.ForceHost ?? 1;
@@ -275,9 +275,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const SearchAllRequest = new SearchAllRequest$Type();
 															/******************  initialization finish  ******************/
 															let data = SearchAllRequest.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -285,12 +285,12 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
 																});
 															};
 															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
 															data.keyword = infoGroup.keyword;
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															body = SearchAllRequest.toBinary(data);
 															break;
 														};
@@ -300,9 +300,9 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 															const SearchByTypeRequest = new SearchByTypeRequest$Type();
 															/******************  initialization finish  *******************/
 															let data = SearchByTypeRequest.fromBinary(body);
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 ${$.name}`, `UF: ${JSON.stringify(UF)}`, "");
+															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
 															if (UF) {
 																UF = UF.map(uf => {
 																	//uf.no; // 22
@@ -310,12 +310,12 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 																	// use the binary reader to decode the raw data:
 																	let reader = new BinaryReader(uf.data);
 																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 ${$.name}`, `no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
+																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
 																});
 															};
 															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
 															data.keyword = infoGroup.keyword;
-															$.log(`🚧 ${$.name}`, `data: ${JSON.stringify(data)}`, "");
+															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 															body = SearchByTypeRequest.toBinary(data);
 															break;
 														};
@@ -469,7 +469,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 			};
 			if ($request.headers?.Host) $request.headers.Host = URL.host;
 			$request.url = URI.stringify(URL);
-			$.log(`🚧 ${$.name}, 调试信息`, `$request.url: ${$request.url}`, "");
+			$.log(`🚧 调试信息`, `$request.url: ${$request.url}`, "");
 			$.log(`🚧 ${$.name}，信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			// 请求策略
 			switch (PATH) {
@@ -477,7 +477,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				case "pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "pgc/view/web/season": // 番剧-内容-web
 				case "pgc/view/pc/season": // 番剧-内容-pc
-					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
+					if (!infoGroup.isPGC) $.log(`⚠ 不是 PGC, 跳过`, "")
 					else if (infoGroup.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
 					else ({ request: $request } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					switch ($.platform()) { // 直通模式，不处理，否则无法进http-response
@@ -500,7 +500,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 					$request.policy = Settings.Proxies[infoGroup.locale];
 					break;
 				default:
-					if (!infoGroup.isPGC) $.log(`⚠ ${$.name}, 不是 PGC, 跳过`, "")
+					if (!infoGroup.isPGC) $.log(`⚠ 不是 PGC, 跳过`, "")
 					else if (infoGroup.locales.length !== 0) $request = await availableFetch($request, Settings.Proxies, Settings.Locales, infoGroup.locales);
 					else ({ request: $request, response: $response } = await mutiFetch($request, Settings.Proxies, Settings.Locales));
 					break;
@@ -522,7 +522,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 	.finally(() => {
 		switch ($response) {
 			default: // 有构造回复数据，返回构造的回复数据
-				//$.log(`🚧 ${$.name}, finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
+				//$.log(`🚧 finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
 				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				if ($.isQuanX()) {
@@ -534,7 +534,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				} else $.done({ response: $response });
 				break;
 			case undefined: // 无构造回复数据，发送修改的请求数据
-				//$.log(`🚧 ${$.name}, finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
+				//$.log(`🚧 finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
 				$.done($request);
 				break;
 		};
@@ -548,10 +548,10 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    $.log(`☑️ ${$.name}, Determine Response Availability`, "");
+    $.log(`☑️ Determine Response Availability`, "");
 	$.log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
-	$.log(`🚧 ${$.name}, Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
+	$.log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
@@ -635,7 +635,7 @@ function isResponseAvailability(response = {}) {
 			isAvailable = false;
 			break;
 	};
-	$.log(`✅ ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	$.log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
 };
 
@@ -691,9 +691,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	$.log(`⚠ ${$.name}, Check Search Keyword`, `Original Keyword: ${keyword}`, "");
+	$.log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
-	$.log(`🚧 ${$.name}, Check Search Keyword`, `keywords: ${keywords}`, "");
+	$.log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -780,6 +780,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keyword = keywords.join(delimiter);
 			break;
 	};
-	$.log(`🎉 ${$.name}, Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
+	$.log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
 	return { keyword, locale };
 };

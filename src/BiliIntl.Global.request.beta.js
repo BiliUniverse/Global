@@ -6,7 +6,7 @@ import URI from "./URI/URI.mjs";
 import Database from "./database/BiliIntl.mjs";
 import setENV from "./function/setENV.mjs";
 
-const $ = new ENV("📺 BiliIntl: 🌐 Global v0.5.2(1) request.beta");
+const $ = new ENV("📺 BiliIntl: 🌐 Global v0.5.2(2) request.beta");
 
 // 构造回复数据
 let $response = undefined;
@@ -14,16 +14,16 @@ let $response = undefined;
 /***************** Processing *****************/
 // 解构URL
 const URL = URI.parse($request.url);
-$.log(`⚠ ${$.name}`, `URL: ${JSON.stringify(URL)}`, "");
+$.log(`⚠ URL: ${JSON.stringify(URL)}`, "");
 // 获取连接参数
 const METHOD = $request.method, HOST = URL.host, PATH = URL.path, PATHs = URL.paths;
-$.log(`⚠ ${$.name}`, `METHOD: ${METHOD}`, "");
+$.log(`⚠ METHOD: ${METHOD}`, "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
-$.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
+$.log(`⚠ FORMAT: ${FORMAT}`, "");
 (async () => {
 	// 读取设置
-	const { Settings, Caches, Configs } = setENV($, "BiliIntl", "Global", Database);
+	const { Settings, Caches, Configs } = setENV("BiliIntl", "Global", Database);
 	switch (Settings.Switch) {
 		case true:
 		default:
@@ -48,7 +48,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/vnd.apple.mpegurl":
 						case "audio/mpegurl":
 							//body = M3U8.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = M3U8.stringify(body);
 							break;
 						case "text/xml":
@@ -58,19 +58,19 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "application/plist":
 						case "application/x-plist":
 							//body = XML.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = XML.stringify(body);
 							break;
 						case "text/vtt":
 						case "application/vtt":
 							//body = VTT.parse($request.body);
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = VTT.stringify(body);
 							break;
 						case "text/json":
 						case "application/json":
 							//body = JSON.parse($request.body ?? "{}");
-							//$.log(`🚧 ${$.name}`, `body: ${JSON.stringify(body)}`, "");
+							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = JSON.stringify(body);
 							break;
 						case "application/protobuf":
@@ -94,10 +94,10 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 								$request.policy = Settings.Proxies["SEA"]; // 默认用SEA
 							} else if (PATH.includes("/play/")) { // 番剧-播放页-web
 								let epid = URL.query?.ep_id;
-								$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
+								$.log(`🚧 epid: ${epid}`, "");
 								if (Caches?.ep?.[epid]) {
 									let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
-									$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+									$.log(`🚧 availableLocales: ${availableLocales}`, "");
 									$request.policy = Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 								} else {
 									$request.policy = Settings.Proxies["SEA"]; // 默认用SEA
@@ -108,10 +108,10 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 							switch (PATH) {
 								case "intl/gateway/web/playurl": { // 番剧-播放地址-web
 									let epid = URL.query?.ep_id;
-									$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
+									$.log(`🚧 epid: ${epid}`, "");
 									if (Caches?.ep?.[epid]) {
 										let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
-										$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+										$.log(`🚧 availableLocales: ${availableLocales}`, "");
 										$request.policy = Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 									} else {
 										$request.policy = Settings.Proxies["SEA"]; // 默认用SEA
@@ -132,7 +132,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 								URL.query.sim_code = "";
 							};
 							$request.url = URI.stringify(URL);
-							$.log(`🚧 ${$.name}`, `cookie: ${JSON.stringify($request.headers?.["cookie"] ?? $request.headers?.["Cookie"])}`, "");
+							$.log(`🚧 cookie: ${JSON.stringify($request.headers?.["cookie"] ?? $request.headers?.["Cookie"])}`, "");
 							delete $request.headers["cookie"];
 							delete $request.headers["Cookie"];
 							switch (HOST) {
@@ -140,10 +140,10 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 									switch (PATH) {
 										case "intl/gateway/v2/ogv/playurl": { // 番剧-播放地址-ogv
 											let epid = URL.query?.ep_id;
-											$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
+											$.log(`🚧 epid: ${epid}`, "");
 											if (Caches?.ep?.[epid]) {
 												let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
-												$.log(`🚧 ${$.name}`, `availableLocales: ${availableLocales}`, "");
+												$.log(`🚧 availableLocales: ${availableLocales}`, "");
 												$request.policy = Settings.Proxies[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 											} else {
 												let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales.filter(locale => locale !== "CHN")); // 国际版不含中国大陆
@@ -165,7 +165,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 											$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
 											let epid = URL.query?.ep_id;
 											if (epid) {
-												$.log(`🚧 ${$.name}`, `epid: ${epid}`, "");
+												$.log(`🚧 epid: ${epid}`, "");
 												let newCaches = Caches;
 												if (!newCaches?.ep) newCaches.ep = {};
 												newCaches.ep[epid] = availableLocales;
@@ -188,10 +188,10 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 			};
 			if ($request.headers?.Host) $request.headers.Host = URL.host;
 			$request.url = URI.stringify(URL);
-			$.log(`🚧 ${$.name}, 调试信息`, `$request.url: ${$request.url}`, "");
+			$.log(`🚧 调试信息`, `$request.url: ${$request.url}`, "");
 			break;
 		case false:
-			$.log(`⚠ ${$.name}, 功能关闭`, "");
+			$.log(`⚠ 功能关闭`, "");
 			break;
 	};
 })()
@@ -199,7 +199,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 .finally(() => {
 	switch ($response) {
 		default: // 有构造回复数据，返回构造的回复数据
-			//$.log(`🚧 ${$.name}, finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
+			//$.log(`🚧 finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
 			if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 			if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 			if ($.isQuanX()) {
@@ -211,7 +211,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 			} else $.done({ response: $response });
 			break;
 		case undefined: // 无构造回复数据，发送修改的请求数据
-			//$.log(`🚧 ${$.name}, finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
+			//$.log(`🚧 finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
 			$.done($request);
 			break;
 	};
@@ -225,10 +225,10 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    $.log(`☑️ ${$.name}, Determine Response Availability`, "");
+    $.log(`☑️ Determine Response Availability`, "");
 	$.log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
-	$.log(`🚧 ${$.name}, Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
+	$.log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
@@ -312,7 +312,7 @@ function isResponseAvailability(response = {}) {
 			isAvailable = false;
 			break;
 	};
-	$.log(`✅ ${$.name}, Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	$.log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
 };
 
@@ -346,9 +346,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	$.log(`⚠ ${$.name}, Check Search Keyword`, `Original Keyword: ${keyword}`, "");
+	$.log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
-	$.log(`🚧 ${$.name}, Check Search Keyword`, `keywords: ${keywords}`, "");
+	$.log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -435,6 +435,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keyword = keywords.join(delimiter);
 			break;
 	};
-	$.log(`🎉 ${$.name}, Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
+	$.log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
 	return { keyword, locale };
 };
