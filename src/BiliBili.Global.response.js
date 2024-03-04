@@ -1,5 +1,7 @@
-import ENVs from "./ENV/ENV.mjs";
-import URIs from "./URI/URI.mjs";
+import _ from './ENV/Lodash.mjs'
+import $Storage from './ENV/$Storage.mjs'
+import ENV from "./ENV/ENV.mjs";
+import URI from "./URI/URI.mjs";
 
 import Database from "./database/BiliBili.mjs";
 import setENV from "./function/setENV.mjs";
@@ -9,8 +11,7 @@ import addgRPCHeader from "./function/addgRPCHeader.mjs";
 import { TextEncoder , TextDecoder } from "./text-encoding/index.js";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
-const $ = new ENVs("📺 BiliBili: 🌐 Global v0.4.5(2) repsonse");
-const URI = new URIs();
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.4.6(1) repsonse");
 
 /***************** Processing *****************/
 // 解构URL
@@ -49,7 +50,6 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 					break;
 				case "application/x-www-form-urlencoded":
 				case "text/plain":
-				case "text/html":
 				default:
 					break;
 				case "application/x-mpegURL":
@@ -58,6 +58,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 				case "audio/mpegurl":
 					break;
 				case "text/xml":
+				case "text/html":
 				case "text/plist":
 				case "application/xml":
 				case "application/plist":
@@ -560,7 +561,7 @@ function setCache(infoGroup = { seasonTitle: undefined, "seasonId": undefined, "
 		episodes.forEach(episode => cache.ep.set(episode?.id, infoGroup.locales));
 		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
 		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
-		isSaved = $.setjson(cache, "@BiliBili.Global.Caches");
+		isSaved = $Storage.setItem("@BiliBili.Global.Caches", cache);
 	};
 	$.log(`✅ ${$.name}, Set Cache, locales: ${infoGroup.locales}, isSaved: ${isSaved}`, "");
 	return isSaved;

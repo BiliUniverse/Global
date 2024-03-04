@@ -1,5 +1,7 @@
-import ENVs from "./ENV/ENV.mjs";
-import URIs from "./URI/URI.mjs";
+import _ from './ENV/Lodash.mjs'
+import $Storage from './ENV/$Storage.mjs'
+import ENV from "./ENV/ENV.mjs";
+import URI from "./URI/URI.mjs";
 
 import Database from "./database/BiliBili.mjs";
 import setENV from "./function/setENV.mjs";
@@ -9,8 +11,7 @@ import addgRPCHeader from "./function/addgRPCHeader.mjs";
 import { TextEncoder , TextDecoder } from "./text-encoding/index.js";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
-const $ = new ENVs("📺 BiliBili: 🌐 Global v0.6.1(2) request");
-const URI = new URIs();
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.2(1) request");
 
 // 构造回复数据
 let $response = undefined;
@@ -58,7 +59,6 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 							break;
 						case "application/x-www-form-urlencoded":
 						case "text/plain":
-						case "text/html":
 						default:
 							break;
 						case "application/x-mpegURL":
@@ -67,6 +67,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 						case "audio/mpegurl":
 							break;
 						case "text/xml":
+						case "text/html":
 						case "text/plist":
 						case "application/xml":
 						case "application/plist":

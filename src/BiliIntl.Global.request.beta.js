@@ -1,11 +1,12 @@
-import ENVs from "./ENV/ENV.mjs";
-import URIs from "./URI/URI.mjs";
+import _ from './ENV/Lodash.mjs'
+import $Storage from './ENV/$Storage.mjs'
+import ENV from "./ENV/ENV.mjs";
+import URI from "./URI/URI.mjs";
 
 import Database from "./database/BiliIntl.mjs";
 import setENV from "./function/setENV.mjs";
 
-const $ = new ENVs("📺 BiliIntl: 🌐 Global v0.5.1(1) request.beta");
-const URI = new URIs();
+const $ = new ENV("📺 BiliIntl: 🌐 Global v0.5.2(1) request.beta");
 
 // 构造回复数据
 let $response = undefined;
@@ -40,7 +41,6 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 							break;
 						case "application/x-www-form-urlencoded":
 						case "text/plain":
-						case "text/html":
 						default:
 							break;
 						case "application/x-mpegURL":
@@ -52,6 +52,7 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 							//$request.body = M3U8.stringify(body);
 							break;
 						case "text/xml":
+						case "text/html":
 						case "text/plist":
 						case "application/xml":
 						case "application/plist":
@@ -169,8 +170,8 @@ $.log(`⚠ ${$.name}`, `FORMAT: ${FORMAT}`, "");
 												if (!newCaches?.ep) newCaches.ep = {};
 												newCaches.ep[epid] = availableLocales;
 												$.log(`newCaches = ${JSON.stringify(newCaches)}`);
-												let isSave = $.setjson(newCaches, "@BiliBili.Global.Caches");
-												$.log(`$.setjson ? ${isSave}`);
+												let isSave = $Storage.setItem("@BiliBili.Global.Caches", newCaches);
+												$.log(`$Storage.setItem ? ${isSave}`);
 											}
 											break;
 									};
