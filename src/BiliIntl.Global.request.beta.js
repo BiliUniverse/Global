@@ -21,7 +21,7 @@ $.log(`⚠ METHOD: ${METHOD}`, "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
 $.log(`⚠ FORMAT: ${FORMAT}`, "");
-(async () => {
+!(async () => {
 	// 读取设置
 	const { Settings, Caches, Configs } = setENV("BiliIntl", "Global", Database);
 	switch (Settings.Switch) {

@@ -8,7 +8,6 @@ import setENV from "./function/setENV.mjs";
 import pako from "./pako/dist/pako.esm.mjs";
 import addgRPCHeader from "./function/addgRPCHeader.mjs";
 
-import { TextEncoder , TextDecoder } from "./text-encoding/index.js";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
 const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.2(2) request");
@@ -26,7 +25,7 @@ $.log(`⚠ METHOD: ${METHOD}`, "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
 $.log(`⚠ FORMAT: ${FORMAT}`, "");
-(async () => {
+!(async () => {
 	// 读取设置
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", Database);
 	$.log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
