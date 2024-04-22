@@ -10753,7 +10753,7 @@ class MessageType {
 
 // import { Any } from "./protobuf/google/protobuf/any.js";
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.5.0(1005) repsonse.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.5.0(1006) repsonse.beta");
 
 /***************** Processing *****************/
 // 解构URL
@@ -11143,6 +11143,7 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 													infoGroup.seasonId = parseInt(data?.report?.season_id, 10) || data?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
 													infoGroup.mId = parseInt(data?.report?.up_mid, 10) || data?.owner?.mid || infoGroup.mId;
 													//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
+													if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 													switch (data.supplement?.typeUrl) {
 														case "type.googleapis.com/bilibili.app.viewunite.pgcanymodel.ViewPgcAny":
 															infoGroup.type = "PGC";

@@ -9,7 +9,7 @@ import addgRPCHeader from "./function/addgRPCHeader.mjs";
 
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.5.0(1005) repsonse");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.5.0(1006) repsonse");
 
 /***************** Processing *****************/
 // 解构URL
@@ -281,6 +281,7 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 													infoGroup.seasonId = parseInt(data?.report?.season_id, 10) || data?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
 													infoGroup.mId = parseInt(data?.report?.up_mid, 10) || data?.owner?.mid || infoGroup.mId;
 													//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
+													if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 													infoGroup.locales = detectLocales(infoGroup);
 													setCache(infoGroup, [], Caches);
 													break;
