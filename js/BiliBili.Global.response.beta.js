@@ -710,37 +710,6 @@ class ENV {
 	}
 }
 
-class URI {
-	static name = "URI";
-	static version = "1.2.7";
-	static about() { return console.log(`\n🟧 ${this.name} v${this.version}\n`) };
-	static #json = { scheme: "", host: "", path: "", query: {} };
-
-	static parse(url) {
-		const URLRegex = /(?:(?<scheme>.+):\/\/(?<host>[^/]+))?\/?(?<path>[^?]+)?\??(?<query>[^?]+)?/;
-		let json = url.match(URLRegex)?.groups ?? null;
-		if (json?.path) json.paths = json.path.split("/"); else json.path = "";
-		//if (json?.paths?.at(-1)?.includes(".")) json.format = json.paths.at(-1).split(".").at(-1);
-		if (json?.paths) {
-			const fileName = json.paths[json.paths.length - 1];
-			if (fileName?.includes(".")) {
-				const list = fileName.split(".");
-				json.format = list[list.length - 1];
-			}
-		}
-		if (json?.query) json.query = Object.fromEntries(json.query.split("&").map((param) => param.split("=")));
-		return json
-	};
-
-	static stringify(json = this.#json) {
-		let url = "";
-		if (json?.scheme && json?.host) url += json.scheme + "://" + json.host;
-		if (json?.path) url += (json?.host) ? "/" + json.path : json.path;
-		if (json?.query) url += "?" + Object.entries(json.query).map(param => param.join("=")).join("&");
-		return url
-	};
-}
-
 var Settings$1 = {
 	Switch: true
 };
@@ -10749,15 +10718,15 @@ class MessageType {
 
 // import { Any } from "./protobuf/google/protobuf/any.js";
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.4.6(2) repsonse.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.5.0(1005) repsonse.beta");
 
 /***************** Processing *****************/
 // 解构URL
-const URL = URI.parse($request.url);
-$.log(`⚠ URL: ${JSON.stringify(URL)}`, "");
+const url = new URL($request.url);
+$.log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
-const METHOD = $request.method, HOST = URL.host, PATH = URL.path, PATHs = URL.paths;
-$.log(`⚠ METHOD: ${METHOD}`, "");
+const METHOD = $request.method, HOST = url.hostname, PATH = url.pathname, PATHs = url.pathname.split("/").filter(Boolean);
+$.log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
 // 解析格式
 const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
 $.log(`⚠ FORMAT: ${FORMAT}`, "");
@@ -10772,15 +10741,15 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 			let body = { "code": 0, "message": "0", "data": {} };
 			// 信息组
 			let infoGroup = {
-				"seasonTitle": URL.query?.season_title,
-				"seasonId": parseInt(URL.query?.season_id, 10) || undefined,
-				"epId": parseInt(URL.query?.ep_id, 10) || undefined,
-				"mId": parseInt(URL.query?.mid || URL.query?.vmid, 10) || undefined,
+				"seasonTitle": url.searchParams.get("season_title"),
+				"seasonId": parseInt(url.searchParams.get("season_id"), 10) || undefined,
+				"epId": parseInt(url.searchParams.get("ep_id"), 10) || undefined,
+				"mId": parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
 				"evaluate": undefined,
-				"keyword": decodeURIComponent(URL.query?.keyword),
-				"locale": URL.query?.locale,
+				"keyword": url.searchParams.get("keyword"),
+				"locale": url.searchParams.get("locale"),
 				"locales": [],
-				"isPGC": true, // 是否PGC内容
+				"type": "UGC"
 			};
 			// 格式判断
 			switch (FORMAT) {
@@ -10827,25 +10796,28 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 						case "api.bilibili.com":
 						case "api.biliapi.net":
 							switch (PATH) {
-								case "pgc/player/api/playurl": // 番剧-播放地址-api
-								case "pgc/player/web/playurl": // 番剧-播放地址-web
-								case "pgc/player/web/playurl/html5": // 番剧-播放地址-web-HTML5
+								case "/pgc/player/api/playurl": // 番剧-播放地址-api
+								case "/pgc/player/web/playurl": // 番剧-播放地址-web
+								case "/pgc/player/web/playurl/html5": // 番剧-播放地址-web-HTML5
+									infoGroup.type = "PGC";
 									break;
-								case "pgc/page/bangumi": // 追番页
-								case "pgc/page/cinema/tab": // 观影页
+								case "/pgc/page/bangumi": // 追番页
+								case "/pgc/page/cinema/tab": // 观影页
+									infoGroup.type = "PGC";
 									break;
-								case "x/player/wbi/playurl": // UGC-用户生产内容-播放地址
+								case "/x/player/wbi/playurl": // UGC-用户生产内容-播放地址
 									break;
-								case "x/space/acc/info": // 用户空间-账号信息-pc
-								case "x/space/wbi/acc/info": // 用户空间-账号信息-wbi
+								case "/x/space/acc/info": // 用户空间-账号信息-pc
+								case "/x/space/wbi/acc/info": // 用户空间-账号信息-wbi
 									switch (infoGroup.mId) {
 																			}									break;
-								case "pgc/view/v2/app/season": // 番剧页面-内容-app
+								case "/pgc/view/v2/app/season": // 番剧页面-内容-app
 									let data = body.data;
 									infoGroup.seasonTitle = data?.season_title ?? infoGroup.seasonTitle;
 									infoGroup.seasonId = data?.season_id ?? infoGroup.seasonId;
 									infoGroup.mId = data?.up_info?.mid ?? infoGroup.mId;
 									infoGroup.evaluate = data?.evaluate ?? infoGroup.evaluate;
+									infoGroup.type = "PGC";
 									// 有剧集信息
 									if (data?.modules) {
 										// 解锁剧集信息限制
@@ -10862,13 +10834,14 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 										data.rights.allow_demand = 1;
 										data.rights.area_limit = 0;
 									}									break;
-								case "pgc/view/web/season": // 番剧-内容-web
-								case "pgc/view/pc/season": // 番剧-内容-pc
+								case "/pgc/view/web/season": // 番剧-内容-web
+								case "/pgc/view/pc/season": // 番剧-内容-pc
 									let result = body.result;
 									infoGroup.seasonTitle = result.season_title ?? infoGroup.seasonTitle;
 									infoGroup.seasonId = result.season_id ?? infoGroup.seasonId;
 									infoGroup.mId = result.up_info?.mid ?? infoGroup.mId;
 									infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
+									infoGroup.type = "PGC";
 									// 有剧集信息
 									if (result?.episodes || result?.section) {
 										// 解锁剧集信息限制
@@ -11137,11 +11110,11 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 													//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
 													switch (data.supplement?.typeUrl) {
 														case "type.googleapis.com/bilibili.app.viewunite.pgcanymodel.ViewPgcAny":
-															infoGroup.isPGC = true;
+															infoGroup.type = "PGC";
 															break;
 														case "type.googleapis.com/bilibili.app.viewunite.ugcanymodel.ViewUgcAny":
 														default:
-															infoGroup.isPGC = false;
+															infoGroup.type = "UGC";
 															break;
 													}													infoGroup.locales = detectLocales(infoGroup);
 													setCache(infoGroup, [], Caches);
@@ -11153,6 +11126,7 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 										case "bilibili.pgc.gateway.player.v2.PlayURL": // 番剧
 											/******************  initialization start  *******************/
 											/******************  initialization finish  *******************/
+											infoGroup.type = "PGC";
 											switch (PATHs?.[1]) {
 																							}											break;
 										case "bilibili.app.nativeact.v1.NativeAct": // 活动-节目、动画、韩综（港澳台）
@@ -11268,6 +11242,7 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 	$.log(`☑️ Detect Locales`, `seasonTitle: ${infoGroup.seasonTitle}, seasonId: ${infoGroup.seasonId}, epId: ${infoGroup.epId}, mId: ${infoGroup.mId}`, "");
 	switch (infoGroup.seasonTitle) {
 		case undefined:
+		case null:
 			infoGroup.locales = detectMId(infoGroup.mId);
 			break;
 		default:
@@ -11305,6 +11280,7 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 				locales = ["HKG", "MAC", "SEA"];
 				break;
 			case undefined:
+			case null:
 			default:
 				locales = detectMId(infoGroup.mId);
 				break;
@@ -11331,6 +11307,7 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 				locales = ["CHN", "HKG", "MAC", "TWN"];
 				break;
 			case undefined: // 无UP主信息
+			case null:
 			default: // 其他UP主
 				locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
 				break;

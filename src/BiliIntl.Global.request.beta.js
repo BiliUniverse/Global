@@ -1,23 +1,22 @@
 import _ from './ENV/Lodash.mjs'
 import $Storage from './ENV/$Storage.mjs'
 import ENV from "./ENV/ENV.mjs";
-import URI from "./URI/URI.mjs";
 
 import Database from "./database/BiliIntl.mjs";
 import setENV from "./function/setENV.mjs";
 
-const $ = new ENV("📺 BiliIntl: 🌐 Global v0.5.2(2) request.beta");
+const $ = new ENV("📺 BiliIntl: 🌐 Global v0.6.0(1005) request.beta");
 
 // 构造回复数据
 let $response = undefined;
 
 /***************** Processing *****************/
 // 解构URL
-const URL = URI.parse($request.url);
-$.log(`⚠ URL: ${JSON.stringify(URL)}`, "");
+const url = new URL($request.url);
+$.log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
-const METHOD = $request.method, HOST = URL.host, PATH = URL.path, PATHs = URL.paths;
-$.log(`⚠ METHOD: ${METHOD}`, "");
+const METHOD = $request.method, HOST = url.hostname, PATH = url.pathname, PATHs = url.pathname.split("/").filter(Boolean);
+$.log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
 $.log(`⚠ FORMAT: ${FORMAT}`, "");
@@ -85,7 +84,6 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "GET":
 				case "HEAD":
 				case "OPTIONS":
-				case undefined: // QX牛逼，script-echo-response不返回method
 				default:
 					// 解析链接
 					switch (HOST) {
@@ -93,7 +91,7 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							if (PATH.includes("/anime")) { // 番剧-web
 								$request.policy = Settings.Proxies["SEA"]; // 默认用SEA
 							} else if (PATH.includes("/play/")) { // 番剧-播放页-web
-								let epid = URL.query?.ep_id;
+								let epid = url.searchParams.get("ep_id");
 								$.log(`🚧 epid: ${epid}`, "");
 								if (Caches?.ep?.[epid]) {
 									let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
@@ -106,8 +104,8 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "api.bilibili.tv":
 							switch (PATH) {
-								case "intl/gateway/web/playurl": { // 番剧-播放地址-web
-									let epid = URL.query?.ep_id;
+								case "/intl/gateway/web/playurl": { // 番剧-播放地址-web
+									let epid = url.searchParams.get("ep_id");
 									$.log(`🚧 epid: ${epid}`, "");
 									if (Caches?.ep?.[epid]) {
 										let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
@@ -122,24 +120,24 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "app.biliintl.com": // app
 						case "passport.biliintl.com": // 登录
-							if (URL.query?.s_locale) { // 处理系统语言_地区代码
-								let s_locale = URL.query.s_locale.split("_");
+							if (url.searchParams.get("s_locale")) { // 处理系统语言_地区代码
+								let s_locale = url.searchParams.get("s_locale").split("_");
 								if (s_locale.length === 2) {
-									URL.query.s_locale = `${s_locale[0]}_${"SG"}`;
+									url.searchParams.set("s_locale", `${s_locale[0]}_${"SG"}`);
 								};
 							};
-							if (URL.query?.sim_code) { // 处理MNC
-								URL.query.sim_code = "";
+							if (url.searchParams.get("sim_code")) { // 处理MNC
+								url.searchParams.set("sim_code", "");
 							};
-							$request.url = URI.stringify(URL);
+							$request.url = url.toString();
 							$.log(`🚧 cookie: ${JSON.stringify($request.headers?.["cookie"] ?? $request.headers?.["Cookie"])}`, "");
 							delete $request.headers["cookie"];
 							delete $request.headers["Cookie"];
 							switch (HOST) {
 								case "app.biliintl.com":
 									switch (PATH) {
-										case "intl/gateway/v2/ogv/playurl": { // 番剧-播放地址-ogv
-											let epid = URL.query?.ep_id;
+										case "/intl/gateway/v2/ogv/playurl": { // 番剧-播放地址-ogv
+											let epid = url.searchParams.get("ep_id");
 											$.log(`🚧 epid: ${epid}`, "");
 											if (Caches?.ep?.[epid]) {
 												let availableLocales = Caches.ep[epid].filter(locale => Settings?.Locales.includes(locale));
@@ -152,18 +150,18 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 											};
 											break;
 										};
-										case "intl/gateway/v2/app/search/v2": // 搜索-全部结果-app
-										case "intl/gateway/v2/app/search/type": // 搜索-分类结果-app
-											let { keyword, locale } = checkKeyword(decodeURIComponent(URL.query?.keyword));
-											URL.query.keyword = encodeURIComponent(keyword);
-											$request.url = URI.stringify(url);
+										case "/intl/gateway/v2/app/search/v2": // 搜索-全部结果-app
+										case "/intl/gateway/v2/app/search/type": // 搜索-分类结果-app
+											let { keyword, locale } = checkKeyword(url.searchParams.get("keyword"));
+											url.searchParams.set("keyword", keyword);
+											$request.url = url.toString();
 											$request.policy = Settings.Proxies[locale];
 											break;
-										case "intl/gateway/v2/ogv/view/app/season2": // 番剧-详情页-app
+										case "/intl/gateway/v2/ogv/view/app/season2": // 番剧-详情页-app
 											let responses = await mutiFetch($request, Settings.Proxies, Settings.Locales.filter(locale => locale !== "CHN")); // 国际版不含中国大陆
 											let availableLocales = checkLocales(responses);
 											$response = responses[availableLocales[Math.floor(Math.random() * availableLocales.length)]]; // 随机用一个
-											let epid = URL.query?.ep_id;
+											let epid = url.searchParams.get("ep_id");
 											if (epid) {
 												$.log(`🚧 epid: ${epid}`, "");
 												let newCaches = Caches;
@@ -186,8 +184,8 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "TRACE":
 					break;
 			};
-			if ($request.headers?.Host) $request.headers.Host = URL.host;
-			$request.url = URI.stringify(URL);
+			url.searchParams.set("type", infoGroup.type);
+			$request.url = url.toString();
 			$.log(`🚧 调试信息`, `$request.url: ${$request.url}`, "");
 			break;
 		case false:
