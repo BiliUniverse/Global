@@ -1,36 +1,29 @@
-import _ from './ENV/Lodash.mjs'
-import $Storage from './ENV/$Storage.mjs'
-import ENV from "./ENV/ENV.mjs";
-
+import { $platform, _, Storage, fetch, notification, log, logError, wait, done, getScript, runScript } from "./utils/utils.mjs";
+import GRPC from "./utils/GRPC.mjs";
 import Database from "./database/BiliBili.mjs";
 import setENV from "./function/setENV.mjs";
-import pako from "./pako/dist/pako.esm.mjs";
-import addgRPCHeader from "./function/addgRPCHeader.mjs";
-
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "@protobuf-ts/runtime";
 import { ViewReq } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
 import { PlayViewUniteReq } from "./protobuf/bilibili/app/playerunite/v1/playerunite.js";
 import { PlayViewReq } from "./protobuf/bilibili/pgc/gateway/player/v2/playurl.js";
 import { SearchAllRequest, SearchByTypeRequest } from "./protobuf/bilibili/polymer/app/search/v1/search.js";
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.8.0(1009) request");
-
+log("v0.8.2(1011)");
 // 构造回复数据
 let $response = undefined;
-
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);
-$.log(`⚠ url: ${url.toJSON()}`, "");
+log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
 const METHOD = $request.method, HOST = url.hostname, PATH = url.pathname, PATHs = url.pathname.split("/").filter(Boolean);
-$.log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
+log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
-$.log(`⚠ FORMAT: ${FORMAT}`, "");
+log(`⚠ FORMAT: ${FORMAT}`, "");
 !(async () => {
 	// 读取设置
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", Database);
-	$.log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
+	log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
 		case true:
 		default:
@@ -86,9 +79,9 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 						case "application/grpc":
 						case "application/grpc+proto":
 						case "application/octet-stream":
-							//$.log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
-							let rawBody = $.isQuanX() ? new Uint8Array($request.bodyBytes ?? []) : $request.body ?? new Uint8Array();
-							//$.log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
+							//log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
+							let rawBody = ($platform === "Quantumult X") ? new Uint8Array($request.bodyBytes ?? []) : $request.body ?? new Uint8Array();
+							//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 							switch (FORMAT) {
 								case "application/protobuf":
 								case "application/x-protobuf":
@@ -96,21 +89,9 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 									break;
 								case "application/grpc":
 								case "application/grpc+proto":
-									/******************  initialization start  *******************/
-									/******************  initialization finish  *******************/
-									// 先拆分B站gRPC校验头和protobuf数据体
-									let header = rawBody.slice(0, 5);
-									body = rawBody.slice(5);
-									// 处理request压缩protobuf数据体
-									switch (header?.[0]) {
-										case 0: // unGzip
-											break;
-										case 1: // Gzip
-											body = pako.ungzip(body);
-											header[0] = 0; // unGzip
-											break;
-									};
+									rawBody = GRPC.decode(rawBody);
 									// 解析链接并处理protobuf数据
+									// 主机判断
 									switch (HOST) {
 										case "grpc.biliapi.net": // HTTP/2
 										case "app.bilibili.com": // HTTP/1.1
@@ -118,12 +99,11 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 												case "bilibili.app.viewunite.v1.View":
 													switch(PATHs?.[1]) {
 														case "View": // 播放页
-															let data = ViewReq.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															body = ViewReq.toBinary(data);
+															body = ViewReq.fromBinary(rawBody);
+															rawBody = ViewReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
-															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
@@ -132,19 +112,17 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 														break;
 												case "bilibili.app.playerunite.v1.Player":
 													switch (PATHs?.[1]) {
-														case "PlayViewUnite": { // 播放地址
-															let data = PlayViewUniteReq.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															data.vod.forceHost = Settings?.ForceHost ?? 1;
-															body = PlayViewUniteReq.toBinary(data);
+														case "PlayViewUnite": // 播放地址
+															body = PlayViewUniteReq.fromBinary(rawBody);
+															body.vod.forceHost = Settings?.ForceHost ?? 1;
+															rawBody = PlayViewUniteReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
-															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
-														};
 													};
 													break;
 												case "bilibili.app.playurl.v1.PlayURL": // 普通视频
@@ -157,19 +135,17 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 													break;
 												case "bilibili.pgc.gateway.player.v2.PlayURL": // 番剧
 													switch (PATHs?.[1]) {
-														case "PlayView": { // 播放地址
-															let data = PlayViewReq.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															data.forceHost = Settings?.ForceHost ?? 1;
-															body = PlayViewReq.toBinary(data);
+														case "PlayView": // 播放地址
+															body = PlayViewReq.fromBinary(rawBody);
+															body.forceHost = Settings?.ForceHost ?? 1;
+															rawBody = PlayViewReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = data?.seasonId;
-															infoGroup.epId = data?.epId;
+															infoGroup.seasonId = body?.seasonId;
+															infoGroup.epId = body?.epId;
 															infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
-														};
 														case "PlayConf": // 播放配置
 															break;
 													};
@@ -187,25 +163,18 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 													};
 													break;
 												case "bilibili.polymer.app.search.v1.Search": // 搜索结果
-													/******************  initialization start  *******************/
-													/******************  initialization finish  ******************/
 													switch (PATHs?.[1]) {
-														case "SearchAll": { // 全部结果（综合）
-															let data = SearchAllRequest.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
-															data.keyword = infoGroup.keyword;
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															body = SearchAllRequest.toBinary(data);
+														case "SearchAll": // 全部结果（综合）
+															body = SearchAllRequest.fromBinary(rawBody);
+															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(body?.keyword));
+															body.keyword = infoGroup.keyword;
+															rawBody = SearchAllRequest.toBinary(body);
 															break;
-														};
 														case "SearchByType": { // 分类结果（番剧、用户、影视、专栏）
-															let data = SearchByTypeRequest.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
-															data.keyword = infoGroup.keyword;
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															body = SearchByTypeRequest.toBinary(data);
+															body = SearchByTypeRequest.fromBinary(rawBody);
+															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(body?.keyword));
+															body.keyword = infoGroup.keyword;
+															rawBody = SearchByTypeRequest.toBinary(body);
 															break;
 														};
 													};
@@ -213,8 +182,7 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 											};
 											break;
 									};
-									// protobuf部分处理完后，重新计算并添加B站gRPC校验头
-									rawBody = addgRPCHeader({ header, body }); // gzip压缩有问题，别用
+									rawBody = GRPC.encode(rawBody);
 									break;
 							};
 							// 写入二进制数据
@@ -353,7 +321,7 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 			};
 			$request.url = url.toString();
-			$.log(`🚧 ${$.name}，信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
+			log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			// 请求策略
 			switch (PATH) {
 				case "/bilibili.app.viewunite.v1.View/View": //
@@ -367,10 +335,10 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							$.log(`⚠ 不是 PGC, 跳过`, "")
+							log(`⚠ 不是 PGC, 跳过`, "")
 							break;
 					};
-					switch ($.platform()) { // 直通模式，不处理，否则无法进http-response
+					switch ($platform) { // 直通模式，不处理，否则无法进http-response
 						case "Shadowrocket":
 						case "Quantumult X":
 							delete $request.policy;
@@ -397,16 +365,16 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							$.log(`⚠ 不是 PGC, 跳过`, "")
+							log(`⚠ 不是 PGC, 跳过`, "")
 							break;
 					};
 					break;
 			};
 			if (!$response) { // 无（构造）回复数据
-				switch ($.platform()) { // 已有指定策略的请求，根据策略fetch
+				switch ($platform) { // 已有指定策略的请求，根据策略fetch
 					case "Shadowrocket":
 					case "Quantumult X":
-						if ($request.policy) $response = await $.fetch($request);
+						if ($request.policy) $response = await fetch($request);
 						break;
 				};
 			};
@@ -415,22 +383,27 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 			break;
 	};
 })()
-	.catch((e) => $.logErr(e))
+	.catch((e) => logError(e))
 	.finally(() => {
 		switch ($response) {
 			default: // 有构造回复数据，返回构造的回复数据
 				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
-				if ($.isQuanX()) {
-					if (!$response.status) $response.status = "HTTP/1.1 200 OK";
-					delete $response.headers?.["Content-Length"];
-					delete $response.headers?.["content-length"];
-					delete $response.headers?.["Transfer-Encoding"];
-					$.done($response);
-				} else $.done({ response: $response });
+				switch ($platform) {
+					default:
+						done({ response: $response });
+						break;
+					case "Quantumult X":
+						if (!$response.status) $response.status = "HTTP/1.1 200 OK";
+						delete $response.headers?.["Content-Length"];
+						delete $response.headers?.["content-length"];
+						delete $response.headers?.["Transfer-Encoding"];
+						done($response);
+						break;
+				};
 				break;
 			case undefined: // 无构造回复数据，发送修改的请求数据
-				$.done($request);
+				done($request);
 				break;
 		};
 	})
@@ -443,9 +416,9 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    $.log(`☑️ Determine Response Availability`, "");
+    log(`☑️ Determine Response Availability`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
-	$.log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
+	log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
@@ -529,7 +502,7 @@ function isResponseAvailability(response = {}) {
 			isAvailable = false;
 			break;
 	};
-	$.log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
 };
 
@@ -543,12 +516,12 @@ function isResponseAvailability(response = {}) {
  * @return {Promise<request>} modified request
  */
 async function availableFetch(request = {}, proxies = {}, locales = [], availableLocales = []) {
-	$.log(`☑️ availableFetch`, `availableLocales: ${availableLocales}`, "");
+	log(`☑️ availableFetch`, `availableLocales: ${availableLocales}`, "");
 	availableLocales = availableLocales.filter(locale => locales.includes(locale));
 	let locale = "";
 	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
-	$.log(`✅ availableFetch`, `locale: ${locale}`, "");
+	log(`✅ availableFetch`, `locale: ${locale}`, "");
 	return request;
 }
 /**
@@ -560,20 +533,20 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
-	$.log(`☑️ mutiFetch`, `locales: ${locales}`, "");
+	log(`☑️ mutiFetch`, `locales: ${locales}`, "");
 	let responses = {};
 	await Promise.allSettled(locales.map(async locale => {
 		request["policy"] = proxies[locale];
-		if ($.isQuanX()) request.body = request.bodyBytes;
-		responses[locale] = await $.fetch(request);
+		if ($platform === "Quantumult X") request.body = request.bodyBytes;
+		responses[locale] = await fetch(request);
 	}));
 	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; };
 	let availableLocales = Object.keys(responses);
-	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
+	log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
 	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
 	let response = responses[locale];
-	$.log(`✅ mutiFetch`, `locale: ${locale}`, "");
+	log(`✅ mutiFetch`, `locale: ${locale}`, "");
 	return { request, response };
 }
 
@@ -585,9 +558,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	$.log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
+	log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
-	$.log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
+	log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -674,6 +647,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keyword = keywords.join(delimiter);
 			break;
 	};
-	$.log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
+	log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
 	return { keyword, locale };
 };
