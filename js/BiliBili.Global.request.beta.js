@@ -1,5 +1,18 @@
 /* README: https://github.com/BiliUniverse */
 console.log('📺 BiliBili: 🌐 Global β Request')
+const $platform = platform();
+function platform() {
+    if ("undefined" !== typeof $environment && $environment["surge-version"])
+        return "Surge"
+    if ("undefined" !== typeof $environment && $environment["stash-version"])
+        return "Stash"
+    if ("undefined" !== typeof module && !!module.exports) return "Node.js"
+    if ("undefined" !== typeof $task) return "Quantumult X"
+    if ("undefined" !== typeof $loon) return "Loon"
+    if ("undefined" !== typeof $rocket) return "Shadowrocket"
+    if ("undefined" !== typeof Egern) return "Egern"
+}
+
 /* https://www.lodashjs.com */
 class Lodash {
 	static name = "Lodash";
@@ -72,25 +85,13 @@ class Lodash {
 }
 
 /* https://developer.mozilla.org/zh-CN/docs/Web/API/Storage/setItem */
-class $Storage {
-	static name = "$Storage";
-	static version = "1.0.9";
-	static about() { return console.log(`\n🟧 ${this.name} v${this.version}\n`) };
-	static data = null
-	static dataFile = 'box.dat'
+class Storage {
+	static name = "Storage";
+	static version = "1.1.0";
+	static about () { return log("", `🟧 ${this.name} v${this.version}`, "") };
+	static data = null;
+	static dataFile = 'box.dat';
 	static #nameRegex = /^@(?<key>[^.]+)(?:\.(?<path>.*))?$/;
-
-	static #platform() {
-		if ('undefined' !== typeof $environment && $environment['surge-version'])
-			return 'Surge'
-		if ('undefined' !== typeof $environment && $environment['stash-version'])
-			return 'Stash'
-		if ('undefined' !== typeof module && !!module.exports) return 'Node.js'
-		if ('undefined' !== typeof $task) return 'Quantumult X'
-		if ('undefined' !== typeof $loon) return 'Loon'
-		if ('undefined' !== typeof $rocket) return 'Shadowrocket'
-		if ('undefined' !== typeof Egern) return 'Egern'
-	}
 
     static getItem(keyName = new String, defaultValue = null) {
         let keyValue = defaultValue;
@@ -98,22 +99,22 @@ class $Storage {
 		switch (keyName.startsWith('@')) {
 			case true:
 				const { key, path } = keyName.match(this.#nameRegex)?.groups;
-				//console.log(`1: ${key}, ${path}`);
+				//log(`1: ${key}, ${path}`);
 				keyName = key;
 				let value = this.getItem(keyName, {});
-				//console.log(`2: ${JSON.stringify(value)}`)
+				//log(`2: ${JSON.stringify(value)}`)
 				if (typeof value !== "object") value = {};
-				//console.log(`3: ${JSON.stringify(value)}`)
+				//log(`3: ${JSON.stringify(value)}`)
 				keyValue = Lodash.get(value, path);
-				//console.log(`4: ${JSON.stringify(keyValue)}`)
+				//log(`4: ${JSON.stringify(keyValue)}`)
 				try {
 					keyValue = JSON.parse(keyValue);
 				} catch (e) {
 					// do nothing
-				}				//console.log(`5: ${JSON.stringify(keyValue)}`)
+				}				//log(`5: ${JSON.stringify(keyValue)}`)
 				break;
 			default:
-				switch (this.#platform()) {
+				switch ($platform) {
 					case 'Surge':
 					case 'Loon':
 					case 'Stash':
@@ -141,7 +142,7 @@ class $Storage {
 
 	static setItem(keyName = new String, keyValue = new String) {
 		let result = false;
-		//console.log(`0: ${typeof keyValue}`);
+		//log(`0: ${typeof keyValue}`);
 		switch (typeof keyValue) {
 			case "object":
 				keyValue = JSON.stringify(keyValue);
@@ -152,19 +153,19 @@ class $Storage {
 		}		switch (keyName.startsWith('@')) {
 			case true:
 				const { key, path } = keyName.match(this.#nameRegex)?.groups;
-				//console.log(`1: ${key}, ${path}`);
+				//log(`1: ${key}, ${path}`);
 				keyName = key;
 				let value = this.getItem(keyName, {});
-				//console.log(`2: ${JSON.stringify(value)}`)
+				//log(`2: ${JSON.stringify(value)}`)
 				if (typeof value !== "object") value = {};
-				//console.log(`3: ${JSON.stringify(value)}`)
+				//log(`3: ${JSON.stringify(value)}`)
 				Lodash.set(value, path, keyValue);
-				//console.log(`4: ${JSON.stringify(value)}`)
+				//log(`4: ${JSON.stringify(value)}`)
 				result = this.setItem(keyName, value);
-				//console.log(`5: ${result}`)
+				//log(`5: ${result}`)
 				break;
 			default:
-				switch (this.#platform()) {
+				switch ($platform) {
 					case 'Surge':
 					case 'Loon':
 					case 'Stash':
@@ -200,7 +201,7 @@ class $Storage {
 				result = this.setItem(keyName, value);
 				break;
 			default:
-				switch (this.#platform()) {
+				switch ($platform) {
 					case 'Surge':
 					case 'Loon':
 					case 'Stash':
@@ -223,7 +224,7 @@ class $Storage {
 
     static clear() {
 		let result = false;
-		switch (this.#platform()) {
+		switch ($platform) {
 			case 'Surge':
 			case 'Loon':
 			case 'Stash':
@@ -293,614 +294,217 @@ class $Storage {
 
 }
 
-class ENV {
-	static name = "ENV"
-	static version = '1.8.3'
-	static about() { return console.log(`\n🟧 ${this.name} v${this.version}\n`) }
+function initGotEnv(opts) {
+    this.got = this.got ? this.got : require("got");
+    this.cktough = this.cktough ? this.cktough : require("tough-cookie");
+    this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar();
+    if (opts) {
+        opts.headers = opts.headers ? opts.headers : {};
+        if (undefined === opts.headers.Cookie && undefined === opts.cookieJar) {
+            opts.cookieJar = this.ckjar;
+        }
+    }}
 
-	constructor(name, opts) {
-		console.log(`\n🟧 ${ENV.name} v${ENV.version}\n`);
-		this.name = name;
-		this.logs = [];
-		this.isMute = false;
-		this.isMuteLog = false;
-		this.logSeparator = '\n';
-		this.encoding = 'utf-8';
-		this.startTime = new Date().getTime();
-		Object.assign(this, opts);
-		this.log(`\n🚩 开始!\n${name}\n`);
-	}
-	
-	environment() {
-		switch (this.platform()) {
-			case 'Surge':
-				$environment.app = 'Surge';
-				return $environment
-			case 'Stash':
-				$environment.app = 'Stash';
-				return $environment
-			case 'Egern':
-				$environment.app = 'Egern';
-				return $environment
-			case 'Loon':
-				let environment = $loon.split(' ');
-				return {
-					"device": environment[0],
-					"ios": environment[1],
-					"loon-version": environment[2],
-					"app": "Loon"
-				};
-			case 'Quantumult X':
-				return {
-					"app": "Quantumult X"
-				};
-			case 'Node.js':
-				process.env.app = 'Node.js';
-				return process.env
-			default:
-				return {}
-		}
-	}
+async function fetch(request = {} || "", option = {}) {
+    // 初始化参数
+    switch (request.constructor) {
+        case Object:
+            request = { ...option, ...request };
+            break;
+        case String:
+            request = { ...option, "url": request };
+            break;
+    }    // 自动判断请求方法
+    if (!request.method) {
+        request.method = "GET";
+        if (request.body ?? request.bodyBytes) request.method = "POST";
+    }    // 移除请求头中的部分参数, 让其自动生成
+    delete request.headers?.Host;
+    delete request.headers?.[":authority"];
+    delete request.headers?.["Content-Length"];
+    delete request.headers?.["content-length"];
+    // 定义请求方法（小写）
+    const method = request.method.toLocaleLowerCase();
+    // 判断平台
+    switch ($platform) {
+        case "Loon":
+        case "Surge":
+        case "Stash":
+        case "Egern":
+        case "Shadowrocket":
+        default:
+            // 转换请求参数
+            if (request.timeout) {
+                request.timeout = parseInt(request.timeout, 10);
+                switch ($platform) {
+                    case "Loon":
+                    case "Shadowrocket":
+                    case "Stash":
+                    case "Egern":
+                    default:
+                        request.timeout = request.timeout / 1000;
+                        break;
+                    case "Surge":
+                        break;
+                }            }            if (request.policy) {
+                switch ($platform) {
+                    case "Loon":
+                        request.node = request.policy;
+                        break;
+                    case "Stash":
+                        Lodash.set(request, "headers.X-Stash-Selected-Proxy", encodeURI(request.policy));
+                        break;
+                    case "Shadowrocket":
+                        Lodash.set(request, "headers.X-Surge-Proxy", request.policy);
+                        break;
+                }            }            if (typeof request.redirection === "boolean") request["auto-redirect"] = request.redirection;
+            // 转换请求体
+            if (request.bodyBytes && !request.body) {
+                request.body = request.bodyBytes;
+                delete request.bodyBytes;
+            }            // 发送请求
+            return await new Promise((resolve, reject) => {
+                $httpClient[method](request, (error, response, body) => {
+                    if (error) reject(error);
+                    else {
+                        response.ok = /^2\d\d$/.test(response.status);
+                        response.statusCode = response.status;
+                        if (body) {
+                            response.body = body;
+                            if (request["binary-mode"] == true) response.bodyBytes = body;
+                        }                        resolve(response);
+                    }
+                });
+            });
+        case "Quantumult X":
+            // 转换请求参数
+            if (request.policy) Lodash.set(request, "opts.policy", request.policy);
+            if (typeof request["auto-redirect"] === "boolean") Lodash.set(request, "opts.redirection", request["auto-redirect"]);
+            // 转换请求体
+            if (request.body instanceof ArrayBuffer) {
+                request.bodyBytes = request.body;
+                delete request.body;
+            } else if (ArrayBuffer.isView(request.body)) {
+                request.bodyBytes = request.body.buffer.slice(request.body.byteOffset, request.body.byteLength + request.body.byteOffset);
+                delete object.body;
+            } else if (request.body) delete request.bodyBytes;
+            // 发送请求
+            return await $task.fetch(request).then(
+                response => {
+                    response.ok = /^2\d\d$/.test(response.statusCode);
+                    response.status = response.statusCode;
+                    return response;
+                },
+                reason => Promise.reject(reason.error));
+        case "Node.js":
+            let iconv = require("iconv-lite");
+            initGotEnv(request);
+            const { url, ...option } = request;
+            return await this.got[method](url, option)
+                .on("redirect", (response, nextOpts) => {
+                    try {
+                        if (response.headers["set-cookie"]) {
+                            const ck = response.headers["set-cookie"]
+                                .map(this.cktough.Cookie.parse)
+                                .toString();
+                            if (ck) {
+                                this.ckjar.setCookieSync(ck, null);
+                            }
+                            nextOpts.cookieJar = this.ckjar;
+                        }
+                    } catch (e) {
+                        this.logErr(e);
+                    }
+                    // this.ckjar.setCookieSync(response.headers["set-cookie"].map(Cookie.parse).toString())
+                })
+                .then(
+                    response => {
+                        response.statusCode = response.status;
+                        response.body = iconv.decode(response.rawBody, "utf-8");
+                        response.bodyBytes = response.rawBody;
+                        return response;
+                    },
+                    error => Promise.reject(error.message));
+    }}
 
-	platform() {
-		if ('undefined' !== typeof $environment && $environment['surge-version'])
-			return 'Surge'
-		if ('undefined' !== typeof $environment && $environment['stash-version'])
-			return 'Stash'
-		if ('undefined' !== typeof module && !!module.exports) return 'Node.js'
-		if ('undefined' !== typeof $task) return 'Quantumult X'
-		if ('undefined' !== typeof $loon) return 'Loon'
-		if ('undefined' !== typeof $rocket) return 'Shadowrocket'
-		if ('undefined' !== typeof Egern) return 'Egern'
-	}
+function logError(error) {
+    switch ($platform) {
+        case "Surge":
+        case "Loon":
+        case "Stash":
+        case "Egern":
+        case "Shadowrocket":
+        case "Quantumult X":
+        default:
+            log("", `❗️执行错误!`, error, "");
+            break
+        case "Node.js":
+            log("", `❗️执行错误!`, error.stack, "");
+            break
+    }}
 
-	isNode() {
-		return 'Node.js' === this.platform()
-	}
-
-	isQuanX() {
-		return 'Quantumult X' === this.platform()
-	}
-
-	isSurge() {
-		return 'Surge' === this.platform()
-	}
-
-	isLoon() {
-		return 'Loon' === this.platform()
-	}
-
-	isShadowrocket() {
-		return 'Shadowrocket' === this.platform()
-	}
-
-	isStash() {
-		return 'Stash' === this.platform()
-	}
-
-	isEgern() {
-		return 'Egern' === this.platform()
-	}
-
-	async getScript(url) {
-		return await this.fetch(url).then(response => response.body);
-	}
-
-	async runScript(script, runOpts) {
-		let httpapi = $Storage.getItem('@chavy_boxjs_userCfgs.httpapi');
-		httpapi = httpapi?.replace?.(/\n/g, '')?.trim();
-		let httpapi_timeout = $Storage.getItem('@chavy_boxjs_userCfgs.httpapi_timeout');
-		httpapi_timeout = (httpapi_timeout * 1) ?? 20;
-		httpapi_timeout = runOpts?.timeout ?? httpapi_timeout;
-		const [password, address] = httpapi.split('@');
-		const request = {
-			url: `http://${address}/v1/scripting/evaluate`,
-			body: {
-				script_text: script,
-				mock_type: 'cron',
-				timeout: httpapi_timeout
-			},
-			headers: { 'X-Key': password, 'Accept': '*/*' },
-			timeout: httpapi_timeout
-		};
-		await this.fetch(request).then(response => response.body, error => this.logErr(error));
-	}
-
-	initGotEnv(opts) {
-		this.got = this.got ? this.got : require('got');
-		this.cktough = this.cktough ? this.cktough : require('tough-cookie');
-		this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar();
-		if (opts) {
-			opts.headers = opts.headers ? opts.headers : {};
-			if (undefined === opts.headers.Cookie && undefined === opts.cookieJar) {
-				opts.cookieJar = this.ckjar;
-			}
-		}
-	}
-
-	async fetch(request = {} || "", option = {}) {
-		// 初始化参数
-		switch (request.constructor) {
-			case Object:
-				request = { ...option, ...request };
-				break;
-			case String:
-				request = { ...option, "url": request };
-				break;
-		}		// 自动判断请求方法
-		if (!request.method) {
-			request.method = "GET";
-			if (request.body ?? request.bodyBytes) request.method = "POST";
-		}		// 移除请求头中的部分参数, 让其自动生成
-		delete request.headers?.Host;
-		delete request.headers?.[":authority"];
-		delete request.headers?.['Content-Length'];
-		delete request.headers?.['content-length'];
-		// 定义请求方法（小写）
-		const method = request.method.toLocaleLowerCase();
-		// 判断平台
-		switch (this.platform()) {
-			case 'Loon':
-			case 'Surge':
-			case 'Stash':
-			case 'Egern':
-			case 'Shadowrocket':
-			default:
-				// 转换请求参数
-				if (request.timeout) {
-					request.timeout = parseInt(request.timeout, 10);
-					if (this.isSurge()) ; else request.timeout = request.timeout * 1000;
-				}				if (request.policy) {
-					if (this.isLoon()) request.node = request.policy;
-					if (this.isStash()) Lodash.set(request, "headers.X-Stash-Selected-Proxy", encodeURI(request.policy));
-					if (this.isShadowrocket()) Lodash.set(request, "headers.X-Surge-Proxy", request.policy);
-				}				if (typeof request.redirection === "boolean") request["auto-redirect"] = request.redirection;
-				// 转换请求体
-				if (request.bodyBytes && !request.body) {
-					request.body = request.bodyBytes;
-					delete request.bodyBytes;
-				}				// 发送请求
-				return await new Promise((resolve, reject) => {
-					$httpClient[method](request, (error, response, body) => {
-						if (error) reject(error);
-						else {
-							response.ok = /^2\d\d$/.test(response.status);
-							response.statusCode = response.status;
-							if (body) {
-								response.body = body;
-								if (request["binary-mode"] == true) response.bodyBytes = body;
-							}							resolve(response);
-						}
-					});
-				});
-			case 'Quantumult X':
-				// 转换请求参数
-				if (request.policy) Lodash.set(request, "opts.policy", request.policy);
-				if (typeof request["auto-redirect"] === "boolean") Lodash.set(request, "opts.redirection", request["auto-redirect"]);
-				// 转换请求体
-				if (request.body instanceof ArrayBuffer) {
-					request.bodyBytes = request.body;
-					delete request.body;
-				} else if (ArrayBuffer.isView(request.body)) {
-					request.bodyBytes = request.body.buffer.slice(request.body.byteOffset, request.body.byteLength + request.body.byteOffset);
-					delete object.body;
-				} else if (request.body) delete request.bodyBytes;
-				// 发送请求
-				return await $task.fetch(request).then(
-					response => {
-						response.ok = /^2\d\d$/.test(response.statusCode);
-						response.status = response.statusCode;
-						return response;
-					},
-					reason => Promise.reject(reason.error));
-			case 'Node.js':
-				let iconv = require('iconv-lite');
-				this.initGotEnv(request);
-				const { url, ...option } = request;
-				return await this.got[method](url, option)
-					.on('redirect', (response, nextOpts) => {
-						try {
-							if (response.headers['set-cookie']) {
-								const ck = response.headers['set-cookie']
-									.map(this.cktough.Cookie.parse)
-									.toString();
-								if (ck) {
-									this.ckjar.setCookieSync(ck, null);
-								}
-								nextOpts.cookieJar = this.ckjar;
-							}
-						} catch (e) {
-							this.logErr(e);
-						}
-						// this.ckjar.setCookieSync(response.headers['set-cookie'].map(Cookie.parse).toString())
-					})
-					.then(
-						response => {
-							response.statusCode = response.status;
-							response.body = iconv.decode(response.rawBody, this.encoding);
-							response.bodyBytes = response.rawBody;
-							return response;
-						},
-						error => Promise.reject(error.message));
-		}	};
-
-	/**
-	 *
-	 * 示例:$.time('yyyy-MM-dd qq HH:mm:ss.S')
-	 *    :$.time('yyyyMMddHHmmssS')
-	 *    y:年 M:月 d:日 q:季 H:时 m:分 s:秒 S:毫秒
-	 *    其中y可选0-4位占位符、S可选0-1位占位符，其余可选0-2位占位符
-	 * @param {string} format 格式化参数
-	 * @param {number} ts 可选: 根据指定时间戳返回格式化日期
-	 *
-	 */
-	time(format, ts = null) {
-		const date = ts ? new Date(ts) : new Date();
-		let o = {
-			'M+': date.getMonth() + 1,
-			'd+': date.getDate(),
-			'H+': date.getHours(),
-			'm+': date.getMinutes(),
-			's+': date.getSeconds(),
-			'q+': Math.floor((date.getMonth() + 3) / 3),
-			'S': date.getMilliseconds()
-		};
-		if (/(y+)/.test(format))
-			format = format.replace(
-				RegExp.$1,
-				(date.getFullYear() + '').substr(4 - RegExp.$1.length)
-			);
-		for (let k in o)
-			if (new RegExp('(' + k + ')').test(format))
-				format = format.replace(
-					RegExp.$1,
-					RegExp.$1.length == 1
-						? o[k]
-						: ('00' + o[k]).substr(('' + o[k]).length)
-				);
-		return format
-	}
-
-	/**
-	 * 系统通知
-	 *
-	 * > 通知参数: 同时支持 QuanX 和 Loon 两种格式, EnvJs根据运行环境自动转换, Surge 环境不支持多媒体通知
-	 *
-	 * 示例:
-	 * $.msg(title, subt, desc, 'twitter://')
-	 * $.msg(title, subt, desc, { 'open-url': 'twitter://', 'media-url': 'https://github.githubassets.com/images/modules/open_graph/github-mark.png' })
-	 * $.msg(title, subt, desc, { 'open-url': 'https://bing.com', 'media-url': 'https://github.githubassets.com/images/modules/open_graph/github-mark.png' })
-	 *
-	 * @param {*} title 标题
-	 * @param {*} subt 副标题
-	 * @param {*} desc 通知详情
-	 * @param {*} opts 通知参数
-	 *
-	 */
-	msg(title = name, subt = '', desc = '', opts) {
-		const toEnvOpts = (rawopts) => {
-			switch (typeof rawopts) {
-				case undefined:
-					return rawopts
-				case 'string':
-					switch (this.platform()) {
-						case 'Surge':
-						case 'Stash':
-						case 'Egern':
-						default:
-							return { url: rawopts }
-						case 'Loon':
-						case 'Shadowrocket':
-							return rawopts
-						case 'Quantumult X':
-							return { 'open-url': rawopts }
-						case 'Node.js':
-							return undefined
-					}
-				case 'object':
-					switch (this.platform()) {
-						case 'Surge':
-						case 'Stash':
-						case 'Egern':
-						case 'Shadowrocket':
-						default: {
-							let openUrl =
-								rawopts.url || rawopts.openUrl || rawopts['open-url'];
-							return { url: openUrl }
-						}
-						case 'Loon': {
-							let openUrl =
-								rawopts.openUrl || rawopts.url || rawopts['open-url'];
-							let mediaUrl = rawopts.mediaUrl || rawopts['media-url'];
-							return { openUrl, mediaUrl }
-						}
-						case 'Quantumult X': {
-							let openUrl =
-								rawopts['open-url'] || rawopts.url || rawopts.openUrl;
-							let mediaUrl = rawopts['media-url'] || rawopts.mediaUrl;
-							let updatePasteboard =
-								rawopts['update-pasteboard'] || rawopts.updatePasteboard;
-							return {
-								'open-url': openUrl,
-								'media-url': mediaUrl,
-								'update-pasteboard': updatePasteboard
-							}
-						}
-						case 'Node.js':
-							return undefined
-					}
-				default:
-					return undefined
-			}
-		};
-		if (!this.isMute) {
-			switch (this.platform()) {
-				case 'Surge':
-				case 'Loon':
-				case 'Stash':
-				case 'Egern':
-				case 'Shadowrocket':
-				default:
-					$notification.post(title, subt, desc, toEnvOpts(opts));
-					break
-				case 'Quantumult X':
-					$notify(title, subt, desc, toEnvOpts(opts));
-					break
-				case 'Node.js':
-					break
-			}
-		}
-		if (!this.isMuteLog) {
-			let logs = ['', '==============📣系统通知📣=============='];
-			logs.push(title);
-			subt ? logs.push(subt) : '';
-			desc ? logs.push(desc) : '';
-			console.log(logs.join('\n'));
-			this.logs = this.logs.concat(logs);
-		}
-	}
-
-	log(...logs) {
-		if (logs.length > 0) {
-			this.logs = [...this.logs, ...logs];
-		}
-		console.log(logs.join(this.logSeparator));
-	}
-
-	logErr(error) {
-		switch (this.platform()) {
-			case 'Surge':
-			case 'Loon':
-			case 'Stash':
-			case 'Egern':
-			case 'Shadowrocket':
-			case 'Quantumult X':
-			default:
-				this.log('', `❗️ ${this.name}, 错误!`, error);
-				break
-			case 'Node.js':
-				this.log('', `❗️${this.name}, 错误!`, error.stack);
-				break
-		}
-	}
-
-	wait(time) {
-		return new Promise((resolve) => setTimeout(resolve, time))
-	}
-
-	done(object = {}) {
-		const endTime = new Date().getTime();
-		const costTime = (endTime - this.startTime) / 1000;
-		this.log("", `🚩 ${this.name}, 结束! 🕛 ${costTime} 秒`, "");
-		switch (this.platform()) {
-			case 'Surge':
-				if (object.policy) Lodash.set(object, "headers.X-Surge-Policy", object.policy);
-				$done(object);
-				break;
-			case 'Loon':
-				if (object.policy) object.node = object.policy;
-				$done(object);
-				break;
-			case 'Stash':
-				if (object.policy) Lodash.set(object, "headers.X-Stash-Selected-Proxy", encodeURI(object.policy));
-				$done(object);
-				break;
-			case 'Egern':
-				$done(object);
-				break;
-			case 'Shadowrocket':
-			default:
-				$done(object);
-				break;
-			case 'Quantumult X':
-				if (object.policy) Lodash.set(object, "opts.policy", object.policy);
-				// 移除不可写字段
-				delete object["auto-redirect"];
-				delete object["auto-cookie"];
-				delete object["binary-mode"];
-				delete object.charset;
-				delete object.host;
-				delete object.insecure;
-				delete object.method; // 1.4.x 不可写
-				delete object.opt; // $task.fetch() 参数, 不可写
-				delete object.path; // 可写, 但会与 url 冲突
-				delete object.policy;
-				delete object["policy-descriptor"];
-				delete object.scheme;
-				delete object.sessionIndex;
-				delete object.statusCode;
-				delete object.timeout;
-				if (object.body instanceof ArrayBuffer) {
-					object.bodyBytes = object.body;
-					delete object.body;
-				} else if (ArrayBuffer.isView(object.body)) {
-					object.bodyBytes = object.body.buffer.slice(object.body.byteOffset, object.body.byteLength + object.body.byteOffset);
-					delete object.body;
-				} else if (object.body) delete object.bodyBytes;
-				$done(object);
-				break;
-			case 'Node.js':
-				process.exit(1);
-				break;
-		}
-	}
+function done(object = {}) {
+    switch ($platform) {
+        case "Surge":
+            if (object.policy) Lodash.set(object, "headers.X-Surge-Policy", object.policy);
+            log("", `🚩 执行结束! 🕛 ${(new Date().getTime() / 1000 - $script.startTime)} 秒`, "");
+            $done(object);
+            break;
+        case "Loon":
+            if (object.policy) object.node = object.policy;
+            log("", `🚩 执行结束! 🕛 ${(new Date() - $script.startTime) / 1000} 秒`, "");
+            $done(object);
+            break;
+        case "Stash":
+            if (object.policy) Lodash.set(object, "headers.X-Stash-Selected-Proxy", encodeURI(object.policy));
+            log("", `🚩 执行结束! 🕛 ${(new Date() - $script.startTime) / 1000} 秒`, "");
+            $done(object);
+            break;
+        case "Egern":
+            log("", `🚩 执行结束!`, "");
+            $done(object);
+            break;
+        case "Shadowrocket":
+        default:
+            log("", `🚩 执行结束!`, "");
+            $done(object);
+            break;
+        case "Quantumult X":
+            if (object.policy) Lodash.set(object, "opts.policy", object.policy);
+            // 移除不可写字段
+            delete object["auto-redirect"];
+            delete object["auto-cookie"];
+            delete object["binary-mode"];
+            delete object.charset;
+            delete object.host;
+            delete object.insecure;
+            delete object.method; // 1.4.x 不可写
+            delete object.opt; // $task.fetch() 参数, 不可写
+            delete object.path; // 可写, 但会与 url 冲突
+            delete object.policy;
+            delete object["policy-descriptor"];
+            delete object.scheme;
+            delete object.sessionIndex;
+            delete object.statusCode;
+            delete object.timeout;
+            if (object.body instanceof ArrayBuffer) {
+                object.bodyBytes = object.body;
+                delete object.body;
+            } else if (ArrayBuffer.isView(object.body)) {
+                object.bodyBytes = object.body.buffer.slice(object.body.byteOffset, object.body.byteLength + object.body.byteOffset);
+                delete object.body;
+            } else if (object.body) delete object.bodyBytes;
+            log("", `🚩 执行结束!`, "");
+            $done(object);
+            break;
+        case "Node.js":
+            log("", `🚩 执行结束!`, "");
+            process.exit(1);
+            break;
+    }
 }
 
-var Settings$1 = {
-	Switch: true
-};
-var Default = {
-	Settings: Settings$1
-};
-
-var Default$1 = /*#__PURE__*/Object.freeze({
-	__proto__: null,
-	Settings: Settings$1,
-	default: Default
-});
-
-var Settings = {
-	Switch: true,
-	ForceHost: "1",
-	Locales: [
-		"CHN",
-		"HKG",
-		"TWN"
-	],
-	Proxies: {
-		CHN: "DIRECT",
-		HKG: "🇭🇰香港",
-		MAC: "🇲🇴澳门",
-		TWN: "🇹🇼台湾"
-	}
-};
-var Configs = {
-	Locale: {
-		CHN: "",
-		HKG: "（僅限港.*地區）",
-		MAC: "（僅限.*澳.*地區）",
-		TWN: "（僅限.*台地區）"
-	},
-	SearchNav: {
-		CHN: {
-			name: "番剧🇨🇳",
-			total: 0,
-			pages: 0,
-			type: 17
-		},
-		HKG: {
-			name: "动画🇭🇰",
-			total: 0,
-			pages: 0,
-			type: 27
-		},
-		MAC: {
-			name: "动画🇲🇴",
-			total: 0,
-			pages: 0,
-			type: 37
-		},
-		TWN: {
-			name: "动画🇹🇼",
-			total: 0,
-			pages: 0,
-			type: 47
-		}
-	}
-};
-var BiliBili_Global = {
-	Settings: Settings,
-	Configs: Configs
-};
-
-var Global = /*#__PURE__*/Object.freeze({
-	__proto__: null,
-	Configs: Configs,
-	Settings: Settings,
-	default: BiliBili_Global
-});
-
-var Database$1 = Database = {
-	"Default": Default$1,
-	"Global": Global,
-};
-
-/**
- * Get Storage Variables
- * @link https://github.com/NanoCat-Me/ENV/blob/main/getStorage.mjs
- * @author VirgilClyne
- * @param {String} key - Persistent Store Key
- * @param {Array} names - Platform Names
- * @param {Object} database - Default Database
- * @return {Object} { Settings, Caches, Configs }
- */
-function getStorage(key, names, database) {
-    //console.log(`☑️ ${this.name}, Get Environment Variables`, "");
-    /***************** BoxJs *****************/
-    // 包装为局部变量，用完释放内存
-    // BoxJs的清空操作返回假值空字符串, 逻辑或操作符会在左侧操作数为假值时返回右侧操作数。
-    let BoxJs = $Storage.getItem(key, database);
-    //console.log(`🚧 ${this.name}, Get Environment Variables`, `BoxJs类型: ${typeof BoxJs}`, `BoxJs内容: ${JSON.stringify(BoxJs)}`, "");
-    /***************** Argument *****************/
-    let Argument = {};
-    if (typeof $argument !== "undefined") {
-        if (Boolean($argument)) {
-            //console.log(`🎉 ${this.name}, $Argument`);
-            let arg = Object.fromEntries($argument.split("&").map((item) => item.split("=").map(i => i.replace(/\"/g, ''))));
-            //console.log(JSON.stringify(arg));
-            for (let item in arg) Lodash.set(Argument, item, arg[item]);
-            //console.log(JSON.stringify(Argument));
-        }        //console.log(`✅ ${this.name}, Get Environment Variables`, `Argument类型: ${typeof Argument}`, `Argument内容: ${JSON.stringify(Argument)}`, "");
-    }    /***************** Store *****************/
-    const Store = { Settings: database?.Default?.Settings || {}, Configs: database?.Default?.Configs || {}, Caches: {} };
-    if (!Array.isArray(names)) names = [names];
-    //console.log(`🚧 ${this.name}, Get Environment Variables`, `names类型: ${typeof names}`, `names内容: ${JSON.stringify(names)}`, "");
-    for (let name of names) {
-        Store.Settings = { ...Store.Settings, ...database?.[name]?.Settings, ...Argument, ...BoxJs?.[name]?.Settings };
-        Store.Configs = { ...Store.Configs, ...database?.[name]?.Configs };
-        if (BoxJs?.[name]?.Caches && typeof BoxJs?.[name]?.Caches === "string") BoxJs[name].Caches = JSON.parse(BoxJs?.[name]?.Caches);
-        Store.Caches = { ...Store.Caches, ...BoxJs?.[name]?.Caches };
-    }    //console.log(`🚧 ${this.name}, Get Environment Variables`, `Store.Settings类型: ${typeof Store.Settings}`, `Store.Settings: ${JSON.stringify(Store.Settings)}`, "");
-    traverseObject(Store.Settings, (key, value) => {
-        //console.log(`🚧 ${this.name}, traverseObject`, `${key}: ${typeof value}`, `${key}: ${JSON.stringify(value)}`, "");
-        if (value === "true" || value === "false") value = JSON.parse(value); // 字符串转Boolean
-        else if (typeof value === "string") {
-            if (value.includes(",")) value = value.split(",").map(item => string2number(item)); // 字符串转数组转数字
-            else value = string2number(value); // 字符串转数字
-        }        return value;
-    });
-    //console.log(`✅ ${this.name}, Get Environment Variables`, `Store: ${typeof Store.Caches}`, `Store内容: ${JSON.stringify(Store)}`, "");
-    return Store;
-
-    /***************** function *****************/
-    function traverseObject(o, c) { for (var t in o) { var n = o[t]; o[t] = "object" == typeof n && null !== n ? traverseObject(n, c) : c(t, n); } return o }
-    function string2number(string) { if (string && !isNaN(string)) string = parseInt(string, 10); return string }
-}
-
-/**
- * Set Environment Variables
- * @author VirgilClyne
- * @param {Object} $ - ENV
- * @param {String} name - Persistent Store Key
- * @param {Array} platforms - Platform Names
- * @param {Object} database - Default DataBase
- * @return {Object} { Settings, Caches, Configs }
- */
-function setENV(name, platforms, database) {
-	console.log(`☑️ Set Environment Variables`, "");
-	let { Settings, Caches, Configs } = getStorage(name, platforms, database);
-	/***************** Settings *****************/
-	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
-	console.log(`✅ Set Environment Variables, Settings: ${typeof Settings}, Settings内容: ${JSON.stringify(Settings)}`, "");
-	/***************** Caches *****************/
-	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
-	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
-	//console.log(`✅ Set Environment Variables, Caches: ${typeof Caches}, Caches内容: ${JSON.stringify(Caches)}`, "");
-	Caches.ss = new Map(Caches?.ss ?? []); // Array转Map
-	Caches.ep = new Map(Caches?.ep ?? []); // Array转Map
-	/***************** Configs *****************/
-	return { Settings, Caches, Configs };
-}
+const log = (...logs) => console.log(logs.join("\n"));
 
 /*! pako 2.1.0 https://github.com/nodeca/pako @license (MIT AND Zlib) */
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -7765,7 +7369,7 @@ var inflateRaw_1 = inflateRaw;
 var ungzip_1 = ungzip;
 var constants_1 = constants$2;
 
-var pako$1 = {
+var pako = {
 	Deflate: Deflate_1,
 	deflate: deflate_1,
 	deflateRaw: deflateRaw_1,
@@ -7777,35 +7381,223 @@ var pako$1 = {
 	constants: constants_1
 };
 
-/**
- * Add gRPC Header
- * @author app2smile
- * @param {ArrayBuffer} header - unGzip Header
- * @param {ArrayBuffer} body - unGzip Body
- * @param {String} type - encoding type
- * @return {ArrayBuffer} new raw Body with Checksum Header
- */
-function addgRPCHeader({ header, body }, encoding = undefined) {
-	console.log(`☑️ Add gRPC Header`, "");
-	// Header: 1位：是否校验数据 （0或者1） + 4位:校验值（数据长度）
-	const flag = (encoding == "gzip") ? 1 : (encoding == "identity") ? 0 : (encoding == undefined) ? 0 : header?.[0] ?? 0; // encoding flag
-	const checksum = Checksum(body.length); // 校验值为未压缩情况下的数据长度, 不是压缩后的长度
-	if (encoding == "gzip") body = pako.gzip(body); // gzip压缩（有问题，别压）
-	let rawBody = new Uint8Array(header.length + body.length);
-	rawBody.set([flag], 0); // 0位：Encoding类型，当为1的时候, app会校验1-4位的校验值是否正确
-	rawBody.set(checksum, 1); // 1-4位： 校验值(4位)
-	rawBody.set(body, 5); // 5-end位：protobuf数据
-	console.log(`✅ Add gRPC Header`, "");
-	return rawBody;
+/* https://grpc.io/ */
+class GRPC {
+    static name = "gRPC";
+    static version = "1.0.3";
+    static about = () => log("", `🟧 ${this.name} v${this.version}`, "");
+
+    static decode(bytesBody = new Uint8Array([])) {
+        log(`☑️ gRPC.decode`, "");
+        // 先拆分gRPC校验头和protobuf数据体
+        const Header = bytesBody.slice(0, 5);
+        let body = bytesBody.slice(5);
+        switch (Header[0]) {
+            case 0: // unGzip
+            default:
+                break;
+            case 1: // Gzip
+                switch ($platform) {
+                    case "Surge":
+                        body = $utils.ungzip(body);
+                        break;
+                    default:
+                        body = pako.ungzip(body); // 解压缩protobuf数据体
+                        break;
+                }                Header[0] = 0; // unGzip
+                break;
+        }        log(`✅ gRPC.decode`, "");
+        return body;
+    };
+
+    static encode(body = new Uint8Array([]), encoding = "identity") {
+        log(`☑️ gRPC.encode`, "");
+        // Header: 1位：是否校验数据 （0或者1） + 4位:校验值（数据长度）
+        const Header = new Uint8Array(5);
+        const Checksum = this.#Checksum(body.length); // 校验值为未压缩情况下的数据长度, 不是压缩后的长度
+        Header.set(Checksum, 1); // 1-4位： 校验值(4位)
+        switch (encoding) {
+            case "gzip":
+                Header.set([1], 0); // 0位：Encoding类型，当为1的时候, app会校验1-4位的校验值是否正确
+                body = pako.gzip(body);
+                break;
+            case "identity":
+            case undefined:
+            default:
+                Header.set([0], 0); // 0位：Encoding类型，当为1的时候, app会校验1-4位的校验值是否正确
+                break;
+        }        const BytesBody = new Uint8Array(Header.length + body.length);
+        BytesBody.set(Header, 0); // 0-4位：gRPC校验头
+        BytesBody.set(body, 5); // 5-end位：protobuf数据
+        log(`✅ gRPC.encode`, "");
+        return BytesBody;
+    };
 
 	// 计算校验和 (B站为数据本体字节数)
-	function Checksum(num) {
-		let arr = new ArrayBuffer(4); // an Int32 takes 4 bytes
-		let view = new DataView(arr);
+	static #Checksum(num = 0) {
+		let array = new ArrayBuffer(4); // an Int32 takes 4 bytes
+		let view = new DataView(array);
 		// 首位填充计算过的新数据长度
 		view.setUint32(0, num, false); // byteOffset = 0; litteEndian = false
-		return new Uint8Array(arr);
-	}}
+		return new Uint8Array(array);
+	};
+}
+
+var Settings$1 = {
+	Switch: true
+};
+var Default = {
+	Settings: Settings$1
+};
+
+var Default$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    Settings: Settings$1,
+    default: Default
+});
+
+var Settings = {
+	Switch: true,
+	ForceHost: "1",
+	Locales: [
+		"CHN",
+		"HKG",
+		"TWN"
+	],
+	Proxies: {
+		CHN: "DIRECT",
+		HKG: "🇭🇰香港",
+		MAC: "🇲🇴澳门",
+		TWN: "🇹🇼台湾"
+	}
+};
+var Configs = {
+	Locale: {
+		CHN: "",
+		HKG: "（僅限港.*地區）",
+		MAC: "（僅限.*澳.*地區）",
+		TWN: "（僅限.*台地區）"
+	},
+	SearchNav: {
+		CHN: {
+			name: "番剧🇨🇳",
+			total: 0,
+			pages: 0,
+			type: 17
+		},
+		HKG: {
+			name: "动画🇭🇰",
+			total: 0,
+			pages: 0,
+			type: 27
+		},
+		MAC: {
+			name: "动画🇲🇴",
+			total: 0,
+			pages: 0,
+			type: 37
+		},
+		TWN: {
+			name: "动画🇹🇼",
+			total: 0,
+			pages: 0,
+			type: 47
+		}
+	}
+};
+var BiliBili_Global = {
+	Settings: Settings,
+	Configs: Configs
+};
+
+var Global = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    Configs: Configs,
+    Settings: Settings,
+    default: BiliBili_Global
+});
+
+var Database$1 = Database = {
+	"Default": Default$1,
+	"Global": Global,
+};
+
+/**
+ * Get Storage Variables
+ * @link https://github.com/NanoCat-Me/utils/blob/main/getStorage.mjs
+ * @author VirgilClyne
+ * @param {String} key - Persistent Store Key
+ * @param {Array} names - Platform Names
+ * @param {Object} database - Default Database
+ * @return {Object} { Settings, Caches, Configs }
+ */
+function getStorage(key, names, database) {
+    //log(`☑️ getStorage, Get Environment Variables`, "");
+    /***************** BoxJs *****************/
+    // 包装为局部变量，用完释放内存
+    // BoxJs的清空操作返回假值空字符串, 逻辑或操作符会在左侧操作数为假值时返回右侧操作数。
+    let BoxJs = Storage.getItem(key, database);
+    //log(`🚧 getStorage, Get Environment Variables`, `BoxJs类型: ${typeof BoxJs}`, `BoxJs内容: ${JSON.stringify(BoxJs)}`, "");
+    /***************** Argument *****************/
+    let Argument = {};
+    switch (typeof $argument) {
+        case "string":
+            let arg = Object.fromEntries($argument.split("&").map((item) => item.split("=").map(i => i.replace(/\"/g, ''))));
+            for (let item in arg) Lodash.set(Argument, item, arg[item]);
+            break;
+        case "object":
+            for (let item in $argument) Lodash.set(Argument, item, $argument[item]);
+            break;
+    }    //log(`✅ getStorage, Get Environment Variables`, `Argument类型: ${typeof Argument}`, `Argument内容: ${JSON.stringify(Argument)}`, "");
+    /***************** Store *****************/
+    const Store = { Settings: database?.Default?.Settings || {}, Configs: database?.Default?.Configs || {}, Caches: {} };
+    if (!Array.isArray(names)) names = [names];
+    //log(`🚧 getStorage, Get Environment Variables`, `names类型: ${typeof names}`, `names内容: ${JSON.stringify(names)}`, "");
+    for (let name of names) {
+        Store.Settings = { ...Store.Settings, ...database?.[name]?.Settings, ...Argument, ...BoxJs?.[name]?.Settings };
+        Store.Configs = { ...Store.Configs, ...database?.[name]?.Configs };
+        if (BoxJs?.[name]?.Caches && typeof BoxJs?.[name]?.Caches === "string") BoxJs[name].Caches = JSON.parse(BoxJs?.[name]?.Caches);
+        Store.Caches = { ...Store.Caches, ...BoxJs?.[name]?.Caches };
+    }    //log(`🚧 getStorage, Get Environment Variables`, `Store.Settings类型: ${typeof Store.Settings}`, `Store.Settings: ${JSON.stringify(Store.Settings)}`, "");
+    traverseObject(Store.Settings, (key, value) => {
+        //log(`🚧 getStorage, traverseObject`, `${key}: ${typeof value}`, `${key}: ${JSON.stringify(value)}`, "");
+        if (value === "true" || value === "false") value = JSON.parse(value); // 字符串转Boolean
+        else if (typeof value === "string") {
+            if (value.includes(",")) value = value.split(",").map(item => string2number(item)); // 字符串转数组转数字
+            else value = string2number(value); // 字符串转数字
+        }        return value;
+    });
+    //log(`✅ getStorage, Get Environment Variables`, `Store: ${typeof Store.Caches}`, `Store内容: ${JSON.stringify(Store)}`, "");
+    return Store;
+    /***************** function *****************/
+    function traverseObject(o, c) { for (var t in o) { var n = o[t]; o[t] = "object" == typeof n && null !== n ? traverseObject(n, c) : c(t, n); } return o }
+    function string2number(string) { if (string && !isNaN(string)) string = parseInt(string, 10); return string }
+}
+
+/**
+ * Set Environment Variables
+ * @author VirgilClyne
+ * @param {Object} $ - ENV
+ * @param {String} name - Persistent Store Key
+ * @param {Array} platforms - Platform Names
+ * @param {Object} database - Default DataBase
+ * @return {Object} { Settings, Caches, Configs }
+ */
+function setENV(name, platforms, database) {
+	log(`☑️ Set Environment Variables`, "");
+	let { Settings, Caches, Configs } = getStorage(name, platforms, database);
+	/***************** Settings *****************/
+	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
+	log(`✅ Set Environment Variables, Settings: ${typeof Settings}, Settings内容: ${JSON.stringify(Settings)}`, "");
+	/***************** Caches *****************/
+	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
+	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
+	//log(`✅ Set Environment Variables, Caches: ${typeof Caches}, Caches内容: ${JSON.stringify(Caches)}`, "");
+	Caches.ss = new Map(Caches?.ss ?? []); // Array转Map
+	Caches.ep = new Map(Caches?.ep ?? []); // Array转Map
+	/***************** Configs *****************/
+	return { Settings, Caches, Configs };
+}
 
 /**
  * Get the type of a JSON value.
@@ -44103,25 +43895,23 @@ new ServiceType("bilibili.polymer.app.search.v1.Search", [
     { name: "SearchComic", options: {}, I: SearchComicRequest, O: SearchComicResponse }
 ]);
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.8.0(1009) request.beta");
-
+log("v0.8.2(1011)");
 // 构造回复数据
 let $response = undefined;
-
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);
-$.log(`⚠ url: ${url.toJSON()}`, "");
+log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
 const METHOD = $request.method, HOST = url.hostname, PATH = url.pathname, PATHs = url.pathname.split("/").filter(Boolean);
-$.log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
+log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
-$.log(`⚠ FORMAT: ${FORMAT}`, "");
+log(`⚠ FORMAT: ${FORMAT}`, "");
 !(async () => {
 	// 读取设置
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", Database$1);
-	$.log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
+	log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
 		case true:
 		default:
@@ -44158,7 +43948,7 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 						case "application/vnd.apple.mpegurl":
 						case "audio/mpegurl":
 							//body = M3U8.parse($request.body);
-							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
+							//log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = M3U8.stringify(body);
 							break;
 						case "text/xml":
@@ -44168,19 +43958,19 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 						case "application/plist":
 						case "application/x-plist":
 							//body = XML.parse($request.body);
-							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
+							//log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = XML.stringify(body);
 							break;
 						case "text/vtt":
 						case "application/vtt":
 							//body = VTT.parse($request.body);
-							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
+							//log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = VTT.stringify(body);
 							break;
 						case "text/json":
 						case "application/json":
 							//body = JSON.parse($request.body ?? "{}");
-							//$.log(`🚧 body: ${JSON.stringify(body)}`, "");
+							//log(`🚧 body: ${JSON.stringify(body)}`, "");
 							//$request.body = JSON.stringify(body);
 							break;
 						case "application/protobuf":
@@ -44189,9 +43979,9 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 						case "application/grpc":
 						case "application/grpc+proto":
 						case "application/octet-stream":
-							//$.log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
-							let rawBody = $.isQuanX() ? new Uint8Array($request.bodyBytes ?? []) : $request.body ?? new Uint8Array();
-							//$.log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
+							//log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
+							let rawBody = ($platform === "Quantumult X") ? new Uint8Array($request.bodyBytes ?? []) : $request.body ?? new Uint8Array();
+							//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 							switch (FORMAT) {
 								case "application/protobuf":
 								case "application/x-protobuf":
@@ -44199,20 +43989,9 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 									break;
 								case "application/grpc":
 								case "application/grpc+proto":
-									/******************  initialization start  *******************/
-									/******************  initialization finish  *******************/
-									// 先拆分B站gRPC校验头和protobuf数据体
-									let header = rawBody.slice(0, 5);
-									body = rawBody.slice(5);
-									// 处理request压缩protobuf数据体
-									switch (header?.[0]) {
-										case 0: // unGzip
-											break;
-										case 1: // Gzip
-											body = pako$1.ungzip(body);
-											header[0] = 0; // unGzip
-											break;
-									}									// 解析链接并处理protobuf数据
+									rawBody = GRPC.decode(rawBody);
+									// 解析链接并处理protobuf数据
+									// 主机判断
 									switch (HOST) {
 										case "grpc.biliapi.net": // HTTP/2
 										case "app.bilibili.com": // HTTP/1.1
@@ -44220,23 +43999,12 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 												case "bilibili.app.viewunite.v1.View":
 													switch(PATHs?.[1]) {
 														case "View": // 播放页
-															let data = ViewReq.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
-															if (UF) {
-																UF = UF.map(uf => {
-																	//uf.no; // 22
-																	//uf.wireType; // WireType.Varint
-																	// use the binary reader to decode the raw data:
-																	let reader = new BinaryReader(uf.data);
-																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${JSON.stringify(reader)}, addedNumber: ${addedNumber}`, "");
-																});
-															}															body = ViewReq.toBinary(data);
+															body = ViewReq.fromBinary(rawBody);
+															log(`🚧 body: ${JSON.stringify(body)}`, "");
+															rawBody = ViewReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
-															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
@@ -44244,59 +44012,37 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 														}														break;
 												case "bilibili.app.playerunite.v1.Player":
 													switch (PATHs?.[1]) {
-														case "PlayViewUnite": { // 播放地址
-															let data = PlayViewUniteReq.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
-															if (UF) {
-																UF = UF.map(uf => {
-																	//uf.no; // 22
-																	//uf.wireType; // WireType.Varint
-																	// use the binary reader to decode the raw data:
-																	let reader = new BinaryReader(uf.data);
-																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
-																});
-															}															data.vod.forceHost = Settings?.ForceHost ?? 1;
-															body = PlayViewUniteReq.toBinary(data);
+														case "PlayViewUnite": // 播放地址
+															body = PlayViewUniteReq.fromBinary(rawBody);
+															log(`🚧 body: ${JSON.stringify(body)}`, "");
+															body.vod.forceHost = Settings?.ForceHost ?? 1;
+															rawBody = PlayViewUniteReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = parseInt(data?.extraContent?.season_id, 10) || infoGroup.seasonId;
-															infoGroup.epId = parseInt(data?.extraContent.ep_id, 10) || infoGroup.epId;
+															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
-														}													}													break;
+													}													break;
 												case "bilibili.app.playurl.v1.PlayURL": // 普通视频
 													switch (PATHs?.[1]) {
 																											}													break;
 												case "bilibili.pgc.gateway.player.v2.PlayURL": // 番剧
 													switch (PATHs?.[1]) {
-														case "PlayView": { // 播放地址
-															let data = PlayViewReq.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
-															if (UF) {
-																UF = UF.map(uf => {
-																	//uf.no; // 22
-																	//uf.wireType; // WireType.Varint
-																	// use the binary reader to decode the raw data:
-																	let reader = new BinaryReader(uf.data);
-																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, reader: ${reader}, addedNumber: ${addedNumber}`, "");
-																});
-															}															data.forceHost = Settings?.ForceHost ?? 1;
-															body = PlayViewReq.toBinary(data);
+														case "PlayView": // 播放地址
+															body = PlayViewReq.fromBinary(rawBody);
+															log(`🚧 body: ${JSON.stringify(body)}`, "");
+															body.forceHost = Settings?.ForceHost ?? 1;
+															rawBody = PlayViewReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = data?.seasonId;
-															infoGroup.epId = data?.epId;
+															infoGroup.seasonId = body?.seasonId;
+															infoGroup.epId = body?.epId;
 															infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
-														}													}													break;
+													}													break;
 												case "bilibili.app.nativeact.v1.NativeAct": // 活动-节目、动画、韩综（港澳台）
 													switch (PATHs?.[1]) {
 																											}													break;
@@ -44304,51 +44050,26 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 													switch (PATHs?.[1]) {
 																											}													break;
 												case "bilibili.polymer.app.search.v1.Search": // 搜索结果
-													/******************  initialization start  *******************/
-													/******************  initialization finish  ******************/
 													switch (PATHs?.[1]) {
-														case "SearchAll": { // 全部结果（综合）
-															let data = SearchAllRequest.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
-															if (UF) {
-																UF = UF.map(uf => {
-																	//uf.no; // 22
-																	//uf.wireType; // WireType.Varint
-																	// use the binary reader to decode the raw data:
-																	let reader = new BinaryReader(uf.data);
-																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
-																});
-															}															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
-															data.keyword = infoGroup.keyword;
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															body = SearchAllRequest.toBinary(data);
+														case "SearchAll": // 全部结果（综合）
+															body = SearchAllRequest.fromBinary(rawBody);
+															log(`🚧 body: ${JSON.stringify(body)}`, "");
+															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(body?.keyword));
+															body.keyword = infoGroup.keyword;
+															log(`🚧 body: ${JSON.stringify(body)}`, "");
+															rawBody = SearchAllRequest.toBinary(body);
 															break;
-														}														case "SearchByType": { // 分类结果（番剧、用户、影视、专栏）
-															let data = SearchByTypeRequest.fromBinary(body);
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															let UF = UnknownFieldHandler.list(data);
-															//$.log(`🚧 UF: ${JSON.stringify(UF)}`, "");
-															if (UF) {
-																UF = UF.map(uf => {
-																	//uf.no; // 22
-																	//uf.wireType; // WireType.Varint
-																	// use the binary reader to decode the raw data:
-																	let reader = new BinaryReader(uf.data);
-																	let addedNumber = reader.int32(); // 7777
-																	$.log(`🚧 no: ${uf.no}, wireType: ${uf.wireType}, addedNumber: ${addedNumber}`, "");
-																});
-															}															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(data?.keyword));
-															data.keyword = infoGroup.keyword;
-															$.log(`🚧 data: ${JSON.stringify(data)}`, "");
-															body = SearchByTypeRequest.toBinary(data);
+														case "SearchByType": { // 分类结果（番剧、用户、影视、专栏）
+															body = SearchByTypeRequest.fromBinary(rawBody);
+															log(`🚧 body: ${JSON.stringify(body)}`, "");
+															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(body?.keyword));
+															body.keyword = infoGroup.keyword;
+															log(`🚧 body: ${JSON.stringify(body)}`, "");
+															rawBody = SearchByTypeRequest.toBinary(body);
 															break;
 														}													}													break;
 											}											break;
-									}									// protobuf部分处理完后，重新计算并添加B站gRPC校验头
-									rawBody = addgRPCHeader({ header, body }); // gzip压缩有问题，别用
+									}									rawBody = GRPC.encode(rawBody);
 									break;
 							}							// 写入二进制数据
 							$request.body = rawBody;
@@ -44477,8 +44198,8 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 			}			//url.searchParams.set("type", infoGroup.type);
 			$request.url = url.toString();
-			$.log(`🚧 调试信息`, `$request.url: ${$request.url}`, "");
-			$.log(`🚧 ${$.name}，信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
+			log(`🚧 调试信息`, `$request.url: ${$request.url}`, "");
+			log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			// 请求策略
 			switch (PATH) {
 				case "/bilibili.app.viewunite.v1.View/View": //
@@ -44492,9 +44213,9 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							$.log(`⚠ 不是 PGC, 跳过`, "");
+							log(`⚠ 不是 PGC, 跳过`, "");
 							break;
-					}					switch ($.platform()) { // 直通模式，不处理，否则无法进http-response
+					}					switch ($platform) { // 直通模式，不处理，否则无法进http-response
 						case "Shadowrocket":
 						case "Quantumult X":
 							delete $request.policy;
@@ -44520,37 +44241,41 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							$.log(`⚠ 不是 PGC, 跳过`, "");
+							log(`⚠ 不是 PGC, 跳过`, "");
 							break;
 					}					break;
 			}			if (!$response) { // 无（构造）回复数据
-				switch ($.platform()) { // 已有指定策略的请求，根据策略fetch
+				switch ($platform) { // 已有指定策略的请求，根据策略fetch
 					case "Shadowrocket":
 					case "Quantumult X":
-						if ($request.policy) $response = await $.fetch($request);
+						if ($request.policy) $response = await fetch($request);
 						break;
 				}			}			break;
 		case false:
 			break;
 	}})()
-	.catch((e) => $.logErr(e))
+	.catch((e) => logError(e))
 	.finally(() => {
 		switch ($response) {
 			default: // 有构造回复数据，返回构造的回复数据
-				//$.log(`🚧 finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
+				//log(`🚧 finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
 				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
-				if ($.isQuanX()) {
-					if (!$response.status) $response.status = "HTTP/1.1 200 OK";
-					delete $response.headers?.["Content-Length"];
-					delete $response.headers?.["content-length"];
-					delete $response.headers?.["Transfer-Encoding"];
-					$.done($response);
-				} else $.done({ response: $response });
-				break;
+				switch ($platform) {
+					default:
+						done({ response: $response });
+						break;
+					case "Quantumult X":
+						if (!$response.status) $response.status = "HTTP/1.1 200 OK";
+						delete $response.headers?.["Content-Length"];
+						delete $response.headers?.["content-length"];
+						delete $response.headers?.["Transfer-Encoding"];
+						done($response);
+						break;
+				}				break;
 			case undefined: // 无构造回复数据，发送修改的请求数据
-				//$.log(`🚧 finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
-				$.done($request);
+				//log(`🚧 finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
+				done($request);
 				break;
 		}	});
 
@@ -44562,10 +44287,10 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    $.log(`☑️ Determine Response Availability`, "");
-	$.log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+    log(`☑️ Determine Response Availability`, "");
+	log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
-	$.log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
+	log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
@@ -44641,7 +44366,7 @@ function isResponseAvailability(response = {}) {
 		default:
 			isAvailable = false;
 			break;
-	}	$.log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	}	log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
     return isAvailable;
 }
 /**
@@ -44654,12 +44379,12 @@ function isResponseAvailability(response = {}) {
  * @return {Promise<request>} modified request
  */
 async function availableFetch(request = {}, proxies = {}, locales = [], availableLocales = []) {
-	$.log(`☑️ availableFetch`, `availableLocales: ${availableLocales}`, "");
+	log(`☑️ availableFetch`, `availableLocales: ${availableLocales}`, "");
 	availableLocales = availableLocales.filter(locale => locales.includes(locale));
 	let locale = "";
 	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
-	$.log(`✅ availableFetch`, `locale: ${locale}`, "");
+	log(`✅ availableFetch`, `locale: ${locale}`, "");
 	return request;
 }
 /**
@@ -44671,19 +44396,19 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
-	$.log(`☑️ mutiFetch`, `locales: ${locales}`, "");
+	log(`☑️ mutiFetch`, `locales: ${locales}`, "");
 	let responses = {};
 	await Promise.allSettled(locales.map(async locale => {
 		request["policy"] = proxies[locale];
-		if ($.isQuanX()) request.body = request.bodyBytes;
-		responses[locale] = await $.fetch(request);
+		if ($platform === "Quantumult X") request.body = request.bodyBytes;
+		responses[locale] = await fetch(request);
 	}));
 	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; }	let availableLocales = Object.keys(responses);
-	$.log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
+	log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
 	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
 	let response = responses[locale];
-	$.log(`✅ mutiFetch`, `locale: ${locale}`, "");
+	log(`✅ mutiFetch`, `locale: ${locale}`, "");
 	return { request, response };
 }
 
@@ -44695,9 +44420,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	$.log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
+	log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
 	let keywords = keyword?.split(delimiter);
-	$.log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
+	log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -44783,6 +44508,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keywords.pop();
 			keyword = keywords.join(delimiter);
 			break;
-	}	$.log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
+	}	log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
 	return { keyword, locale };
 }
