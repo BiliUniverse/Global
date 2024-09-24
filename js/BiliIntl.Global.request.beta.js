@@ -1,4 +1,5 @@
 /* README: https://github.com/BiliUniverse */
+console.log('📺 BiliIntl: 🌐 Global β Request')
 /* https://www.lodashjs.com */
 class Lodash {
 	static name = "Lodash";

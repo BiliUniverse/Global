@@ -7,9 +7,10 @@ import setENV from "./function/setENV.mjs";
 import pako from "./pako/dist/pako.esm.mjs";
 import addgRPCHeader from "./function/addgRPCHeader.mjs";
 
-import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
+import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "@protobuf-ts/runtime";
+import { ViewReply } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.5.0(1006) repsonse");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.0(1007) repsonse");
 
 /***************** Processing *****************/
 // 解构URL
@@ -188,92 +189,10 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							switch (HOST) {
 								case "grpc.biliapi.net": // HTTP/2
 								case "app.bilibili.com": // HTTP/1.1
-									/******************  initialization start  *******************/
-									// protobuf/bilibili/app/viewunite/common.proto
-									// @generated message type with reflection information, may provide speed optimized methods
-									class Owner$Type extends MessageType {
-										constructor() {
-											super("bilibili.app.viewunite.common.Owner", [
-												{ no: 2, name: "url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 3, name: "title", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 4, name: "fans", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 5, name: "arc_count", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 6, name: "attention", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-												{ no: 7, name: "attention_relation", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-												{ no: 8, name: "pub_location", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 10, name: "title_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 11, name: "face", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 12, name: "mid", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-												{ no: 15, name: "fans_num", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-												{ no: 16, name: "assists", kind: "scalar", repeat: 1 /*RepeatType.PACKED*/, T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ }
-											]);
-										}
-									}
-									/**
-									 * @generated MessageType for protobuf message bilibili.app.viewunite.common.Owner
-									 */
-									const Owner = new Owner$Type();
-									/******************  initialization finish  *******************/
 									switch (PATHs?.[0]) {
 										case "bilibili.app.viewunite.v1.View":
-											/******************  initialization start  *******************/
-											// protobuf/bilibili/app/viewunite/v1/viewunite.proto
-											// @generated message type with reflection information, may provide speed optimized methods
-											class Arc$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.Arc", [
-														{ no: 1, name: "aid", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 2, name: "cid", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 3, name: "duration", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 5, name: "bvid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-														{ no: 6, name: "copyright", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-														{ no: 7, name: "right", kind: "message", T: () => Rights },
-														{ no: 8, name: "cover", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-														{ no: 9, name: "type_id", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 10, name: "title", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.Arc
-											 */
-											const Arc = new Arc$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
-											class Rights$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.Rights", [
-														{ no: 1, name: "only_vip_download", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-														{ no: 2, name: "no_reprint", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-														{ no: 3, name: "download", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.Rights
-											 */
-											const Rights = new Rights$Type();
-											/******************  initialization finish  *******************/
 											switch (PATHs?.[1]) {
 												case "View": // 播放页
-													/******************  initialization start  *******************/
-													// protobuf/bilibili/app/viewunite/v1/viewunite.proto
-													// @generated message type with reflection information, may provide speed optimized methods
-													class ViewReply$Type extends MessageType {
-														constructor() {
-															super("bilibili.app.viewunite.v1.ViewReply", [
-																{ no: 2, name: "arc", kind: "message", T: () => Arc },
-																{ no: 4, name: "owner", kind: "message", T: () => Owner },
-																//{ no: 5, name: "tab", kind: "message", T: () => Tab },
-																//{ no: 6, name: "supplement", kind: "message", T: () => Any },
-																{ no: 10, name: "report", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
-															]);
-														}
-													}
-													/**
-													 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.ViewReply
-													 */
-													const ViewReply = new ViewReply$Type();
-													/******************  initialization finish  *******************/
 													let data = ViewReply.fromBinary(body);
 													$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 													body = ViewReply.toBinary(data);

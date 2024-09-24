@@ -7,10 +7,10 @@ import setENV from "./function/setENV.mjs";
 import pako from "./pako/dist/pako.esm.mjs";
 import addgRPCHeader from "./function/addgRPCHeader.mjs";
 
-import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "../node_modules/@protobuf-ts/runtime/build/es2015/index.js";
-// import { Any } from "./protobuf/google/protobuf/any.js";
+import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "@protobuf-ts/runtime";
+import { ViewReply } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
 
-const $ = new ENV("📺 BiliBili: 🌐 Global v0.5.0(1006) repsonse.beta");
+const $ = new ENV("📺 BiliBili: 🌐 Global v0.6.0(1007) repsonse.beta");
 
 /***************** Processing *****************/
 // 解构URL
@@ -198,205 +198,10 @@ $.log(`⚠ FORMAT: ${FORMAT}`, "");
 							switch (HOST) {
 								case "grpc.biliapi.net": // HTTP/2
 								case "app.bilibili.com": // HTTP/1.1
-									/******************  initialization start  *******************/
-									// protobuf/google/protobuf/any.proto
-									// @generated message type with reflection information, may provide speed optimized methods
-									class Any$Type extends MessageType {
-										constructor() {
-											super("google.protobuf.Any", [
-												{ no: 1, name: "type_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 2, name: "value", kind: "scalar", T: 12 /*ScalarType.BYTES*/ }
-											]);
-										}
-										/**
-										 * Pack the message into a new `Any`.
-										 *
-										 * Uses 'type.googleapis.com/full.type.name' as the type URL.
-										 */
-										pack(message, type) {
-											return {
-												typeUrl: this.typeNameToUrl(type.typeName), value: type.toBinary(message),
-											};
-										}
-										/**
-										 * Unpack the message from the `Any`.
-										 */
-										unpack(any, type, options) {
-											if (!this.contains(any, type))
-												throw new Error("Cannot unpack google.protobuf.Any with typeUrl '" + any.typeUrl + "' as " + type.typeName + ".");
-											return type.fromBinary(any.value, options);
-										}
-										/**
-										 * Does the given `Any` contain a packed message of the given type?
-										 */
-										contains(any, type) {
-											if (!any.typeUrl.length)
-												return false;
-											let wants = typeof type == "string" ? type : type.typeName;
-											let has = this.typeUrlToName(any.typeUrl);
-											return wants === has;
-										}
-										/**
-										 * Convert the message to canonical JSON value.
-										 *
-										 * You have to provide the `typeRegistry` option so that the
-										 * packed message can be converted to JSON.
-										 *
-										 * The `typeRegistry` option is also required to read
-										 * `google.protobuf.Any` from JSON format.
-										 */
-										internalJsonWrite(any, options) {
-											if (any.typeUrl === "")
-												return {};
-											let typeName = this.typeUrlToName(any.typeUrl);
-											let opt = jsonWriteOptions(options);
-											let type = opt.typeRegistry?.find(t => t.typeName === typeName);
-											if (!type)
-												throw new globalThis.Error("Unable to convert google.protobuf.Any with typeUrl '" + any.typeUrl + "' to JSON. The specified type " + typeName + " is not available in the type registry.");
-											let value = type.fromBinary(any.value, { readUnknownField: false });
-											let json = type.internalJsonWrite(value, opt);
-											if (typeName.startsWith("google.protobuf.") || !isJsonObject(json))
-												json = { value: json };
-											json["@type"] = any.typeUrl;
-											return json;
-										}
-										internalJsonRead(json, options, target) {
-											if (!isJsonObject(json))
-												throw new globalThis.Error("Unable to parse google.protobuf.Any from JSON " + typeofJsonValue(json) + ".");
-											if (typeof json["@type"] != "string" || json["@type"] == "")
-												return this.create();
-											let typeName = this.typeUrlToName(json["@type"]);
-											let type = options?.typeRegistry?.find(t => t.typeName == typeName);
-											if (!type)
-												throw new globalThis.Error("Unable to parse google.protobuf.Any from JSON. The specified type " + typeName + " is not available in the type registry.");
-											let value;
-											if (typeName.startsWith("google.protobuf.") && json.hasOwnProperty("value"))
-												value = type.fromJson(json["value"], options);
-											else {
-												let copy = Object.assign({}, json);
-												delete copy["@type"];
-												value = type.fromJson(copy, options);
-											}
-											if (target === undefined)
-												target = this.create();
-											target.typeUrl = json["@type"];
-											target.value = type.toBinary(value);
-											return target;
-										}
-										typeNameToUrl(name) {
-											if (!name.length)
-												throw new Error("invalid type name: " + name);
-											return "type.googleapis.com/" + name;
-										}
-										typeUrlToName(url) {
-											if (!url.length)
-												throw new Error("invalid type url: " + url);
-											let slash = url.lastIndexOf("/");
-											let name = slash > 0 ? url.substring(slash + 1) : url;
-											if (!name.length)
-												throw new Error("invalid type url: " + url);
-											return name;
-										}
-									}
-									/**
-									 * @generated MessageType for protobuf message google.protobuf.Any
-									 */
-									const Any = new Any$Type();
-									// protobuf/bilibili/app/viewunite/common.proto
-									// @generated message type with reflection information, may provide speed optimized methods
-									class Owner$Type extends MessageType {
-										constructor() {
-											super("bilibili.app.viewunite.common.Owner", [
-												{ no: 2, name: "url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 3, name: "title", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 4, name: "fans", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 5, name: "arc_count", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 6, name: "attention", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-												{ no: 7, name: "attention_relation", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-												{ no: 8, name: "pub_location", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 10, name: "title_url", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 11, name: "face", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-												{ no: 12, name: "mid", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-												{ no: 15, name: "fans_num", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-												{ no: 16, name: "assists", kind: "scalar", repeat: 1 /*RepeatType.PACKED*/, T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ }
-											]);
-										}
-									}
-									/**
-									 * @generated MessageType for protobuf message bilibili.app.viewunite.common.Owner
-									 */
-									const Owner = new Owner$Type();
-									/******************  initialization finish  *******************/
 									switch (PATHs?.[0]) {
 										case "bilibili.app.viewunite.v1.View":
-											/******************  initialization start  *******************/
-											// protobuf/bilibili/app/viewunite/v1/viewunite.proto
-											// @generated message type with reflection information, may provide speed optimized methods
-											class Arc$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.Arc", [
-														{ no: 1, name: "aid", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 2, name: "cid", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 3, name: "duration", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 5, name: "bvid", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-														{ no: 6, name: "copyright", kind: "scalar", T: 5 /*ScalarType.INT32*/ },
-														{ no: 7, name: "right", kind: "message", T: () => Rights },
-														{ no: 8, name: "cover", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-														{ no: 9, name: "type_id", kind: "scalar", T: 3 /*ScalarType.INT64*/, L: 2 /*LongType.NUMBER*/ },
-														{ no: 10, name: "title", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.Arc
-											 */
-											const Arc = new Arc$Type();
-											// @generated message type with reflection information, may provide speed optimized methods
-											class Rights$Type extends MessageType {
-												constructor() {
-													super("bilibili.app.viewunite.v1.Rights", [
-														{ no: 1, name: "only_vip_download", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-														{ no: 2, name: "no_reprint", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
-														{ no: 3, name: "download", kind: "scalar", T: 8 /*ScalarType.BOOL*/ }
-													]);
-												}
-											}
-											/**
-											 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.Rights
-											 */
-											const Rights = new Rights$Type();
-											/******************  initialization finish  *******************/
 											switch (PATHs?.[1]) {
 												case "View": // 播放页
-													/******************  initialization start  *******************/
-													// protobuf/bilibili/app/viewunite/v1/viewunite.proto
-													// @generated message type with reflection information, may provide speed optimized methods
-													class ViewReply$Type extends MessageType {
-														constructor() {
-															super("bilibili.app.viewunite.v1.ViewReply", [
-																{ no: 2, name: "arc", kind: "message", T: () => Arc },
-																{ no: 4, name: "owner", kind: "message", T: () => Owner },
-																//{ no: 5, name: "tab", kind: "message", T: () => Tab },
-																{ no: 6, name: "supplement", kind: "message", T: () => Any },
-																{ no: 10, name: "report", kind: "map", K: 9 /*ScalarType.STRING*/, V: { kind: "scalar", T: 9 /*ScalarType.STRING*/ } }
-															]);
-														}
-													}
-													/**
-													 * @generated MessageType for protobuf message bilibili.app.viewunite.v1.ViewReply
-													 */
-													const ViewReply = new ViewReply$Type();
-													// protobuf/bilibili/app/viewunite/pgcanymodel.proto
-													// protobuf/bilibili/app/viewunite/ugcanymodel.proto
-													/*
-													Any.toJson(any, {
-														typeRegistry: [
-															bilibili.app.viewunite.pgcanymodel.ViewPgcAny,
-															bilibili.app.viewunite.ugcanymodel.ViewUgcAny
-														]
-													});
-													*/
-													/******************  initialization finish  *******************/
 													let data = ViewReply.fromBinary(body);
 													$.log(`🚧 data: ${JSON.stringify(data)}`, "");
 													let UF = UnknownFieldHandler.list(data);

@@ -1,7 +1,4 @@
 {
-	"name": "biliuniverse-global",
-	"version": "1.0.0",
-	"description": "BiliUniverse: Global",
 	"type": "module",
 	"repository": {
 		"type": "git",
@@ -21,10 +18,18 @@
 	"author": "VirgilClyne",
 	"license": "Apache-2.0",
 	"devDependencies": {
-		"@protobuf-ts/runtime": "^2.9.3",
+		"@protobuf-ts/plugin": "^2.9.3",
 		"@rollup/plugin-commonjs": "^25.0.7",
 		"@rollup/plugin-json": "^6.1.0",
+		"@rollup/plugin-node-resolve": "^15.2.3",
 		"@rollup/plugin-terser": "^0.4.4",
-		"rollup": "^4.9.6"
+		"rollup": "^4.9.6",
+		"typescript": "^5.5.4"
+	},
+	"dependencies": {
+		"@protobuf-ts/runtime-rpc": "^2.9.3",
+		"@protobuf-ts/runtime": "^2.9.3",
+		"flatbuffers": "^24.3.25",
+		"pako": "^2.1.0"
 	}
 }
