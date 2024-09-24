@@ -7,12 +7,6 @@
 [submodule "src/protobuf"]
 	path = src/protobuf
 	url = https://github.com/BiliUniverse/protobuf.git
-[submodule "src/ENV"]
-	path = src/ENV
-	url = https://github.com/NanoCat-Me/ENV.git
-[submodule "src/pako"]
-	path = src/pako
-	url = https://github.com/nodeca/pako.git
 [submodule "src/utils"]
 	path = src/utils
 	url = https://github.com/NanoCat-Me/utils.git
