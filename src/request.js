@@ -28,15 +28,15 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 	log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
 		case true:
-		default:
+		default: {
 			// 创建空数据
 			let body = { code: 0, message: "0", data: {} };
 			// 信息组
-			let infoGroup = {
+			const infoGroup = {
 				seasonTitle: url.searchParams.get("season_title"),
-				seasonId: parseInt(url.searchParams.get("season_id"), 10) || undefined,
-				epId: parseInt(url.searchParams.get("ep_id"), 10) || undefined,
-				mId: parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
+				seasonId: Number.parseInt(url.searchParams.get("season_id"), 10) || undefined,
+				epId: Number.parseInt(url.searchParams.get("ep_id"), 10) || undefined,
+				mId: Number.parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
 				evaluate: undefined,
 				keyword: url.searchParams.get("keyword"),
 				locale: url.searchParams.get("locale"),
@@ -48,6 +48,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "POST":
 				case "PUT":
 				case "PATCH":
+				// biome-ignore lint/suspicious/noFallthroughSwitchClause: <explanation>
 				case "DELETE":
 					// 格式判断
 					switch (FORMAT) {
@@ -80,7 +81,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 						case "application/vnd.google.protobuf":
 						case "application/grpc":
 						case "application/grpc+proto":
-						case "application/octet-stream":
+						case "application/octet-stream": {
 							//log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
 							let rawBody = $platform === "Quantumult X" ? new Uint8Array($request.bodyBytes ?? []) : ($request.body ?? new Uint8Array());
 							//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
@@ -91,7 +92,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 									break;
 								case "application/grpc":
 								case "application/grpc+proto":
-									rawBody = GRPC.decode(rawBody);
+									rawBody = gRPC.decode(rawBody);
 									// 解析链接并处理protobuf数据
 									// 主机判断
 									switch (HOST) {
@@ -104,8 +105,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 															body = ViewReq.fromBinary(rawBody);
 															rawBody = ViewReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
-															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
+															infoGroup.seasonId = Number.parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = Number.parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
@@ -119,8 +120,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 															body.vod.forceHost = Settings?.ForceHost ?? 1;
 															rawBody = PlayViewUniteReq.toBinary(body);
 															// 判断线路
-															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
-															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
+															infoGroup.seasonId = Number.parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
+															infoGroup.epId = Number.parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
@@ -185,12 +186,13 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											}
 											break;
 									}
-									rawBody = GRPC.encode(rawBody);
+									rawBody = gRPC.encode(rawBody);
 									break;
 							}
 							// 写入二进制数据
 							$request.body = rawBody;
 							break;
+						}
 					}
 				//break; // 不中断，继续处理URL
 				case "GET":
@@ -203,14 +205,15 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							switch (PATHs?.[0]) {
 								case "bangumi": // 番剧-web
 									switch (PATHs?.[1]) {
-										case "play": // 番剧-播放页-web
+										case "play": { // 番剧-播放页-web
 											const URLRegex = /ss(?<seasonId>[0-9]+)|ep(?<epId>[0-9]+)/;
 											({ seasonId: infoGroup.seasonId, epId: infoGroup.epId } = PATHs?.[2].match(URLRegex)?.groups);
-											infoGroup.seasonId = parseInt(infoGroup.seasonId, 10) || infoGroup.seasonId;
-											infoGroup.epId = parseInt(infoGroup.epId, 10) || infoGroup.epId;
+											infoGroup.seasonId = Number.parseInt(infoGroup.seasonId, 10) || infoGroup.seasonId;
+											infoGroup.epId = Number.parseInt(infoGroup.epId, 10) || infoGroup.epId;
 											if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 											else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 											break;
+										}
 									}
 									break;
 							}
@@ -338,7 +341,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							log(`⚠ 不是 PGC, 跳过`, "");
+							log("⚠ 不是 PGC, 跳过", "");
 							break;
 					}
 					switch (
@@ -370,7 +373,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							log(`⚠ 不是 PGC, 跳过`, "");
+							log("⚠ 不是 PGC, 跳过", "");
 							break;
 					}
 					break;
@@ -387,6 +390,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				}
 			}
 			break;
+		}
 		case false:
 			break;
 	}
@@ -424,9 +428,9 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-	log(`☑️ Determine Response Availability`, "");
+	log("☑️ Determine Response Availability", "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
-	log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
+	log("🚧 Determine Response Availability", `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
@@ -438,7 +442,7 @@ function isResponseAvailability(response = {}) {
 							isAvailable = true;
 							break;
 						case undefined:
-							if (parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 1200) isAvailable = false;
+							if (Number.parseInt(response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) < 1200) isAvailable = false;
 							else isAvailable = true;
 							break;
 						case "-404":
@@ -451,8 +455,8 @@ function isResponseAvailability(response = {}) {
 				case "application/json":
 					switch (response?.headers?.["bili-status-code"]) {
 						case "0":
-						case undefined:
-							let data = JSON.parse(response?.body).data;
+						case undefined: {
+							const data = JSON.parse(response?.body).data;
 							switch (response?.headers?.idc) {
 								case "sgp001":
 								case "sgp002":
@@ -490,6 +494,7 @@ function isResponseAvailability(response = {}) {
 									break;
 							}
 							break;
+						}
 						case "-404": // 啥都木有
 						case "-10403":
 						case "10015001": // 版权地区受限
@@ -510,7 +515,7 @@ function isResponseAvailability(response = {}) {
 			isAvailable = false;
 			break;
 	}
-	log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
+	log("✅ Determine Response Availability", `isAvailable:${isAvailable}`, "");
 	return isAvailable;
 }
 
@@ -524,12 +529,12 @@ function isResponseAvailability(response = {}) {
  * @return {Promise<request>} modified request
  */
 async function availableFetch(request = {}, proxies = {}, locales = [], availableLocales = []) {
-	log(`☑️ availableFetch`, `availableLocales: ${availableLocales}`, "");
+	log("☑️ availableFetch", `availableLocales: ${availableLocales}`, "");
 	availableLocales = availableLocales.filter(locale => locales.includes(locale));
 	let locale = "";
 	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
-	log(`✅ availableFetch`, `locale: ${locale}`, "");
+	log("✅ availableFetch", `locale: ${locale}`, "");
 	return request;
 }
 /**
@@ -541,24 +546,24 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
-	log(`☑️ mutiFetch`, `locales: ${locales}`, "");
-	let responses = {};
+	log("☑️ mutiFetch", `locales: ${locales}`, "");
+	const responses = {};
 	await Promise.allSettled(
 		locales.map(async locale => {
-			request["policy"] = proxies[locale];
+			request.policy = proxies[locale];
 			if ($platform === "Quantumult X") request.body = request.bodyBytes;
 			responses[locale] = await fetch(request);
 		}),
 	);
-	for (let locale in responses) {
+	for (const locale in responses) {
 		if (!isResponseAvailability(responses[locale])) delete responses[locale];
 	}
-	let availableLocales = Object.keys(responses);
-	log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
-	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
+	const availableLocales = Object.keys(responses);
+	log("☑️ mutiFetch", `availableLocales: ${availableLocales}`, "");
+	const locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
-	let response = responses[locale];
-	log(`✅ mutiFetch`, `locale: ${locale}`, "");
+	const response = responses[locale];
+	log("✅ mutiFetch", `locale: ${locale}`, "");
 	return { request, response };
 }
 
@@ -570,9 +575,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	log(`⚠ Check Search Keyword`, `Original Keyword: ${keyword}`, "");
-	let keywords = keyword?.split(delimiter);
-	log(`🚧 Check Search Keyword`, `keywords: ${keywords}`, "");
+	log("⚠ Check Search Keyword", `Original Keyword: ${keyword}`, "");
+	const keywords = keyword?.split(delimiter);
+	log("🚧 Check Search Keyword", `keywords: ${keywords}`, "");
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -659,6 +664,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keyword = keywords.join(delimiter);
 			break;
 	}
-	log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
+	log("🎉 Check Search Keyword", `Keyword: ${keyword}, Locale: ${locale}`, "");
 	return { keyword, locale };
 }
