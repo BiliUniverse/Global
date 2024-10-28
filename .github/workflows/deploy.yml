@@ -1,0 +1,30 @@
+name: Deploy
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:
+      - dev
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  dev:
+    uses: ./.github/workflows/dev.yml
+    secrets: inherit
+  deploy:
+    needs: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@master
+        with:
+          name: artifact
+      - name: Deploy Composite.Subtitles.response
+        uses: exuanbo/actions-deploy-gist@main
+        with:
+          token: ${{ secrets.GIST_TOKEN }}
+          gist_id: 97d7611df1c0b29a254ce8f527137576
+          gist_description: "📺 BiliBili: ⚙️ Enhanced β"
+          file_path: dist/response.bundle.js

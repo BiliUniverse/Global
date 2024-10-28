@@ -1,0 +1,38 @@
+name: Dev
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          submodules: recursive
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+          ref: dev
+      - name: Set up Node.js
+        uses: actions/setup-node@main
+        with:
+          node-version: 'latest'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+      - name: Build
+        run: npm run build:dev
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: artifact
+          path: |
+            CHANGELOG.md
+            rulesets
+            dist

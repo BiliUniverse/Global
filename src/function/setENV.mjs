@@ -1,5 +1,4 @@
-import getStorage from '../utils/getStorage.mjs'
-import { _, log } from "../utils/utils.mjs";
+import { Lodash as _, getStorage, log } from "@nsnanocat/util";
 
 /**
  * Set Environment Variables
@@ -11,7 +10,7 @@ import { _, log } from "../utils/utils.mjs";
  * @return {Object} { Settings, Caches, Configs }
  */
 export default function setENV(name, platforms, database) {
-	log(`☑️ Set Environment Variables`, "");
+	log("☑️ Set Environment Variables", "");
 	let { Settings, Caches, Configs } = getStorage(name, platforms, database);
 	/***************** Settings *****************/
 	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔

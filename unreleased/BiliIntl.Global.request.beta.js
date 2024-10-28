@@ -1,6 +1,6 @@
-import { $platform, URL, _, Storage, fetch, notification, log, logError, wait, done, getScript, runScript } from "./utils/utils.mjs";
+import { $platform, URL, _, Storage, fetch, notification, log, logError, wait, done, getScript, runScript } from "../src/utils/utils.mjs";
 import Database from "./database/BiliIntl.mjs";
-import setENV from "./function/setENV.mjs";
+import setENV from "../src/function/setENV.mjs";
 log("v0.6.1(1006)");
 // 构造回复数据
 let $response = undefined;

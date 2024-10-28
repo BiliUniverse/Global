@@ -1,4 +1,24 @@
 {
+	"name": "@biliuniverse/global",
+	"version": "0.8.3",
+	"organizationName": "🪐 BiliUniverse",
+	"displayName": "📺 BiliBili: 🌐 Global",
+	"description": "哔哩哔哩：全球模式\n中国站自动线路及全区搜索",
+	"homepage": "https://Global.BiliUniverse.io",
+	"openUrl": "http://boxjs.com/#/app/BiliBili.Global",
+	"icon": "https://github.com/BiliUniverse/Global/raw/main/src/assets/icon_rounded.png",
+	"keywords": [],
+	"contributors": [
+		"VirgilClyne[https://github.com/VirgilClyne]"
+	],
+	"system": [
+		"iOS",
+		"iPadOS",
+		"macOS",
+		"tvOS"
+	],
+	"systemVersion": 15,
+	"license": "Apache-2.0",
 	"type": "module",
 	"repository": {
 		"type": "git",
@@ -8,28 +28,27 @@
 		"example": "example"
 	},
 	"scripts": {
-		"build": "rollup -c",
-		"test": "rollup --config --configDebug"
+		"serve": "webpack serve",
+		"build": "rspack build",
+		"build:dev": "rspack build -c rspack.dev.config.js --mode=development",
+		"build:args": "arguments-builder build",
+		"dts": "arguments-builder dts"
 	},
 	"browserslist": [
 		"iOS >= 15"
 	],
-	"keywords": [],
-	"author": "VirgilClyne",
-	"license": "Apache-2.0",
 	"devDependencies": {
+		"@iringo/arguments-builder": "^1.7.8",
+		"@nsnanocat/util": "^1.3.2",
 		"@protobuf-ts/plugin": "^2.9.3",
-		"@rollup/plugin-commonjs": "^25.0.7",
-		"@rollup/plugin-json": "^6.1.0",
-		"@rollup/plugin-node-resolve": "^15.2.3",
-		"@rollup/plugin-terser": "^0.4.4",
-		"rollup": "^4.9.6",
+		"@rspack/cli": "^1.0.14",
+		"@rspack/core": "^1.0.14",
+		"node-polyfill-webpack-plugin": "^4.0.0",
+		"pako": "^2.1.0",
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {
 		"@protobuf-ts/runtime-rpc": "^2.9.3",
-		"@protobuf-ts/runtime": "^2.9.3",
-		"flatbuffers": "^24.3.25",
-		"pako": "^2.1.0"
+		"@protobuf-ts/runtime": "^2.9.3"
 	}
 }

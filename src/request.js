@@ -1,13 +1,12 @@
-import { $platform, _, Storage, fetch, notification, log, logError, wait, done, getScript, runScript } from "./utils/utils.mjs";
-import GRPC from "./utils/GRPC.mjs";
-import Database from "./database/BiliBili.mjs";
+import { $platform, Lodash as _, Storage, fetch, notification, log, logError, wait, done, getScript, runScript } from "@nsnanocat/util";
+import { gRPC } from "@nsnanocat/util";
+import database from "./function/database.mjs";
 import setENV from "./function/setENV.mjs";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "@protobuf-ts/runtime";
 import { ViewReq } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
 import { PlayViewUniteReq } from "./protobuf/bilibili/app/playerunite/v1/playerunite.js";
 import { PlayViewReq } from "./protobuf/bilibili/pgc/gateway/player/v2/playurl.js";
 import { SearchAllRequest, SearchByTypeRequest } from "./protobuf/bilibili/polymer/app/search/v1/search.js";
-log("v0.8.2(1011)");
 // 构造回复数据
 let $response = undefined;
 /***************** Processing *****************/
@@ -15,31 +14,34 @@ let $response = undefined;
 const url = new URL($request.url);
 log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
-const METHOD = $request.method, HOST = url.hostname, PATH = url.pathname, PATHs = url.pathname.split("/").filter(Boolean);
-log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
+const METHOD = $request.method,
+	HOST = url.hostname,
+	PATH = url.pathname,
+	PATHs = url.pathname.split("/").filter(Boolean);
+log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}`, "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
 log(`⚠ FORMAT: ${FORMAT}`, "");
 !(async () => {
 	// 读取设置
-	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", Database);
+	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", database);
 	log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
 		case true:
 		default:
 			// 创建空数据
-			let body = { "code": 0, "message": "0", "data": {} };
+			let body = { code: 0, message: "0", data: {} };
 			// 信息组
 			let infoGroup = {
-				"seasonTitle": url.searchParams.get("season_title"),
-				"seasonId": parseInt(url.searchParams.get("season_id"), 10) || undefined,
-				"epId": parseInt(url.searchParams.get("ep_id"), 10) || undefined,
-				"mId": parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
-				"evaluate": undefined,
-				"keyword": url.searchParams.get("keyword"),
-				"locale": url.searchParams.get("locale"),
-				"locales": [],
-				"type": "UGC"
+				seasonTitle: url.searchParams.get("season_title"),
+				seasonId: parseInt(url.searchParams.get("season_id"), 10) || undefined,
+				epId: parseInt(url.searchParams.get("ep_id"), 10) || undefined,
+				mId: parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
+				evaluate: undefined,
+				keyword: url.searchParams.get("keyword"),
+				locale: url.searchParams.get("locale"),
+				locales: [],
+				type: "UGC",
 			};
 			// 方法判断
 			switch (METHOD) {
@@ -80,7 +82,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 						case "application/grpc+proto":
 						case "application/octet-stream":
 							//log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
-							let rawBody = ($platform === "Quantumult X") ? new Uint8Array($request.bodyBytes ?? []) : $request.body ?? new Uint8Array();
+							let rawBody = $platform === "Quantumult X" ? new Uint8Array($request.bodyBytes ?? []) : ($request.body ?? new Uint8Array());
 							//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 							switch (FORMAT) {
 								case "application/protobuf":
@@ -97,7 +99,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 										case "app.bilibili.com": // HTTP/1.1
 											switch (PATHs?.[0]) {
 												case "bilibili.app.viewunite.v1.View":
-													switch(PATHs?.[1]) {
+													switch (PATHs?.[1]) {
 														case "View": // 播放页
 															body = ViewReq.fromBinary(rawBody);
 															rawBody = ViewReq.toBinary(body);
@@ -105,11 +107,11 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
 															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
-															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
-														};
-														break;
+													}
+													break;
 												case "bilibili.app.playerunite.v1.Player":
 													switch (PATHs?.[1]) {
 														case "PlayViewUnite": // 播放地址
@@ -120,10 +122,10 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 															infoGroup.seasonId = parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
 															infoGroup.epId = parseInt(body?.extraContent.ep_id, 10) || infoGroup.epId;
 															if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
-															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
-													};
+													}
 													break;
 												case "bilibili.app.playurl.v1.PlayURL": // 普通视频
 													switch (PATHs?.[1]) {
@@ -131,7 +133,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 															break;
 														case "PlayConf": // 播放配置
 															break;
-													};
+													}
 													break;
 												case "bilibili.pgc.gateway.player.v2.PlayURL": // 番剧
 													switch (PATHs?.[1]) {
@@ -143,24 +145,24 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 															infoGroup.seasonId = body?.seasonId;
 															infoGroup.epId = body?.epId;
 															infoGroup.type = "PGC";
-															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+															if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 															else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 															break;
 														case "PlayConf": // 播放配置
 															break;
-													};
+													}
 													break;
 												case "bilibili.app.nativeact.v1.NativeAct": // 活动-节目、动画、韩综（港澳台）
 													switch (PATHs?.[1]) {
 														case "Index": // 首页
 															break;
-													};
+													}
 													break;
 												case "bilibili.app.interface.v1.Search": // 搜索框
 													switch (PATHs?.[1]) {
 														case "Suggest3": // 搜索建议
 															break;
-													};
+													}
 													break;
 												case "bilibili.polymer.app.search.v1.Search": // 搜索结果
 													switch (PATHs?.[1]) {
@@ -170,26 +172,27 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 															body.keyword = infoGroup.keyword;
 															rawBody = SearchAllRequest.toBinary(body);
 															break;
-														case "SearchByType": { // 分类结果（番剧、用户、影视、专栏）
+														case "SearchByType": {
+															// 分类结果（番剧、用户、影视、专栏）
 															body = SearchByTypeRequest.fromBinary(rawBody);
 															({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(body?.keyword));
 															body.keyword = infoGroup.keyword;
 															rawBody = SearchByTypeRequest.toBinary(body);
 															break;
-														};
-													};
+														}
+													}
 													break;
-											};
+											}
 											break;
-									};
+									}
 									rawBody = GRPC.encode(rawBody);
 									break;
-							};
+							}
 							// 写入二进制数据
 							$request.body = rawBody;
 							break;
-					};
-					//break; // 不中断，继续处理URL
+					}
+				//break; // 不中断，继续处理URL
 				case "GET":
 				case "HEAD":
 				case "OPTIONS":
@@ -205,12 +208,12 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											({ seasonId: infoGroup.seasonId, epId: infoGroup.epId } = PATHs?.[2].match(URLRegex)?.groups);
 											infoGroup.seasonId = parseInt(infoGroup.seasonId, 10) || infoGroup.seasonId;
 											infoGroup.epId = parseInt(infoGroup.epId, 10) || infoGroup.epId;
-											if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+											if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 											else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 											break;
-									};
+									}
 									break;
-							};
+							}
 							break;
 						case "search.bilibili.com":
 							switch (PATH) {
@@ -218,7 +221,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup.keyword));
 									url.searchParams.set("keyword", infoGroup.keyword);
 									break;
-							};
+							}
 							break;
 						case "app.bilibili.com":
 						case "app.biliapi.net":
@@ -252,9 +255,9 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 										case 2042149112: // b站_綜藝咖
 											infoGroup.locales = Settings.Locales.filter(locale => locale !== "CHN");
 											break;
-									};
+									}
 									break;
-							};
+							}
 							break;
 						case "api.bilibili.com":
 						case "api.biliapi.net":
@@ -264,7 +267,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 								case "/pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
 								case "/pgc/player/web/playurl/html5": // 番剧-播放地址-web-HTML5
 									infoGroup.type = "PGC";
-									if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+									if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 									else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 									break;
 								case "/pgc/page/bangumi": // 追番页
@@ -286,13 +289,13 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 										case 2042149112: // b站_綜藝咖
 											infoGroup.locales = Settings.Locales.filter(locale => locale !== "CHN");
 											break;
-									};
+									}
 									break;
 								case "/pgc/view/v2/app/season": // 番剧页面-内容-app
 								case "/pgc/view/web/season": // 番剧-内容-web
 								case "/pgc/view/pc/season": // 番剧-内容-pc
 									infoGroup.type = "PGC";
-									if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId)
+									if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 									else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 									break;
 								case "/x/web-interface/search": // 搜索-全部结果-web（综合）
@@ -306,20 +309,20 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 									({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup.keyword, "+"));
 									url.searchParams.get("keyword", infoGroup.keyword);
 									break;
-							};
+							}
 							break;
 						case "api.live.bilibili.com":
 							switch (PATH) {
 								case "/xlive/app-room/v1/index/getInfoByRoom": // 直播
 									break;
-							};
+							}
 							break;
-					};
+					}
 					break;
 				case "CONNECT":
 				case "TRACE":
 					break;
-			};
+			}
 			$request.url = url.toString();
 			log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			// 请求策略
@@ -335,15 +338,17 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							log(`⚠ 不是 PGC, 跳过`, "")
+							log(`⚠ 不是 PGC, 跳过`, "");
 							break;
-					};
-					switch ($platform) { // 直通模式，不处理，否则无法进http-response
+					}
+					switch (
+						$platform // 直通模式，不处理，否则无法进http-response
+					) {
 						case "Shadowrocket":
 						case "Quantumult X":
 							delete $request.policy;
 							break;
-					};
+					}
 					break;
 				case "/all": // 搜索-全部结果-html（综合）
 				case "/bilibili.polymer.app.search.v1.Search/SearchAll": // 搜索-全部结果-proto（综合）
@@ -365,25 +370,28 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "UGC":
 						default:
-							log(`⚠ 不是 PGC, 跳过`, "")
+							log(`⚠ 不是 PGC, 跳过`, "");
 							break;
-					};
+					}
 					break;
-			};
-			if (!$response) { // 无（构造）回复数据
-				switch ($platform) { // 已有指定策略的请求，根据策略fetch
+			}
+			if (!$response) {
+				// 无（构造）回复数据
+				switch (
+					$platform // 已有指定策略的请求，根据策略fetch
+				) {
 					case "Shadowrocket":
 					case "Quantumult X":
 						if ($request.policy) $response = await fetch($request);
 						break;
-				};
-			};
+				}
+			}
 			break;
 		case false:
 			break;
-	};
+	}
 })()
-	.catch((e) => logError(e))
+	.catch(e => logError(e))
 	.finally(() => {
 		switch ($response) {
 			default: // 有构造回复数据，返回构造的回复数据
@@ -400,13 +408,13 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 						delete $response.headers?.["Transfer-Encoding"];
 						done($response);
 						break;
-				};
+				}
 				break;
 			case undefined: // 无构造回复数据，发送修改的请求数据
 				done($request);
 				break;
-		};
-	})
+		}
+	});
 
 /***************** Function *****************/
 /**
@@ -416,7 +424,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
  * @return {Boolean} is Available
  */
 function isResponseAvailability(response = {}) {
-    log(`☑️ Determine Response Availability`, "");
+	log(`☑️ Determine Response Availability`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
 	log(`🚧 Determine Response Availability`, `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
@@ -437,7 +445,7 @@ function isResponseAvailability(response = {}) {
 						default:
 							isAvailable = false;
 							break;
-					};
+					}
 					break;
 				case "text/json":
 				case "application/json":
@@ -456,7 +464,7 @@ function isResponseAvailability(response = {}) {
 										default:
 											isAvailable = false;
 											break;
-									};
+									}
 									break;
 								case "shjd":
 								case undefined:
@@ -469,7 +477,7 @@ function isResponseAvailability(response = {}) {
 										case undefined:
 											isAvailable = false;
 											break;
-									};
+									}
 									switch (data?.dialog?.code) {
 										case undefined:
 											isAvailable = true;
@@ -478,9 +486,9 @@ function isResponseAvailability(response = {}) {
 										default:
 											isAvailable = false;
 											break;
-									};
+									}
 									break;
-							};
+							}
 							break;
 						case "-404": // 啥都木有
 						case "-10403":
@@ -488,12 +496,12 @@ function isResponseAvailability(response = {}) {
 						default:
 							isAvailable = false;
 							break;
-					};
+					}
 					break;
 				case "text/html":
 					isAvailable = true;
 					break;
-			};
+			}
 			break;
 		case 403:
 		case 404:
@@ -501,10 +509,10 @@ function isResponseAvailability(response = {}) {
 		default:
 			isAvailable = false;
 			break;
-	};
+	}
 	log(`✅ Determine Response Availability`, `isAvailable:${isAvailable}`, "");
-    return isAvailable;
-};
+	return isAvailable;
+}
 
 /**
  * Fetch
@@ -535,12 +543,16 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	log(`☑️ mutiFetch`, `locales: ${locales}`, "");
 	let responses = {};
-	await Promise.allSettled(locales.map(async locale => {
-		request["policy"] = proxies[locale];
-		if ($platform === "Quantumult X") request.body = request.bodyBytes;
-		responses[locale] = await fetch(request);
-	}));
-	for (let locale in responses) { if (!isResponseAvailability(responses[locale])) delete responses[locale]; };
+	await Promise.allSettled(
+		locales.map(async locale => {
+			request["policy"] = proxies[locale];
+			if ($platform === "Quantumult X") request.body = request.bodyBytes;
+			responses[locale] = await fetch(request);
+		}),
+	);
+	for (let locale in responses) {
+		if (!isResponseAvailability(responses[locale])) delete responses[locale];
+	}
 	let availableLocales = Object.keys(responses);
 	log(`☑️ mutiFetch`, `availableLocales: ${availableLocales}`, "");
 	let locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
@@ -646,7 +658,7 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keywords.pop();
 			keyword = keywords.join(delimiter);
 			break;
-	};
+	}
 	log(`🎉 Check Search Keyword`, `Keyword: ${keyword}, Locale: ${locale}`, "");
 	return { keyword, locale };
-};
+}

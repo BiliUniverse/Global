@@ -1,12 +1,6 @@
-[submodule "BoxJs"]
-	path = BoxJs
-	url = https://github.com/BiliUniverse/BoxJs.git
 [submodule "example"]
 	path = example
 	url = https://github.com/BiliUniverse/example.git
 [submodule "src/protobuf"]
 	path = src/protobuf
 	url = https://github.com/BiliUniverse/protobuf.git
-[submodule "src/utils"]
-	path = src/utils
-	url = https://github.com/NanoCat-Me/utils.git

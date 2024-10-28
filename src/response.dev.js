@@ -1,40 +1,42 @@
-import { $platform, _, Storage, fetch, notification, log, logError, wait, done, getScript, runScript } from "./utils/utils.mjs";
-import GRPC from "./utils/GRPC.mjs";
-import Database from "./database/BiliBili.mjs";
+import { $platform, Lodash as _, Storage, fetch, notification, log, logError, wait, done, getScript, runScript } from "@nsnanocat/util";
+import { gRPC } from "@nsnanocat/util";
+import database from "./function/database.mjs";
 import setENV from "./function/setENV.mjs";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "@protobuf-ts/runtime";
 import { ViewReply } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
-log("v0.6.1(1008)");
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);
 log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
-const METHOD = $request.method, HOST = url.hostname, PATH = url.pathname, PATHs = url.pathname.split("/").filter(Boolean);
-log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}` , "");
+const METHOD = $request.method,
+	HOST = url.hostname,
+	PATH = url.pathname,
+	PATHs = url.pathname.split("/").filter(Boolean);
+log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}`, "");
 // 解析格式
 const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
 log(`⚠ FORMAT: ${FORMAT}`, "");
 !(async () => {
 	// 读取设置
-	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", Database);
+	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", database);
 	log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
 		case true:
 		default:
 			// 创建空数据
-			let body = { "code": 0, "message": "0", "data": {} };
+			let body = { code: 0, message: "0", data: {} };
 			// 信息组
 			let infoGroup = {
-				"seasonTitle": url.searchParams.get("season_title"),
-				"seasonId": parseInt(url.searchParams.get("season_id"), 10) || undefined,
-				"epId": parseInt(url.searchParams.get("ep_id"), 10) || undefined,
-				"mId": parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
-				"evaluate": undefined,
-				"keyword": url.searchParams.get("keyword"),
-				"locale": url.searchParams.get("locale"),
-				"locales": [],
-				"type": "UGC"
+				seasonTitle: url.searchParams.get("season_title"),
+				seasonId: parseInt(url.searchParams.get("season_id"), 10) || undefined,
+				epId: parseInt(url.searchParams.get("ep_id"), 10) || undefined,
+				mId: parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
+				evaluate: undefined,
+				keyword: url.searchParams.get("keyword"),
+				locale: url.searchParams.get("locale"),
+				locales: [],
+				type: "UGC",
 			};
 			// 格式判断
 			switch (FORMAT) {
@@ -48,6 +50,9 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/x-mpegurl":
 				case "application/vnd.apple.mpegurl":
 				case "audio/mpegurl":
+					//body = M3U8.parse($response.body);
+					//log(`🚧 body: ${JSON.stringify(body)}`, "");
+					//$response.body = M3U8.stringify(body);
 					break;
 				case "text/xml":
 				case "text/html":
@@ -55,9 +60,15 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/xml":
 				case "application/plist":
 				case "application/x-plist":
+					//body = XML.parse($response.body);
+					//log(`🚧 body: ${JSON.stringify(body)}`, "");
+					//$response.body = XML.stringify(body);
 					break;
 				case "text/vtt":
 				case "application/vtt":
+					//body = VTT.parse($response.body);
+					//log(`🚧 body: ${JSON.stringify(body)}`, "");
+					//$response.body = VTT.stringify(body);
 					break;
 				case "text/json":
 				case "application/json":
@@ -92,7 +103,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											break;
 										default:
 											break;
-									};
+									}
 									break;
 								case "/pgc/view/v2/app/season": // 番剧页面-内容-app
 									let data = body.data;
@@ -105,20 +116,20 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 									if (data?.modules) {
 										// 解锁剧集信息限制
 										data.modules = setModules(data?.modules);
-									};
+									}
 									infoGroup.locales = detectLocales(infoGroup);
 									setCache(infoGroup, getEpisodes(data?.modules), Caches);
 									// 解锁地区限制遮罩
 									if (data?.dialog) {
 										if (data?.dialog?.code === 6010001) delete data.dialog;
-									};
+									}
 									// 解锁弹幕和评论区等限制
 									if (data?.rights) {
 										data.rights.allow_bp = 1;
 										data.rights.allow_download = 1;
 										data.rights.allow_demand = 1;
 										data.rights.area_limit = 0;
-									};
+									}
 									break;
 								case "/pgc/view/web/season": // 番剧-内容-web
 								case "/pgc/view/pc/season": // 番剧-内容-pc
@@ -133,7 +144,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 										// 解锁剧集信息限制
 										if (result?.episodes) result.episodes = setEpisodes(result.episodes);
 										if (result?.section) result.section = setEpisodes(result.section);
-									};
+									}
 									infoGroup.locales = detectLocales(infoGroup);
 									setCache(infoGroup, result?.episodes, Caches);
 									// 解锁弹幕和评论区等限制
@@ -143,11 +154,11 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 										result.rights.can_watch = 1;
 										result.allow_download = 1;
 										result.allow_bp_rank = 1;
-									};
+									}
 									break;
-							};
+							}
 							break;
-					};
+					}
 					$response.body = JSON.stringify(body);
 					break;
 				case "application/protobuf":
@@ -157,7 +168,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/grpc+proto":
 				case "application/octet-stream":
 					//log(`🚧 $response.body: ${JSON.stringify($response.body)}`, "");
-					let rawBody = ($platform === "Quantumult X") ? new Uint8Array($response.bodyBytes ?? []) : $response.body ?? new Uint8Array();
+					let rawBody = $platform === "Quantumult X" ? new Uint8Array($response.bodyBytes ?? []) : ($response.body ?? new Uint8Array());
 					//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 					switch (FORMAT) {
 						case "application/protobuf":
@@ -166,7 +177,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							break;
 						case "application/grpc":
 						case "application/grpc+proto":
-							rawBody = GRPC.decode(rawBody);
+							rawBody = gRPC.decode(rawBody);
 							// 解析链接并处理protobuf数据
 							// 主机判断
 							switch (HOST) {
@@ -177,6 +188,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											switch (PATHs?.[1]) {
 												case "View": // 播放页
 													body = ViewReply.fromBinary(rawBody);
+													log(`🚧 body: ${JSON.stringify(body)}`, "");
 													rawBody = ViewReply.toBinary(body);
 													infoGroup.seasonTitle = body?.arc?.title ?? body?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
 													infoGroup.seasonId = parseInt(body?.report?.season_id, 10) || body?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
@@ -191,11 +203,11 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 														default:
 															infoGroup.type = "UGC";
 															break;
-													};
+													}
 													infoGroup.locales = detectLocales(infoGroup);
 													setCache(infoGroup, [], Caches);
 													break;
-											};
+											}
 											break;
 										case "bilibili.app.playurl.v1.PlayURL": // 普通视频
 											switch (PATHs?.[1]) {
@@ -203,7 +215,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 													break;
 												case "PlayConf": // 播放配置
 													break;
-											};
+											}
 											break;
 										case "bilibili.pgc.gateway.player.v2.PlayURL": // 番剧
 											/******************  initialization start  *******************/
@@ -216,52 +228,54 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 													break;
 												case "PlayConf": // 播放配置
 													break;
-											};
+											}
 											break;
 										case "bilibili.app.nativeact.v1.NativeAct": // 活动-节目、动画、韩综（港澳台）
 											switch (PATHs?.[1]) {
 												case "Index": // 首页
 													break;
-											};
+											}
 											break;
 										case "bilibili.app.interface.v1.Search": // 搜索框
 											switch (PATHs?.[1]) {
 												case "Suggest3": // 搜索建议
 													break;
-											};
+											}
 											break;
 										case "bilibili.polymer.app.search.v1.Search": // 搜索结果
 											/******************  initialization start  *******************/
 											/******************  initialization finish  *******************/
 											switch (PATHs?.[1]) {
-												case "SearchAll": { // 全部结果（综合）
+												case "SearchAll": {
+													// 全部结果（综合）
 													/******************  initialization start  *******************/
 													/******************  initialization finish  *******************/
 													break;
-												};
-												case "SearchByType": { // 分类结果（番剧、用户、影视、专栏）
+												}
+												case "SearchByType": {
+													// 分类结果（番剧、用户、影视、专栏）
 													break;
-												};
-											};
+												}
+											}
 											break;
-									};
+									}
 									break;
-							};
-							rawBody = GRPC.encode(rawBody);
+							}
+							rawBody = gRPC.encode(rawBody);
 							break;
-					};
+					}
 					// 写入二进制数据
 					$response.body = rawBody;
 					break;
-			};
+			}
 			log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			break;
 		case false:
 			break;
-	};
+	}
 })()
-	.catch((e) => logError(e))
-	.finally(() => done($response))
+	.catch(e => logError(e))
+	.finally(() => done($response));
 
 /***************** Function *****************/
 /**
@@ -278,16 +292,24 @@ function getEpisodes(modules = []) {
 			case "section": // SP
 				return module?.data?.episodes;
 			case "season": // 选季
+				//return module?.data?.seasons;
 				return [];
 			case "pugv": // 猜你喜欢
 			default:
 				return [];
-		};
+		}
 	});
+	/*
+	let epids = episodes.map(episode => {
+		log(`episode.id: ${episode?.id}`);
+		log(`episode: ${JSON.stringify(episode)}`);
+		return episode?.id
+	});
+	*/
 	log(`🎉 Get Episodes`, "");
 	//log(`🚧 Get Episodes`, `modules.episodes: ${JSON.stringify(episodes)}`, "");
 	return episodes;
-};
+}
 
 /**
  * Set Modules Data
@@ -308,13 +330,13 @@ function setModules(modules = []) {
 			case "season": // 选季
 			default:
 				break;
-		};
+		}
 		return module;
 	});
 	log(`🎉 Set Episodes`, "");
 	//log(`🚧 Set Episodes`, `modules: ${JSON.stringify(modules)}`, "");
 	return modules;
-};
+}
 
 /**
  * Set Episodes Data
@@ -329,19 +351,19 @@ function setEpisodes(episodes = []) {
 			episode.badge_info.text = "";
 			episode.badge_info.bg_color = "#FB7299";
 			episode.badge_info.bg_color_night = "#BB5B76";
-		};
+		}
 		if (episode?.rights) {
 			episode.rights.allow_dm = 1;
 			episode.rights.allow_download = 1;
 			episode.rights.allow_demand = 1;
 			episode.rights.area_limit = 0;
-		};
+		}
 		return episode;
 	});
 	log(`🎉 Set Episodes`, "");
 	//log(`🚧 Set Episodes`, `episodes: ${JSON.stringify(episodes)}`, "");
 	return episodes;
-};
+}
 
 /**
  * Detect Locales
@@ -349,7 +371,7 @@ function setEpisodes(episodes = []) {
  * @param {Object} info - Info Group: { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}
  * @return {String} locales
  */
-function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}) {
+function detectLocales(infoGroup = { seasonTitle: undefined, seasonId: undefined, epId: undefined, mId: undefined, evaluate: undefined }) {
 	log(`☑️ Detect Locales`, `seasonTitle: ${infoGroup.seasonTitle}, seasonId: ${infoGroup.seasonId}, epId: ${infoGroup.epId}, mId: ${infoGroup.mId}`, "");
 	switch (infoGroup.seasonTitle) {
 		case undefined:
@@ -359,14 +381,16 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 		default:
 			infoGroup.locales = detectSeasonTitle(infoGroup.seasonTitle);
 			break;
-	};
+	}
 	log(`✅ Detect Locales, locales: ${infoGroup.locales}`, "");
 	return infoGroup.locales;
 	/***************** Functions *****************/
-	function detectSeasonTitle(seasonTitle){
+	function detectSeasonTitle(seasonTitle) {
 		log(`☑️ Detect Season Title`, "");
 		let locales = [];
 		log([...infoGroup.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]);
+		//log([...infoGroup.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop());
+		//log([...infoGroup.seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]);
 		switch ([...seasonTitle?.matchAll(/[(\uFF08]([^(\uFF08)\uFF09]+)[)\uFF09]/g)]?.pop()?.[1]) {
 			case "僅限港澳台地區":
 			case "限僅港澳台地區":
@@ -394,12 +418,12 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 			default:
 				locales = detectMId(infoGroup.mId);
 				break;
-		};
+		}
 		log(`✅ Detect Season Title, locales: ${locales}`, "");
 		return locales;
-	};
+	}
 
-	function detectMId(mId){
+	function detectMId(mId) {
 		log(`☑️ Detect mId`, "");
 		let locales = [];
 		switch (mId) {
@@ -423,21 +447,24 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 			default: // 其他UP主
 				locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
 				break;
-		};
+		}
 		log(`✅ Detect mId, locales: ${locales}`, "");
 		return locales;
-	};
+	}
 
-	function detectTraditional(seasonTitle, evaluate){
+	function detectTraditional(seasonTitle, evaluate) {
 		log(`☑️ Detect Traditional`, "");
 		let locales = [];
-		if (isTraditional(seasonTitle) > 0) { // Traditional Chinese
+		if (isTraditional(seasonTitle) > 0) {
+			// Traditional Chinese
 			locales = ["HKG", "MAC", "TWN"];
-		} else if (isTraditional(evaluate) > 1) { // Traditional Chinese
+		} else if (isTraditional(evaluate) > 1) {
+			// Traditional Chinese
 			locales = ["HKG", "MAC", "TWN"];
-		} else { // Simplified Chinese
+		} else {
+			// Simplified Chinese
 			locales = ["CHN"];
-		};
+		}
 		log(`✅ Detect Traditional, locales: ${locales}`, "");
 		return locales;
 		/***************** Functions *****************/
@@ -449,16 +476,18 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
 		 */
 		function isTraditional(strings = [""]) {
 			log(`☑️ is the Strings Traditional Chinese?`, "");
-			const reg = /[䊷䋙䝼䰾䲁丟並乾亂亞佇馀併來侖侶俁係俔俠倀倆倈倉個們倫偉側偵偽傑傖傘備傭傯傳傴債傷傾僂僅僉僑僕僞僥僨價儀儂億儈儉儐儔儕儘償優儲儷儺儻儼兌兒兗內兩冊冪凈凍凜凱別刪剄則剋剎剗剛剝剮剴創劃劇劉劊劌劍劑勁動務勛勝勞勢勩勱勵勸勻匭匯匱區協卻厙厠厭厲厴參叄叢吒吳吶呂咼員唄唚問啓啞啟啢喎喚喪喬單喲嗆嗇嗊嗎嗚嗩嗶嘆嘍嘔嘖嘗嘜嘩嘮嘯嘰嘵嘸嘽噓噝噠噥噦噯噲噴噸噹嚀嚇嚌嚕嚙嚦嚨嚲嚳嚴嚶囀囁囂囅囈囑囪圇國圍園圓圖團垵埡埰執堅堊堖堝堯報場塊塋塏塒塗塢塤塵塹墊墜墮墳墻墾壇壈壋壓壘壙壚壞壟壠壢壩壯壺壼壽夠夢夾奐奧奩奪奬奮奼妝姍姦娛婁婦婭媧媯媼媽嫗嫵嫻嫿嬀嬈嬋嬌嬙嬡嬤嬪嬰嬸孌孫學孿宮寢實寧審寫寬寵寶將專尋對導尷屆屍屓屜屢層屨屬岡峴島峽崍崗崢崬嵐嶁嶄嶇嶔嶗嶠嶢嶧嶮嶴嶸嶺嶼巋巒巔巰帥師帳帶幀幃幗幘幟幣幫幬幹幺幾庫廁廂廄廈廚廝廟廠廡廢廣廩廬廳弒弳張強彈彌彎彙彞彥後徑從徠復徵徹恆恥悅悞悵悶惡惱惲惻愛愜愨愴愷愾慄態慍慘慚慟慣慤慪慫慮慳慶憂憊憐憑憒憚憤憫憮憲憶懇應懌懍懟懣懨懲懶懷懸懺懼懾戀戇戔戧戩戰戱戲戶拋拾挩挾捨捫掃掄掗掙掛採揀揚換揮損搖搗搵搶摑摜摟摯摳摶摻撈撏撐撓撝撟撣撥撫撲撳撻撾撿擁擄擇擊擋擓擔據擠擬擯擰擱擲擴擷擺擻擼擾攄攆攏攔攖攙攛攜攝攢攣攤攪攬敗敘敵數斂斃斕斬斷時晉晝暈暉暘暢暫曄曆曇曉曏曖曠曨曬書會朧東杴桿梔梘條梟梲棄棖棗棟棧棲棶椏楊楓楨業極榪榮榲榿構槍槤槧槨槳樁樂樅樓標樞樣樸樹樺橈橋機橢橫檁檉檔檜檟檢檣檮檯檳檸檻櫃櫓櫚櫛櫝櫞櫟櫥櫧櫨櫪櫫櫬櫱櫳櫸櫻欄權欏欒欖欞欽歐歟歡歲歷歸歿殘殞殤殨殫殮殯殲殺殻殼毀毆毿氂氈氌氣氫氬氳決沒沖況洶浹涇涼淚淥淪淵淶淺渙減渦測渾湊湞湯溈準溝溫滄滅滌滎滬滯滲滷滸滻滾滿漁漚漢漣漬漲漵漸漿潁潑潔潙潛潤潯潰潷潿澀澆澇澗澠澤澦澩澮澱濁濃濕濘濟濤濫濰濱濺濼濾瀅瀆瀉瀏瀕瀘瀝瀟瀠瀦瀧瀨瀲瀾灃灄灑灕灘灝灠灣灤灧災為烏烴無煉煒煙煢煥煩煬熅熒熗熱熲熾燁燈燉燒燙燜營燦燭燴燼燾爍爐爛爭爲爺爾牆牘牽犖犢犧狀狹狽猙猶猻獁獄獅獎獨獪獫獮獰獲獵獷獸獺獻獼玀現琺琿瑋瑒瑣瑤瑩瑪瑲璉璣璦璫環璽瓊瓏瓔瓚甌產産畝畢異畵當疇疊痙痾瘂瘋瘍瘓瘞瘡瘧瘮瘲瘺瘻療癆癇癉癘癟癢癤癥癧癩癬癭癮癰癱癲發皚皰皸皺盜盞盡監盤盧眥眾睏睜睞瞘瞜瞞瞶瞼矓矚矯硜硤硨硯碩碭碸確碼磑磚磣磧磯磽礆礎礙礦礪礫礬礱祿禍禎禕禡禦禪禮禰禱禿秈稅稈稟種稱穀穌積穎穠穡穢穩穫穭窩窪窮窯窵窶窺竄竅竇竈竊竪競筆筍筧筴箋箏節範築篋篔篤篩篳簀簍簞簡簣簫簹簽簾籃籌籙籜籟籠籩籪籬籮粵糝糞糧糲糴糶糹糾紀紂約紅紆紇紈紉紋納紐紓純紕紖紗紘紙級紛紜紝紡紬細紱紲紳紵紹紺紼紿絀終組絅絆絎結絕絛絝絞絡絢給絨絰統絲絳絶絹綁綃綆綈綉綌綏經綜綞綠綢綣綫綬維綯綰綱網綳綴綸綹綺綻綽綾綿緄緇緊緋緑緒緓緔緗緘緙線緝緞締緡緣緦編緩緬緯緱緲練緶緹緻縈縉縊縋縐縑縕縗縛縝縞縟縣縧縫縭縮縱縲縳縵縶縷縹總績繃繅繆繒織繕繚繞繡繢繩繪繫繭繮繯繰繳繸繹繼繽繾纈纊續纍纏纓纖纘纜缽罈罌罰罵罷羅羆羈羋羥義習翹耬耮聖聞聯聰聲聳聵聶職聹聽聾肅脅脈脛脫脹腎腖腡腦腫腳腸膃膚膠膩膽膾膿臉臍臏臘臚臟臠臢臨臺與興舉舊艙艤艦艫艱艷芻苎苧茲荊莊莖莢莧華萇萊萬萵葉葒著葤葦葯葷蒓蒔蒞蒼蓀蓋蓮蓯蓴蓽蔔蔞蔣蔥蔦蔭蕁蕆蕎蕒蕓蕕蕘蕢蕩蕪蕭蕷薀薈薊薌薔薘薟薦薩薴薺藍藎藝藥藪藴藶藹藺蘄蘆蘇蘊蘋蘚蘞蘢蘭蘺蘿虆處虛虜號虧虯蛺蛻蜆蝕蝟蝦蝸螄螞螢螻螿蟄蟈蟎蟣蟬蟯蟲蟶蟻蠅蠆蠐蠑蠟蠣蠨蠱蠶蠻衆術衕衚衛衝衹袞裊裏補裝裡製複褌褘褲褳褸褻襇襏襖襝襠襤襪襯襲見覎規覓視覘覡覥覦親覬覯覲覷覺覽覿觀觴觶觸訁訂訃計訊訌討訐訒訓訕訖託記訛訝訟訢訣訥訩訪設許訴訶診註詁詆詎詐詒詔評詖詗詘詛詞詠詡詢詣試詩詫詬詭詮詰話該詳詵詼詿誄誅誆誇誌認誑誒誕誘誚語誠誡誣誤誥誦誨說説誰課誶誹誼誾調諂諄談諉請諍諏諑諒論諗諛諜諝諞諢諤諦諧諫諭諮諱諳諶諷諸諺諼諾謀謁謂謄謅謊謎謐謔謖謗謙謚講謝謠謡謨謫謬謭謳謹謾證譎譏譖識譙譚譜譫譯議譴護譸譽譾讀變讎讒讓讕讖讜讞豈豎豐豬豶貓貝貞貟負財貢貧貨販貪貫責貯貰貲貳貴貶買貸貺費貼貽貿賀賁賂賃賄賅資賈賊賑賒賓賕賙賚賜賞賠賡賢賣賤賦賧質賫賬賭賴賵賺賻購賽賾贄贅贇贈贊贋贍贏贐贓贔贖贗贛贜赬趕趙趨趲跡踐踴蹌蹕蹣蹤蹺躂躉躊躋躍躑躒躓躕躚躡躥躦躪軀車軋軌軍軑軒軔軛軟軤軫軲軸軹軺軻軼軾較輅輇輈載輊輒輓輔輕輛輜輝輞輟輥輦輩輪輬輯輳輸輻輾輿轀轂轄轅轆轉轍轎轔轟轡轢轤辦辭辮辯農逕這連進運過達違遙遜遞遠適遲遷選遺遼邁還邇邊邏邐郟郵鄆鄉鄒鄔鄖鄧鄭鄰鄲鄴鄶鄺酇酈醖醜醞醫醬醱釀釁釃釅釋釐釒釓釔釕釗釘釙針釣釤釧釩釵釷釹釺鈀鈁鈃鈄鈈鈉鈍鈎鈐鈑鈒鈔鈕鈞鈣鈥鈦鈧鈮鈰鈳鈴鈷鈸鈹鈺鈽鈾鈿鉀鉅鉈鉉鉋鉍鉑鉕鉗鉚鉛鉞鉢鉤鉦鉬鉭鉶鉸鉺鉻鉿銀銃銅銍銑銓銖銘銚銛銜銠銣銥銦銨銩銪銫銬銱銳銷銹銻銼鋁鋃鋅鋇鋌鋏鋒鋙鋝鋟鋣鋤鋥鋦鋨鋩鋪鋭鋮鋯鋰鋱鋶鋸鋼錁錄錆錇錈錏錐錒錕錘錙錚錛錟錠錡錢錦錨錩錫錮錯録錳錶錸鍀鍁鍃鍆鍇鍈鍋鍍鍔鍘鍚鍛鍠鍤鍥鍩鍬鍰鍵鍶鍺鎂鎄鎇鎊鎔鎖鎘鎛鎡鎢鎣鎦鎧鎩鎪鎬鎮鎰鎲鎳鎵鎸鎿鏃鏇鏈鏌鏍鏐鏑鏗鏘鏜鏝鏞鏟鏡鏢鏤鏨鏰鏵鏷鏹鏽鐃鐋鐐鐒鐓鐔鐘鐙鐝鐠鐦鐧鐨鐫鐮鐲鐳鐵鐶鐸鐺鐿鑄鑊鑌鑒鑔鑕鑞鑠鑣鑥鑭鑰鑱鑲鑷鑹鑼鑽鑾鑿钁長門閂閃閆閈閉開閌閎閏閑間閔閘閡閣閥閨閩閫閬閭閱閲閶閹閻閼閽閾閿闃闆闈闊闋闌闍闐闒闓闔闕闖關闞闠闡闤闥阪陘陝陣陰陳陸陽隉隊階隕際隨險隱隴隸隻雋雖雙雛雜雞離難雲電霢霧霽靂靄靈靚靜靦靨鞀鞏鞝鞽韁韃韉韋韌韍韓韙韜韞韻響頁頂頃項順頇須頊頌頎頏預頑頒頓頗領頜頡頤頦頭頮頰頲頴頷頸頹頻頽顆題額顎顏顒顓顔願顙顛類顢顥顧顫顬顯顰顱顳顴風颭颮颯颱颳颶颸颺颻颼飀飄飆飈飛飠飢飣飥飩飪飫飭飯飲飴飼飽飾飿餃餄餅餉養餌餎餏餑餒餓餕餖餚餛餜餞餡館餱餳餶餷餺餼餾餿饁饃饅饈饉饊饋饌饑饒饗饜饞饢馬馭馮馱馳馴馹駁駐駑駒駔駕駘駙駛駝駟駡駢駭駰駱駸駿騁騂騅騌騍騎騏騖騙騤騫騭騮騰騶騷騸騾驀驁驂驃驄驅驊驌驍驏驕驗驚驛驟驢驤驥驦驪驫骯髏髒體髕髖髮鬆鬍鬚鬢鬥鬧鬩鬮鬱魎魘魚魛魢魨魯魴魷魺鮁鮃鮊鮋鮍鮎鮐鮑鮒鮓鮚鮜鮝鮞鮦鮪鮫鮭鮮鮳鮶鮺鯀鯁鯇鯉鯊鯒鯔鯕鯖鯗鯛鯝鯡鯢鯤鯧鯨鯪鯫鯴鯷鯽鯿鰁鰂鰃鰈鰉鰍鰏鰐鰒鰓鰜鰟鰠鰣鰥鰨鰩鰭鰮鰱鰲鰳鰵鰷鰹鰺鰻鰼鰾鱂鱅鱈鱉鱒鱔鱖鱗鱘鱝鱟鱠鱣鱤鱧鱨鱭鱯鱷鱸鱺鳥鳧鳩鳬鳲鳳鳴鳶鳾鴆鴇鴉鴒鴕鴛鴝鴞鴟鴣鴦鴨鴯鴰鴴鴷鴻鴿鵁鵂鵃鵐鵑鵒鵓鵜鵝鵠鵡鵪鵬鵮鵯鵲鵷鵾鶄鶇鶉鶊鶓鶖鶘鶚鶡鶥鶩鶪鶬鶯鶲鶴鶹鶺鶻鶼鶿鷀鷁鷂鷄鷈鷊鷓鷖鷗鷙鷚鷥鷦鷫鷯鷲鷳鷸鷹鷺鷽鷿鸇鸌鸏鸕鸘鸚鸛鸝鸞鹵鹹鹺鹽麗麥麩麵麽黃黌點黨黲黶黷黽黿鼉鼴齊齋齎齏齒齔齕齗齙齜齟齠齡齦齪齬齲齶齷龍龎龐龔龕龜]/
-			const isTraditional = [...strings].map(string => bool = (string?.match(reg)) ? true : false);
+			const reg =
+				/[䊷䋙䝼䰾䲁丟並乾亂亞佇馀併來侖侶俁係俔俠倀倆倈倉個們倫偉側偵偽傑傖傘備傭傯傳傴債傷傾僂僅僉僑僕僞僥僨價儀儂億儈儉儐儔儕儘償優儲儷儺儻儼兌兒兗內兩冊冪凈凍凜凱別刪剄則剋剎剗剛剝剮剴創劃劇劉劊劌劍劑勁動務勛勝勞勢勩勱勵勸勻匭匯匱區協卻厙厠厭厲厴參叄叢吒吳吶呂咼員唄唚問啓啞啟啢喎喚喪喬單喲嗆嗇嗊嗎嗚嗩嗶嘆嘍嘔嘖嘗嘜嘩嘮嘯嘰嘵嘸嘽噓噝噠噥噦噯噲噴噸噹嚀嚇嚌嚕嚙嚦嚨嚲嚳嚴嚶囀囁囂囅囈囑囪圇國圍園圓圖團垵埡埰執堅堊堖堝堯報場塊塋塏塒塗塢塤塵塹墊墜墮墳墻墾壇壈壋壓壘壙壚壞壟壠壢壩壯壺壼壽夠夢夾奐奧奩奪奬奮奼妝姍姦娛婁婦婭媧媯媼媽嫗嫵嫻嫿嬀嬈嬋嬌嬙嬡嬤嬪嬰嬸孌孫學孿宮寢實寧審寫寬寵寶將專尋對導尷屆屍屓屜屢層屨屬岡峴島峽崍崗崢崬嵐嶁嶄嶇嶔嶗嶠嶢嶧嶮嶴嶸嶺嶼巋巒巔巰帥師帳帶幀幃幗幘幟幣幫幬幹幺幾庫廁廂廄廈廚廝廟廠廡廢廣廩廬廳弒弳張強彈彌彎彙彞彥後徑從徠復徵徹恆恥悅悞悵悶惡惱惲惻愛愜愨愴愷愾慄態慍慘慚慟慣慤慪慫慮慳慶憂憊憐憑憒憚憤憫憮憲憶懇應懌懍懟懣懨懲懶懷懸懺懼懾戀戇戔戧戩戰戱戲戶拋拾挩挾捨捫掃掄掗掙掛採揀揚換揮損搖搗搵搶摑摜摟摯摳摶摻撈撏撐撓撝撟撣撥撫撲撳撻撾撿擁擄擇擊擋擓擔據擠擬擯擰擱擲擴擷擺擻擼擾攄攆攏攔攖攙攛攜攝攢攣攤攪攬敗敘敵數斂斃斕斬斷時晉晝暈暉暘暢暫曄曆曇曉曏曖曠曨曬書會朧東杴桿梔梘條梟梲棄棖棗棟棧棲棶椏楊楓楨業極榪榮榲榿構槍槤槧槨槳樁樂樅樓標樞樣樸樹樺橈橋機橢橫檁檉檔檜檟檢檣檮檯檳檸檻櫃櫓櫚櫛櫝櫞櫟櫥櫧櫨櫪櫫櫬櫱櫳櫸櫻欄權欏欒欖欞欽歐歟歡歲歷歸歿殘殞殤殨殫殮殯殲殺殻殼毀毆毿氂氈氌氣氫氬氳決沒沖況洶浹涇涼淚淥淪淵淶淺渙減渦測渾湊湞湯溈準溝溫滄滅滌滎滬滯滲滷滸滻滾滿漁漚漢漣漬漲漵漸漿潁潑潔潙潛潤潯潰潷潿澀澆澇澗澠澤澦澩澮澱濁濃濕濘濟濤濫濰濱濺濼濾瀅瀆瀉瀏瀕瀘瀝瀟瀠瀦瀧瀨瀲瀾灃灄灑灕灘灝灠灣灤灧災為烏烴無煉煒煙煢煥煩煬熅熒熗熱熲熾燁燈燉燒燙燜營燦燭燴燼燾爍爐爛爭爲爺爾牆牘牽犖犢犧狀狹狽猙猶猻獁獄獅獎獨獪獫獮獰獲獵獷獸獺獻獼玀現琺琿瑋瑒瑣瑤瑩瑪瑲璉璣璦璫環璽瓊瓏瓔瓚甌產産畝畢異畵當疇疊痙痾瘂瘋瘍瘓瘞瘡瘧瘮瘲瘺瘻療癆癇癉癘癟癢癤癥癧癩癬癭癮癰癱癲發皚皰皸皺盜盞盡監盤盧眥眾睏睜睞瞘瞜瞞瞶瞼矓矚矯硜硤硨硯碩碭碸確碼磑磚磣磧磯磽礆礎礙礦礪礫礬礱祿禍禎禕禡禦禪禮禰禱禿秈稅稈稟種稱穀穌積穎穠穡穢穩穫穭窩窪窮窯窵窶窺竄竅竇竈竊竪競筆筍筧筴箋箏節範築篋篔篤篩篳簀簍簞簡簣簫簹簽簾籃籌籙籜籟籠籩籪籬籮粵糝糞糧糲糴糶糹糾紀紂約紅紆紇紈紉紋納紐紓純紕紖紗紘紙級紛紜紝紡紬細紱紲紳紵紹紺紼紿絀終組絅絆絎結絕絛絝絞絡絢給絨絰統絲絳絶絹綁綃綆綈綉綌綏經綜綞綠綢綣綫綬維綯綰綱網綳綴綸綹綺綻綽綾綿緄緇緊緋緑緒緓緔緗緘緙線緝緞締緡緣緦編緩緬緯緱緲練緶緹緻縈縉縊縋縐縑縕縗縛縝縞縟縣縧縫縭縮縱縲縳縵縶縷縹總績繃繅繆繒織繕繚繞繡繢繩繪繫繭繮繯繰繳繸繹繼繽繾纈纊續纍纏纓纖纘纜缽罈罌罰罵罷羅羆羈羋羥義習翹耬耮聖聞聯聰聲聳聵聶職聹聽聾肅脅脈脛脫脹腎腖腡腦腫腳腸膃膚膠膩膽膾膿臉臍臏臘臚臟臠臢臨臺與興舉舊艙艤艦艫艱艷芻苎苧茲荊莊莖莢莧華萇萊萬萵葉葒著葤葦葯葷蒓蒔蒞蒼蓀蓋蓮蓯蓴蓽蔔蔞蔣蔥蔦蔭蕁蕆蕎蕒蕓蕕蕘蕢蕩蕪蕭蕷薀薈薊薌薔薘薟薦薩薴薺藍藎藝藥藪藴藶藹藺蘄蘆蘇蘊蘋蘚蘞蘢蘭蘺蘿虆處虛虜號虧虯蛺蛻蜆蝕蝟蝦蝸螄螞螢螻螿蟄蟈蟎蟣蟬蟯蟲蟶蟻蠅蠆蠐蠑蠟蠣蠨蠱蠶蠻衆術衕衚衛衝衹袞裊裏補裝裡製複褌褘褲褳褸褻襇襏襖襝襠襤襪襯襲見覎規覓視覘覡覥覦親覬覯覲覷覺覽覿觀觴觶觸訁訂訃計訊訌討訐訒訓訕訖託記訛訝訟訢訣訥訩訪設許訴訶診註詁詆詎詐詒詔評詖詗詘詛詞詠詡詢詣試詩詫詬詭詮詰話該詳詵詼詿誄誅誆誇誌認誑誒誕誘誚語誠誡誣誤誥誦誨說説誰課誶誹誼誾調諂諄談諉請諍諏諑諒論諗諛諜諝諞諢諤諦諧諫諭諮諱諳諶諷諸諺諼諾謀謁謂謄謅謊謎謐謔謖謗謙謚講謝謠謡謨謫謬謭謳謹謾證譎譏譖識譙譚譜譫譯議譴護譸譽譾讀變讎讒讓讕讖讜讞豈豎豐豬豶貓貝貞貟負財貢貧貨販貪貫責貯貰貲貳貴貶買貸貺費貼貽貿賀賁賂賃賄賅資賈賊賑賒賓賕賙賚賜賞賠賡賢賣賤賦賧質賫賬賭賴賵賺賻購賽賾贄贅贇贈贊贋贍贏贐贓贔贖贗贛贜赬趕趙趨趲跡踐踴蹌蹕蹣蹤蹺躂躉躊躋躍躑躒躓躕躚躡躥躦躪軀車軋軌軍軑軒軔軛軟軤軫軲軸軹軺軻軼軾較輅輇輈載輊輒輓輔輕輛輜輝輞輟輥輦輩輪輬輯輳輸輻輾輿轀轂轄轅轆轉轍轎轔轟轡轢轤辦辭辮辯農逕這連進運過達違遙遜遞遠適遲遷選遺遼邁還邇邊邏邐郟郵鄆鄉鄒鄔鄖鄧鄭鄰鄲鄴鄶鄺酇酈醖醜醞醫醬醱釀釁釃釅釋釐釒釓釔釕釗釘釙針釣釤釧釩釵釷釹釺鈀鈁鈃鈄鈈鈉鈍鈎鈐鈑鈒鈔鈕鈞鈣鈥鈦鈧鈮鈰鈳鈴鈷鈸鈹鈺鈽鈾鈿鉀鉅鉈鉉鉋鉍鉑鉕鉗鉚鉛鉞鉢鉤鉦鉬鉭鉶鉸鉺鉻鉿銀銃銅銍銑銓銖銘銚銛銜銠銣銥銦銨銩銪銫銬銱銳銷銹銻銼鋁鋃鋅鋇鋌鋏鋒鋙鋝鋟鋣鋤鋥鋦鋨鋩鋪鋭鋮鋯鋰鋱鋶鋸鋼錁錄錆錇錈錏錐錒錕錘錙錚錛錟錠錡錢錦錨錩錫錮錯録錳錶錸鍀鍁鍃鍆鍇鍈鍋鍍鍔鍘鍚鍛鍠鍤鍥鍩鍬鍰鍵鍶鍺鎂鎄鎇鎊鎔鎖鎘鎛鎡鎢鎣鎦鎧鎩鎪鎬鎮鎰鎲鎳鎵鎸鎿鏃鏇鏈鏌鏍鏐鏑鏗鏘鏜鏝鏞鏟鏡鏢鏤鏨鏰鏵鏷鏹鏽鐃鐋鐐鐒鐓鐔鐘鐙鐝鐠鐦鐧鐨鐫鐮鐲鐳鐵鐶鐸鐺鐿鑄鑊鑌鑒鑔鑕鑞鑠鑣鑥鑭鑰鑱鑲鑷鑹鑼鑽鑾鑿钁長門閂閃閆閈閉開閌閎閏閑間閔閘閡閣閥閨閩閫閬閭閱閲閶閹閻閼閽閾閿闃闆闈闊闋闌闍闐闒闓闔闕闖關闞闠闡闤闥阪陘陝陣陰陳陸陽隉隊階隕際隨險隱隴隸隻雋雖雙雛雜雞離難雲電霢霧霽靂靄靈靚靜靦靨鞀鞏鞝鞽韁韃韉韋韌韍韓韙韜韞韻響頁頂頃項順頇須頊頌頎頏預頑頒頓頗領頜頡頤頦頭頮頰頲頴頷頸頹頻頽顆題額顎顏顒顓顔願顙顛類顢顥顧顫顬顯顰顱顳顴風颭颮颯颱颳颶颸颺颻颼飀飄飆飈飛飠飢飣飥飩飪飫飭飯飲飴飼飽飾飿餃餄餅餉養餌餎餏餑餒餓餕餖餚餛餜餞餡館餱餳餶餷餺餼餾餿饁饃饅饈饉饊饋饌饑饒饗饜饞饢馬馭馮馱馳馴馹駁駐駑駒駔駕駘駙駛駝駟駡駢駭駰駱駸駿騁騂騅騌騍騎騏騖騙騤騫騭騮騰騶騷騸騾驀驁驂驃驄驅驊驌驍驏驕驗驚驛驟驢驤驥驦驪驫骯髏髒體髕髖髮鬆鬍鬚鬢鬥鬧鬩鬮鬱魎魘魚魛魢魨魯魴魷魺鮁鮃鮊鮋鮍鮎鮐鮑鮒鮓鮚鮜鮝鮞鮦鮪鮫鮭鮮鮳鮶鮺鯀鯁鯇鯉鯊鯒鯔鯕鯖鯗鯛鯝鯡鯢鯤鯧鯨鯪鯫鯴鯷鯽鯿鰁鰂鰃鰈鰉鰍鰏鰐鰒鰓鰜鰟鰠鰣鰥鰨鰩鰭鰮鰱鰲鰳鰵鰷鰹鰺鰻鰼鰾鱂鱅鱈鱉鱒鱔鱖鱗鱘鱝鱟鱠鱣鱤鱧鱨鱭鱯鱷鱸鱺鳥鳧鳩鳬鳲鳳鳴鳶鳾鴆鴇鴉鴒鴕鴛鴝鴞鴟鴣鴦鴨鴯鴰鴴鴷鴻鴿鵁鵂鵃鵐鵑鵒鵓鵜鵝鵠鵡鵪鵬鵮鵯鵲鵷鵾鶄鶇鶉鶊鶓鶖鶘鶚鶡鶥鶩鶪鶬鶯鶲鶴鶹鶺鶻鶼鶿鷀鷁鷂鷄鷈鷊鷓鷖鷗鷙鷚鷥鷦鷫鷯鷲鷳鷸鷹鷺鷽鷿鸇鸌鸏鸕鸘鸚鸛鸝鸞鹵鹹鹺鹽麗麥麩麵麽黃黌點黨黲黶黷黽黿鼉鼴齊齋齎齏齒齔齕齗齙齜齟齠齡齦齪齬齲齶齷龍龎龐龔龕龜]/;
+			const isTraditional = [...strings].map(string => (bool = string?.match(reg) ? true : false));
+			//console.log("isTraditional: " + isTraditional)
 			const sumEqual = isTraditional.reduce((prev, current, index, arr) => {
-				return prev + current
+				return prev + current;
 			});
 			log(`✅ is the Strings Traditional Chinese?`, `sumEqual: ${sumEqual}`, "");
 			return sumEqual;
-		};
-	};
-};
+		}
+	}
+}
 
 /**
  * Set Cache
@@ -468,7 +497,7 @@ function detectLocales(infoGroup = {"seasonTitle": undefined, "seasonId": undefi
  * @param {Object} cache - Caches
  * @return {Array<Boolean>} is setJSON success?
  */
-function setCache(infoGroup = { seasonTitle: undefined, "seasonId": undefined, "epId": undefined, "mId": undefined, "evaluate": undefined}, episodes = [], cache = {}) {
+function setCache(infoGroup = { seasonTitle: undefined, seasonId: undefined, epId: undefined, mId: undefined, evaluate: undefined }, episodes = [], cache = {}) {
 	log(`☑️ Set Cache`, `seasonTitle: ${infoGroup.seasonTitle}, seasonId: ${infoGroup.seasonId}, epId: ${infoGroup.epId}, mId: ${infoGroup.mId}`, "");
 	let isSaved = false;
 	if (infoGroup.locales?.length > 0) {
@@ -478,7 +507,8 @@ function setCache(infoGroup = { seasonTitle: undefined, "seasonId": undefined, "
 		cache.ss = Array.from(cache.ss).slice(-100); // Map转Array.限制缓存大小
 		cache.ep = Array.from(cache.ep).slice(-1000); // Map转Array.限制缓存大小
 		isSaved = Storage.setItem("@BiliBili.Global.Caches", cache);
-	};
+	}
 	log(`✅ Set Cache, locales: ${infoGroup.locales}, isSaved: ${isSaved}`, "");
+	//log(`🚧 Set Cache`, `cache: ${JSON.stringify(cache)}`, "");
 	return isSaved;
-};
+}
