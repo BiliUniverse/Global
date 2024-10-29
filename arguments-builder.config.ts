@@ -3,26 +3,26 @@ import { defineConfig } from "@iringo/arguments-builder";
 export default defineConfig({
 	output: {
 		surge: {
-			path: "./dist/Enhanced.sgmodule",
+			path: "./dist/BiliBili.Global.sgmodule",
 		},
 		loon: {
-			path: "./dist/Enhanced.plugin",
+			path: "./dist/BiliBili.Global.plugin",
 		},
 		customItems: [
 			{
-				path: "./dist/Enhanced.stoverride",
+				path: "./dist/BiliBili.Global.stoverride",
 				template: "./template/stash.handlebars",
 			},
 			{
-				path: "./dist/Enhanced.yaml",
+				path: "./dist/BiliBili.Global.yaml",
 				template: "./template/egern.handlebars",
 			},
 			{
-				path: "./dist/Enhanced.snippet",
+				path: "./dist/BiliBili.Global.snippet",
 				template: "./template/quantumultx.handlebars",
 			},
 			{
-				path: "./dist/Enhanced.srmodule",
+				path: "./dist/BiliBili.Global.srmodule",
 				template: "./template/shadowrocket.handlebars",
 			},
 		],
@@ -32,7 +32,7 @@ export default defineConfig({
 		},
 		boxjsSettings: {
 			path: "./template/boxjs.settings.json",
-			scope: "@BiliBili.Enhanced.Settings",
+			scope: "@BiliBili.Global.Settings",
 		},
 	},
 	args: [
@@ -45,210 +45,84 @@ export default defineConfig({
 			exclude: ["surge", "loon"],
 		},
 		{
-			key: "Home.Tab",
-			name: "[首页]标签页",
-			defaultValue: ["直播tab", "推荐tab", "hottopic", "bangumi", "anime", "film", "koreavtw"],
-			type: "array",
-			boxJsType: "checkboxes",
-			description: "请选择启用的首页标签页，建议不超过7个。",
-			options: [
-				{
-					key: "直播tab",
-					label: "直播",
-				},
-				{
-					key: "推荐tab",
-					label: "推荐",
-				},
-				{
-					key: "hottopic",
-					label: "热门",
-				},
-				{
-					key: "bangumi",
-					label: "番剧",
-				},
-				{
-					key: "anime",
-					label: "动画（港澳台）",
-				},
-				{
-					key: "film",
-					label: "影视",
-				},
-				{
-					key: "koreavtw",
-					label: "韩综（港澳台）",
-				},
-				{
-					key: "game",
-					label: "游戏",
-				},
-				{
-					key: "mctab",
-					label: "minecraft",
-				},
-				{
-					key: "dhtr",
-					label: "动画同人",
-				},
-				{
-					key: "gaoxiao",
-					label: "搞笑",
-				},
-				{
-					key: "school",
-					label: "校园",
-				},
-				{
-					key: "kj",
-					label: "数码",
-				},
-			],
-		},
-		{
-			key: "Home.Tab_default",
-			name: "[首页]默认标签页",
-			defaultValue: "推荐tab",
-			type: "string",
+			key: "ForceHost",
+			name: "强制CDN主机名类型",
+			defaultValue: "1",
+			type: "number",
 			boxJsType: "selects",
-			description: "请选择启动APP时默认展示的标签页，需选择已启用的标签页。",
+			description: "请设置强制返回的CDN主机名类型。",
 			options: [
 				{
-					key: "直播tab",
-					label: "直播",
+					key: "0",
+					label: "IP: 返回远端DNS解析地址（强烈不推荐！严重影响域名分流规则与CDN重定向）",
 				},
 				{
-					key: "推荐tab",
-					label: "推荐",
+					key: "1",
+					label: "HTTP: 返回HTTP域名（推荐，免去重定向时MitM操作）",
 				},
 				{
-					key: "hottopic",
-					label: "热门",
-				},
-				{
-					key: "bangumi",
-					label: "番剧",
-				},
-				{
-					key: "anime",
-					label: "动画（港澳台）",
-				},
-				{
-					key: "film",
-					label: "影视",
-				},
-				{
-					key: "koreavtw",
-					label: "韩综（港澳台）",
-				},
-				{
-					key: "game",
-					label: "游戏",
-				},
-				{
-					key: "mctab",
-					label: "minecraft",
-				},
-				{
-					key: "dhtr",
-					label: "动画同人",
-				},
-				{
-					key: "gaoxiao",
-					label: "搞笑",
-				},
-				{
-					key: "school",
-					label: "校园",
-				},
-				{
-					key: "kj",
-					label: "数码",
+					key: "2",
+					label: "HTTPS: 返回HTTPS域名（不推荐，重定向时需对指定域名启用MitM）",
 				},
 			],
 		},
 		{
-			key: "Home.Top_left",
-			name: "[首页]顶栏（左侧）按钮（用户头像）",
-			defaultValue: "mine",
+			key: "Locales",
+			name: "启用自动识别与分流功能的地区",
+			defaultValue: ["CHN", "HKG", "TWN"],
+			type: "array",
+			boxJsType: "checkboxes",
+			description: "请选择启用自动识别与分流功能的地区。",
+			options: [
+				{
+					key: "CHN",
+					label: "🇨🇳中国大陆",
+				},
+				{
+					key: "HKG",
+					label: "🇭🇰中国香港",
+				},
+				{
+					key: "MAC",
+					label: "🇲🇴中国澳门",
+				},
+				{
+					key: "TWN",
+					label: "🇹🇼中国台湾",
+				},
+			],
+		},
+		{
+			key: "Proxies.CHN",
+			name: "[🇨🇳中国大陆] 代理策略名称",
+			defaultValue: "DIRECT",
 			type: "string",
-			boxJsType: "selects",
-			description: "请选择顶栏（左侧）按钮（用户头像）的作用（在biliBili粉色版中无法修改）。",
-			options: [
-				{
-					key: "mine",
-					label: "用户中心-我的",
-				},
-				{
-					key: "videoshortcut",
-					label: "短视频",
-				},
-			],
+			boxJsType: "text",
+			description: "请填写此地区的代理或策略组名称。",
 		},
 		{
-			key: "Home.Top",
-			name: "[首页]顶栏（右侧）按钮",
-			defaultValue: ["消息Top"],
-			type: "array",
-			boxJsType: "checkboxes",
-			description: "请选择启用的顶栏（右侧）按钮。",
-			options: [
-				{
-					key: "游戏中心Top",
-					label: "游戏中心",
-				},
-				{
-					key: "会员购Top",
-					label: "会员购",
-				},
-				{
-					key: "消息Top",
-					label: "消息",
-				},
-			],
+			key: "Proxies.HKG",
+			name: "[🇭🇰中国香港] 代理策略名称",
+			defaultValue: "🇭🇰香港",
+			type: "string",
+			boxJsType: "text",
+			description: "请填写此地区的代理或策略组名称。",
 		},
 		{
-			key: "Bottom",
-			name: "[底部]导航栏按钮",
-			defaultValue: ["home", "dynamic", "ogv", "会员购Bottom", "我的Bottom"],
-			type: "array",
-			boxJsType: "checkboxes",
-			description: "请选择启用的底部导航栏按钮，最多6个。",
-			options: [
-				{
-					"key": "home",
-					"label": "首页"
-				},
-				{
-					"key": "频道Bottom",
-					"label": "频道"
-				},
-				{
-					"key": "dynamic",
-					"label": "动态"
-				},
-				{
-					"key": "publish",
-					"label": "发布"
-				},
-				{
-					"key": "ogv",
-					"label": "节目（港澳台）"
-				},
-				{
-					"key": "会员购Bottom",
-					"label": "会员购"
-				},
-				{
-					"key": "消息Bottom",
-					"label": "消息"
-				},
-				{
-					"key": "我的Bottom",
-					"label": "我的"
-				}
-			],
+			key: "Proxies.MAC",
+			name: "[🇲🇴中国澳门] 代理策略名称",
+			defaultValue: "🇲🇴澳门",
+			type: "string",
+			boxJsType: "text",
+			description: "请填写此地区的代理或策略组名称。",
+		},
+		{
+			key: "Proxies.TWN",
+			name: "[🇹🇼中国台湾] 代理策略名称",
+			defaultValue: "🇹🇼台湾",
+			type: "string",
+			boxJsType: "text",
+			description: "请填写此地区的代理或策略组名称。",
 		},
 	],
 });

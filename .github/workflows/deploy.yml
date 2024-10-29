@@ -21,10 +21,17 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: artifact
-      - name: Deploy Composite.Subtitles.response
+      - name: Deploy Request
         uses: exuanbo/actions-deploy-gist@main
         with:
           token: ${{ secrets.GIST_TOKEN }}
-          gist_id: 97d7611df1c0b29a254ce8f527137576
-          gist_description: "📺 BiliBili: ⚙️ Enhanced β"
+          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
+          gist_description: "📺 BiliBili: 🌐 Global β"
+          file_path: dist/request.bundle.js
+      - name: Deploy Response
+        uses: exuanbo/actions-deploy-gist@main
+        with:
+          token: ${{ secrets.GIST_TOKEN }}
+          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
+          gist_description: "📺 BiliBili: 🌐 Global β"
           file_path: dist/response.bundle.js
