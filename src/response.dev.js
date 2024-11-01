@@ -18,7 +18,10 @@ log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}`, "");
 const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
 log(`⚠ FORMAT: ${FORMAT}`, "");
 !(async () => {
-	// 读取设置
+	/**
+	 * 设置
+	 * @type {{Settings: import('./types').Settings}}
+	 */
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", database);
 	log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {

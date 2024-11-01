@@ -23,7 +23,10 @@ log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}`, "");
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
 log(`⚠ FORMAT: ${FORMAT}`, "");
 !(async () => {
-	// 读取设置
+	/**
+	 * 设置
+	 * @type {{Settings: import('./types').Settings}}
+	 */
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", database);
 	log(`⚠ Settings.Switch: ${Settings?.Switch}`, "");
 	switch (Settings.Switch) {
@@ -205,7 +208,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							switch (PATHs?.[0]) {
 								case "bangumi": // 番剧-web
 									switch (PATHs?.[1]) {
-										case "play": { // 番剧-播放页-web
+										case "play": {
+											// 番剧-播放页-web
 											const URLRegex = /ss(?<seasonId>[0-9]+)|ep(?<epId>[0-9]+)/;
 											({ seasonId: infoGroup.seasonId, epId: infoGroup.epId } = PATHs?.[2].match(URLRegex)?.groups);
 											infoGroup.seasonId = Number.parseInt(infoGroup.seasonId, 10) || infoGroup.seasonId;
