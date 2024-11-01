@@ -15,7 +15,7 @@ scriptings:
       _compat.$argument: ''
 - http_request:
     name: 📺 BiliBili.Global.viewunite.v1.View.grpc
-    match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.viewunite\.v1\.View\/View$
+    match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$
     script_url: https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
     arguments:
       _compat.$argument: ''
@@ -23,7 +23,7 @@ scriptings:
     binary_body: true
 - http_response:
     name: 📺 BiliBili.Global.viewunite.v1.View.grpc
-    match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.viewunite\.v1\.View\/View$
+    match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$
     script_url: https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/response.bundle.js
     arguments:
       _compat.$argument: ''
@@ -44,7 +44,7 @@ scriptings:
     body_required: true
 - http_request:
     name: 📺 BiliBili.Global.playerunite.v1.Player.grpc
-    match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$
+    match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$
     script_url: https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
     arguments:
       _compat.$argument: ''
@@ -52,7 +52,7 @@ scriptings:
     binary_body: true
 - http_request:
     name: 📺 BiliBili.Global.player.v2.PlayURL.grpc
-    match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView$
+    match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView$
     script_url: https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
     arguments:
       _compat.$argument: ''
@@ -78,7 +78,7 @@ scriptings:
       _compat.$argument: '
 - http_request:
     name: 📺 BiliBili.Global.search.grpc
-    match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)$
+    match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)$
     script_url: https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
     arguments:
       _compat.$argument: ''

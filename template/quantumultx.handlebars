@@ -13,16 +13,16 @@
 ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/? url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 
 # 📺 BiliBili.Global.viewunite.v1.View.grpc
-^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.viewunite\.v1\.View\/View$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
-^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.viewunite\.v1\.View\/View$ url script-response-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/response.bundle.js
+^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
+^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$ url script-response-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/response.bundle.js
 # 📺 BiliBili.Global.season.json
 ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season\? url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season\? url script-response-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/response.bundle.js
 
 # 📺 BiliBili.Global.playerunite.v1.Player.grpc
-^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
+^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 # 📺 BiliBili.Global.player.v2.PlayURL.grpc
-^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
+^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 # 📺 BiliBili.Global.player.playurl.json
 ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?\? url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 # 📺 BiliBili.Global.player.v2.playurl.json
@@ -31,7 +31,7 @@
 # 📺 BiliBili.Global.search.html
 ^https?:\/\/search\.bilibili\.com\/all\? url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 # 📺 BiliBili.Global.search.grpc
-^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
+^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 # 📺 BiliBili.Global.search.app.json
 ^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/search(\/type)?\? url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 # 📺 BiliBili.Global.search.wbi.json

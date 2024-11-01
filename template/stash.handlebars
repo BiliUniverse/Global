@@ -29,12 +29,12 @@ http:
       type: request
       timeout: 15
       argument:
-    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.viewunite\.v1\.View\/View$
+    - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$
       name: 📺 BiliBili.Global.request
       type: request
       binary-mode: true
       argument:
-    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.viewunite\.v1\.View\/View$
+    - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$
       name: 📺 BiliBili.Global.response
       type: response
       require-body: true
@@ -51,13 +51,13 @@ http:
       require-body: true
       max-size: 262144
       argument:
-    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$
+    - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$
       name: 📺 BiliBili.Global.request
       type: request
       require-body: true
       binary-mode: true
       argument:
-    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView$
+    - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.pgc\.gateway\.player\.v2\.PlayURL\/PlayView$
       name: 📺 BiliBili.Global.request
       type: request
       require-body: true
@@ -72,7 +72,7 @@ http:
       name: 📺 BiliBili.Global.request
       type: request
       argument:
-    - match: ^https?:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)$
+    - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.polymer\.app\.search\.v1\.Search\/(SearchAll|SearchByType)$
       name: 📺 BiliBili.Global.request
       type: request
       require-body: true
