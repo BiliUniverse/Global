@@ -335,7 +335,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 			log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 			// 请求策略
 			switch (PATH) {
-				case "/bilibili.app.viewunite.v1.View/View": //
+				case "/bilibili.app.viewunite.v1.View/View": // 番剧页面-内容-app
+					break;
 				case "/pgc/view/v2/app/season": // 番剧页面-内容-app
 				case "/pgc/view/web/season": // 番剧-内容-web
 				case "/pgc/view/pc/season": // 番剧-内容-pc
@@ -349,9 +350,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							log("⚠ 不是 PGC, 跳过", "");
 							break;
 					}
-					switch (
-						$platform // 直通模式，不处理，否则无法进http-response
-					) {
+					switch ($platform) {
+						// 直通模式，不处理，否则无法进http-response
 						case "Shadowrocket":
 						case "Quantumult X":
 							$request.policy = undefined;
@@ -383,15 +383,12 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					}
 					break;
 			}
-			if (!$response) {
-				// 无（构造）回复数据
-				switch ($platform) {
-					// 已有指定策略的请求，根据策略fetch
-					case "Shadowrocket":
-					case "Quantumult X":
-						if ($request.policy) $response = await fetch($request);
-						break;
-				}
+			switch ($platform) {
+				// 已有指定策略的请求，根据策略fetch
+				case "Shadowrocket":
+				case "Quantumult X":
+					if ($request.policy && !$response) $response = await fetch($request); // 无（构造）回复数据
+					break;
 			}
 			break;
 		}
