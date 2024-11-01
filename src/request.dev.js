@@ -113,6 +113,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 									// 主机判断
 									switch (HOST) {
 										case "grpc.biliapi.net": // HTTP/2
+										case "app.biliapi.net": // HTTP/1.1
 										case "app.bilibili.com": // HTTP/1.1
 											switch (PATHs?.[0]) {
 												case "bilibili.app.viewunite.v1.View":
