@@ -8,7 +8,7 @@ import { log } from "@nsnanocat/util";
  */
 export default function isResponseAvailability(response = {}) {
 	log("☑️ Determine Response Availability", "");
-	log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers)}`, "");
+	//log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers, null, 2)}`, "");
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
 	log("🚧 Determine Response Availability", `FORMAT: ${FORMAT}`, "");
 	let isAvailable = true;
@@ -23,7 +23,7 @@ export default function isResponseAvailability(response = {}) {
 							break;
 						case undefined:
 						case "": // 无内容
-							switch (response?.headers?.["content-length"] ?? response?.headers?.["content-length"]) {
+							switch (response?.headers?.["content-length"] ?? response?.headers?.["Content-Length"]) {
 								case undefined:
 									isAvailable = true;
 									break;

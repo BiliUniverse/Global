@@ -228,7 +228,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							switch (PATHs?.[0]) {
 								case "bangumi": // 番剧-web
 									switch (PATHs?.[1]) {
-										case "play": { // 番剧-播放页-web
+										case "play": {
+											// 番剧-播放页-web
 											const URLRegex = /ss(?<seasonId>[0-9]+)|ep(?<epId>[0-9]+)/;
 											({ seasonId: infoGroup.seasonId, epId: infoGroup.epId } = PATHs?.[2].match(URLRegex)?.groups);
 											infoGroup.seasonId = Number.parseInt(infoGroup.seasonId, 10) || infoGroup.seasonId;
@@ -380,7 +381,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					) {
 						case "Shadowrocket":
 						case "Quantumult X":
-							delete $request.policy;
+							$request.policy = undefined;
 							break;
 					}
 					break;
@@ -411,9 +412,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 			}
 			if (!$response) {
 				// 无（构造）回复数据
-				switch (
-					$platform // 已有指定策略的请求，根据策略fetch
-				) {
+				switch ($platform) {
+					// 已有指定策略的请求，根据策略fetch
 					case "Shadowrocket":
 					case "Quantumult X":
 						if ($request.policy) $response = await fetch($request);
@@ -428,9 +428,9 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 })()
 	.catch(e => logError(e))
 	.finally(() => {
-		switch ($response) {
-			default: // 有构造回复数据，返回构造的回复数据
-				//log(`🚧 finally`, `echo $response: ${JSON.stringify($response, null, 2)}`, "");
+		switch (typeof $response) {
+			case "object": // 有构造回复数据，返回构造的回复数据
+				//log("🚧 finally", `echo $response: ${JSON.stringify($response, null, 2)}`, "");
 				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				switch ($platform) {
@@ -446,15 +446,17 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 						break;
 				}
 				break;
-			case undefined: // 无构造回复数据，发送修改的请求数据
-				//log(`🚧 finally`, `$request: ${JSON.stringify($request, null, 2)}`, "");
+			case "undefined": // 无构造回复数据，发送修改的请求数据
+				//log("🚧 finally", `$request: ${JSON.stringify($request, null, 2)}`, "");
 				done($request);
+				break;
+			default:
+				logError(`不合法的 $response 类型: ${typeof $response}`, "");
 				break;
 		}
 	});
 
 /***************** Function *****************/
-
 /**
  * Fetch
  * @author VirgilClyne
@@ -487,11 +489,12 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	await Promise.allSettled(
 		locales.map(async locale => {
 			request.policy = proxies[locale];
-			if ($platform === "Quantumult X") request.body = request.bodyBytes;
+			if ($platform === "Quantumult X") request.body = undefined;
 			responses[locale] = await fetch(request);
 		}),
 	);
 	for (const locale in responses) {
+		//log("🚧 mutiFetch", `locale: ${locale}`);
 		if (!isResponseAvailability(responses[locale])) delete responses[locale];
 	}
 	const availableLocales = Object.keys(responses);
