@@ -4,6 +4,10 @@ export default defineConfig({
 	output: {
 		surge: {
 			path: "./dist/BiliBili.Global.sgmodule",
+			transformEgern: {
+				enable: true,
+				path: "./dist/BiliBili.Global.yaml",
+			},
 		},
 		loon: {
 			path: "./dist/BiliBili.Global.plugin",
@@ -12,10 +16,6 @@ export default defineConfig({
 			{
 				path: "./dist/BiliBili.Global.stoverride",
 				template: "./template/stash.handlebars",
-			},
-			{
-				path: "./dist/BiliBili.Global.yaml",
-				template: "./template/egern.handlebars",
 			},
 			{
 				path: "./dist/BiliBili.Global.snippet",
