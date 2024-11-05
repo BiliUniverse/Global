@@ -1,2 +1,2 @@
 ### 🛠️ Bug Fixes
-  * 修复`Quantumult X`和`shadowrocket`兼容性
+  * 修复 `Surge` 模块`脚本引擎`设置
