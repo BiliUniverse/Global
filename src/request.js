@@ -14,11 +14,8 @@ let $response = undefined;
 const url = new URL($request.url);
 log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
-const METHOD = $request.method,
-	HOST = url.hostname,
-	PATH = url.pathname,
-	PATHs = url.pathname.split("/").filter(Boolean);
-log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}`, "");
+const PATHs = url.pathname.split("/").filter(Boolean);
+log(`⚠ PATHs: ${PATHs}`, "");
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
 log(`⚠ FORMAT: ${FORMAT}`, "");
@@ -43,7 +40,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 		type: "UGC",
 	};
 	// 方法判断
-	switch (METHOD) {
+	switch ($request.method) {
 		case "POST":
 		case "PUT":
 		case "PATCH":
@@ -94,7 +91,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 							rawBody = gRPC.decode(rawBody);
 							// 解析链接并处理protobuf数据
 							// 主机判断
-							switch (HOST) {
+							switch (url.hostname) {
 								case "grpc.biliapi.net": // HTTP/2
 								case "app.biliapi.net": // HTTP/1.1
 								case "app.bilibili.com": // HTTP/1.1
@@ -200,7 +197,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 		case "OPTIONS":
 		default:
 			// 主机判断
-			switch (HOST) {
+			switch (url.hostname) {
 				case "www.bilibili.com":
 					switch (PATHs?.[0]) {
 						case "bangumi": // 番剧-web
@@ -220,7 +217,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					}
 					break;
 				case "search.bilibili.com":
-					switch (PATH) {
+					switch (url.pathname) {
 						case "/all": // 搜索-全部结果-web（综合）
 							({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(infoGroup.keyword));
 							url.searchParams.set("keyword", infoGroup.keyword);
@@ -230,7 +227,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "app.bilibili.com":
 				case "app.biliapi.net":
 					// 路径判断
-					switch (PATH) {
+					switch (url.pathname) {
 						case "/x/v2/splash/show": // 开屏页
 						case "/x/v2/splash/list": // 开屏页
 						case "/x/v2/splash/brand/list": // 开屏页
@@ -265,7 +262,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 				case "api.bilibili.com":
 				case "api.biliapi.net":
-					switch (PATH) {
+					switch (url.pathname) {
 						case "/pgc/player/api/playurl": // 番剧-播放地址-api
 						case "/pgc/player/web/playurl": // 番剧-播放地址-web
 						case "/pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
@@ -316,7 +313,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					}
 					break;
 				case "api.live.bilibili.com":
-					switch (PATH) {
+					switch (url.pathname) {
 						case "/xlive/app-room/v1/index/getInfoByRoom": // 直播
 							break;
 					}
@@ -330,7 +327,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 	$request.url = url.toString();
 	log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
 	// 请求策略
-	switch (PATH) {
+	switch (url.pathname) {
 		case "/bilibili.app.viewunite.v1.View/View": // 番剧页面-内容-app
 			break;
 		case "/pgc/view/v2/app/season": // 番剧页面-内容-app

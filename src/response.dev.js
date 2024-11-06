@@ -9,11 +9,8 @@ import { ViewPgcAny } from "./protobuf/bilibili/app/viewunite/pgcanymodel.js";
 const url = new URL($request.url);
 log(`⚠ url: ${url.toJSON()}`, "");
 // 获取连接参数
-const METHOD = $request.method,
-	HOST = url.hostname,
-	PATH = url.pathname,
-	PATHs = url.pathname.split("/").filter(Boolean);
-log(`⚠ METHOD: ${METHOD}, HOST: ${HOST}, PATH: ${PATH}`, "");
+const PATHs = url.pathname.split("/").filter(Boolean);
+log(`⚠ PATHs: ${PATHs}`, "");
 // 解析格式
 const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
 log(`⚠ FORMAT: ${FORMAT}`, "");
@@ -73,7 +70,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 		case "application/json":
 			body = JSON.parse($response.body ?? "{}");
 			// 解析链接
-			switch (HOST) {
+			switch (url.hostname) {
 				case "www.bilibili.com":
 					break;
 				case "app.bilibili.com":
@@ -81,7 +78,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 				case "api.bilibili.com":
 				case "api.biliapi.net":
-					switch (PATH) {
+					switch (url.pathname) {
 						case "/pgc/player/api/playurl": // 番剧-播放地址-api
 						case "/pgc/player/web/playurl": // 番剧-播放地址-web
 						case "/pgc/player/web/playurl/html5": // 番剧-播放地址-web-HTML5
@@ -183,7 +180,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					rawBody = gRPC.decode(rawBody);
 					// 解析链接并处理protobuf数据
 					// 主机判断
-					switch (HOST) {
+					switch (url.hostname) {
 						case "grpc.biliapi.net": // HTTP/2
 						case "app.biliapi.net": // HTTP/1.1
 						case "app.bilibili.com": // HTTP/1.1
