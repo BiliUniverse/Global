@@ -37,14 +37,6 @@ export default defineConfig({
 	},
 	args: [
 		{
-			key: "Switch",
-			name: "总功能开关",
-			defaultValue: true,
-			type: "boolean",
-			description: "是否启用此APP修改",
-			exclude: ["surge", "loon"],
-		},
-		{
 			key: "ForceHost",
 			name: "强制CDN主机名类型",
 			defaultValue: "1",

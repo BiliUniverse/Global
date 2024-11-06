@@ -1,12 +1,6 @@
 export default {
-	Default: {
-		Settings: {
-			Switch: true,
-		},
-	},
 	Global: {
 		Settings: {
-			Switch: true,
 			ForceHost: "1",
 			Locales: ["CHN", "HKG", "TWN"],
 			Proxies: {

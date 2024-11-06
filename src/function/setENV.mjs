@@ -11,7 +11,7 @@ import { Lodash as _, getStorage, log } from "@nsnanocat/util";
  */
 export default function setENV(name, platforms, database) {
 	log("☑️ Set Environment Variables", "");
-	let { Settings, Caches, Configs } = getStorage(name, platforms, database);
+	const { Settings, Caches, Configs } = getStorage(name, platforms, database);
 	/***************** Settings *****************/
 	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
 	log(`✅ Set Environment Variables, Settings: ${typeof Settings}, Settings内容: ${JSON.stringify(Settings)}`, "");
