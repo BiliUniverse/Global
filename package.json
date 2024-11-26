@@ -1,6 +1,6 @@
 {
 	"name": "@biliuniverse/global",
-	"version": "0.8.9",
+	"version": "0.8.10",
 	"organizationName": "🪐 BiliUniverse",
 	"displayName": "📺 BiliBili: 🌐 Global",
 	"description": "哔哩哔哩：全球模式\n中国站自动线路及全区搜索",
@@ -39,7 +39,6 @@
 	],
 	"devDependencies": {
 		"@iringo/arguments-builder": "^1.8.2",
-		"@nsnanocat/util": "^1.3.6",
 		"@protobuf-ts/plugin": "^2.9.3",
 		"@rspack/cli": "^1.0.14",
 		"@rspack/core": "^1.0.14",
@@ -48,7 +47,9 @@
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {
-		"@protobuf-ts/runtime-rpc": "^2.9.3",
-		"@protobuf-ts/runtime": "^2.9.3"
+		"@nsnanocat/url": "^1.2.1",
+		"@nsnanocat/util": "^1.5.2",
+		"@protobuf-ts/runtime": "^2.9.3",
+		"@protobuf-ts/runtime-rpc": "^2.9.3"
 	}
 }

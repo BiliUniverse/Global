@@ -1,4 +1,5 @@
-import { $platform, URL, Lodash as _, Storage, fetch, notification, log, logError, wait, done, gRPC } from "@nsnanocat/util";
+import { $app, Lodash as _, Storage, fetch, notification, log, logError, wait, done, gRPC } from "@nsnanocat/util";
+import { URL } from "@nsnanocat/url";
 import database from "./function/database.mjs";
 import setENV from "./function/setENV.mjs";
 import isResponseAvailability from "./function/isResponseAvailability.mjs";
@@ -91,7 +92,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/grpc+proto":
 				case "application/octet-stream": {
 					//log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
-					let rawBody = $platform === "Quantumult X" ? new Uint8Array($request.bodyBytes ?? []) : ($request.body ?? new Uint8Array());
+					let rawBody = $app === "Quantumult X" ? new Uint8Array($request.bodyBytes ?? []) : ($request.body ?? new Uint8Array());
 					//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
 					switch (FORMAT) {
 						case "application/protobuf":
@@ -370,7 +371,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					log("⚠ 不是 PGC, 跳过", "");
 					break;
 			}
-			switch ($platform) {
+			switch ($app) {
 				// 直通模式，不处理，否则无法进http-response
 				case "Shadowrocket":
 				case "Quantumult X":
@@ -403,7 +404,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 			}
 			break;
 	}
-	switch ($platform) {
+	switch ($app) {
 		// 已有指定策略的请求，根据策略fetch
 		case "Shadowrocket":
 		case "Quantumult X":
@@ -418,7 +419,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				//log("🚧 finally", `echo $response: ${JSON.stringify($response, null, 2)}`, "");
 				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
-				switch ($platform) {
+				switch ($app) {
 					default:
 						done({ response: $response });
 						break;
@@ -475,7 +476,7 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 	await Promise.allSettled(
 		locales.map(async locale => {
 			request.policy = proxies[locale];
-			if ($platform === "Quantumult X") request.body = undefined;
+			if ($app === "Quantumult X") request.body = undefined;
 			responses[locale] = await fetch(request);
 		}),
 	);

@@ -1,6 +1,11 @@
 ### 🛠️ Bug Fixes
-  * 修复 `Surge` 模块`脚本引擎`设置
-  * 修复 `Egern` 模块`参数面板`
+  * 修复 `$argument` 和 `$persistentStore` 载入顺序颠倒的问题
+    * 正确顺序为先读取 `$argument` 再读取 `$persistentStore (BoxJs)`
+    * 即，有相同键名时，`$persistentStore (BoxJs)` 的值会覆盖 `$argument` 的值
 
-### 🔄 Other Changes
-  * 加入 `URL` polyfill 以兼容 `tvOS`
+### 🔣 Dependencies
+  * 升级了 `@nsnanocat/url`
+    * 使用了全新的 `URL` 和 `URLSearchParams` polyfill
+  * 升级了 `@nsnanocat/util`
+    * `util` 由 `submodule` 更改为 `package`
+    * `$platform` 改为 `$app`
