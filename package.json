@@ -1,6 +1,6 @@
 {
 	"name": "@biliuniverse/global",
-	"version": "0.8.10",
+	"version": "0.8.11",
 	"organizationName": "🪐 BiliUniverse",
 	"displayName": "📺 BiliBili: 🌐 Global",
 	"description": "哔哩哔哩：全球模式\n中国站自动线路及全区搜索",
@@ -47,7 +47,7 @@
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {
-		"@nsnanocat/url": "^1.2.1",
+		"@nsnanocat/url": "^1.2.2",
 		"@nsnanocat/util": "^1.5.2",
 		"@protobuf-ts/runtime": "^2.9.3",
 		"@protobuf-ts/runtime-rpc": "^2.9.3"
