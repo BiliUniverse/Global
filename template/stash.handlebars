@@ -27,11 +27,11 @@ http:
     - match: ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?
       name: 📺 BiliBili.Global.request
       type: request
-      timeout: 15
       argument:
     - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$
       name: 📺 BiliBili.Global.request
       type: request
+      require-body: true
       binary-mode: true
       argument:
     - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$
@@ -66,7 +66,6 @@ http:
     - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/player\/(api|web)\/playurl(\/html5)?\?
       name: 📺 BiliBili.Global.request
       type: request
-      require-body: false
       argument:
     - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/player\/web\/v2\/playurl\?
       name: 📺 BiliBili.Global.request
@@ -81,8 +80,6 @@ http:
     - match: ^https?:\/\/search\.bilibili\.com\/all\?
       name: 📺 BiliBili.Global.request
       type: request
-      require-body: false
-      timeout: 15
       argument:
     - match: ^https?:\/\/app\.bili(bili\.com|api\.net)\/x\/v2\/search(\/type)?\?
       name: 📺 BiliBili.Global.request
