@@ -1,4 +1,4 @@
-import { $app, Lodash as _, Storage, fetch, notification, log, logError, wait, done, gRPC } from "@nsnanocat/util";
+import { $app, Console, done, fetch, gRPC, Lodash as _, notification, Storage, wait } from "@nsnanocat/util";
 import { URL } from "@nsnanocat/url";
 import database from "./function/database.mjs";
 import setENV from "./function/setENV.mjs";
@@ -10,16 +10,17 @@ import { PlayViewReq } from "./protobuf/bilibili/pgc/gateway/player/v2/playurl.j
 import { SearchAllRequest, SearchByTypeRequest } from "./protobuf/bilibili/polymer/app/search/v1/search.js";
 // 构造回复数据
 let $response = undefined;
+Console.debug = () => {};
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);
-log(`⚠ url: ${url.toJSON()}`, "");
+Console.info(`url: ${url.toJSON()}`);
 // 获取连接参数
 const PATHs = url.pathname.split("/").filter(Boolean);
-log(`⚠ PATHs: ${PATHs}`, "");
+Console.info(`PATHs: ${PATHs}`);
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
-log(`⚠ FORMAT: ${FORMAT}`, "");
+Console.info(`FORMAT: ${FORMAT}`);
 !(async () => {
 	/**
 	 * 设置
@@ -79,9 +80,9 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/grpc":
 				case "application/grpc+proto":
 				case "application/octet-stream": {
-					//log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
+					//Console.debug(`$request.body: ${JSON.stringify($request.body)}`);
 					let rawBody = $app === "Quantumult X" ? new Uint8Array($request.bodyBytes ?? []) : ($request.body ?? new Uint8Array());
-					//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
+					//Console.debug(`isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`);
 					switch (FORMAT) {
 						case "application/protobuf":
 						case "application/x-protobuf":
@@ -326,7 +327,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 			break;
 	}
 	$request.url = url.toString();
-	log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
+	Console.debug(`infoGroup: ${JSON.stringify(infoGroup)}`);
 	// 请求策略
 	switch (url.pathname) {
 		case "/bilibili.app.viewunite.v1.View/View": // 番剧页面-内容-app
@@ -341,7 +342,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 				case "UGC":
 				default:
-					log("⚠ 不是 PGC, 跳过", "");
+					Console.info("不是 PGC, 跳过");
 					break;
 			}
 			switch ($app) {
@@ -372,7 +373,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 				case "UGC":
 				default:
-					log("⚠ 不是 PGC, 跳过", "");
+					Console.info("不是 PGC, 跳过");
 					break;
 			}
 			break;
@@ -385,7 +386,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 			break;
 	}
 })()
-	.catch(e => logError(e))
+	.catch(e => Console.error(e))
 	.finally(() => {
 		switch (typeof $response) {
 			case "object": // 有构造回复数据，返回构造的回复数据
@@ -408,7 +409,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				done($request);
 				break;
 			default:
-				logError(`不合法的 $response 类型: ${typeof $response}`, "");
+				Console.error(`不合法的 $response 类型: ${typeof $response}`);
 				done();
 				break;
 		}
@@ -425,12 +426,12 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
  * @return {Promise<request>} modified request
  */
 async function availableFetch(request = {}, proxies = {}, locales = [], availableLocales = []) {
-	log("☑️ availableFetch", `availableLocales: ${availableLocales}`, "");
+	Console.log("☑️ availableFetch", `availableLocales: ${availableLocales}`);
 	availableLocales = availableLocales.filter(locale => locales.includes(locale));
 	let locale = "";
 	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
-	log("✅ availableFetch", `locale: ${locale}`, "");
+	Console.log("✅ availableFetch", `locale: ${locale}`);
 	return request;
 }
 /**
@@ -442,7 +443,7 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
-	log("☑️ mutiFetch", `locales: ${locales}`, "");
+	Console.log("☑️ mutiFetch", `locales: ${locales}`);
 	const responses = {};
 	await Promise.allSettled(
 		locales.map(async locale => {
@@ -455,11 +456,11 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 		if (!isResponseAvailability(responses[locale])) delete responses[locale];
 	}
 	const availableLocales = Object.keys(responses);
-	log("☑️ mutiFetch", `availableLocales: ${availableLocales}`, "");
+	Console.log("☑️ mutiFetch", `availableLocales: ${availableLocales}`);
 	const locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
 	const response = responses[locale];
-	log("✅ mutiFetch", `locale: ${locale}`, "");
+	Console.log("✅ mutiFetch", `locale: ${locale}`);
 	return { request, response };
 }
 
@@ -471,9 +472,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	log("⚠ Check Search Keyword", `Original Keyword: ${keyword}`, "");
+	Console.log("☑️ Check Search Keyword", `Original Keyword: ${keyword}`);
 	const keywords = keyword?.split(delimiter);
-	log("🚧 Check Search Keyword", `keywords: ${keywords}`, "");
+	Console.debug("Check Search Keyword", `keywords: ${keywords}`);
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -560,6 +561,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keyword = keywords.join(delimiter);
 			break;
 	}
-	log("🎉 Check Search Keyword", `Keyword: ${keyword}, Locale: ${locale}`, "");
+	Console.log("✅ Check Search Keyword", `Keyword: ${keyword}, Locale: ${locale}`);
 	return { keyword, locale };
 }

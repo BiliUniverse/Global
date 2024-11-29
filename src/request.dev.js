@@ -1,4 +1,4 @@
-import { $app, Lodash as _, Storage, fetch, notification, log, logError, wait, done, gRPC } from "@nsnanocat/util";
+import { $app, Console, done, fetch, gRPC, Lodash as _, notification, Storage, wait } from "@nsnanocat/util";
 import { URL } from "@nsnanocat/url";
 import database from "./function/database.mjs";
 import setENV from "./function/setENV.mjs";
@@ -13,13 +13,13 @@ let $response = undefined;
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);
-log(`⚠ url: ${url.toJSON()}`, "");
+Console.info(`url: ${url.toJSON()}`);
 // 获取连接参数
 const PATHs = url.pathname.split("/").filter(Boolean);
-log(`⚠ PATHs: ${PATHs}`, "");
+Console.info(`PATHs: ${PATHs}`);
 // 解析格式
 const FORMAT = ($request.headers?.["Content-Type"] ?? $request.headers?.["content-type"])?.split(";")?.[0];
-log(`⚠ FORMAT: ${FORMAT}`, "");
+Console.info(`FORMAT: ${FORMAT}`);
 !(async () => {
 	/**
 	 * 设置
@@ -60,7 +60,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/vnd.apple.mpegurl":
 				case "audio/mpegurl":
 					//body = M3U8.parse($request.body);
-					//log(`🚧 body: ${JSON.stringify(body)}`, "");
+					//Console.debug(`body: ${JSON.stringify(body)}`);
 					//$request.body = M3U8.stringify(body);
 					break;
 				case "text/xml":
@@ -70,19 +70,19 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/plist":
 				case "application/x-plist":
 					//body = XML.parse($request.body);
-					//log(`🚧 body: ${JSON.stringify(body)}`, "");
+					//Console.debug(`body: ${JSON.stringify(body)}`);
 					//$request.body = XML.stringify(body);
 					break;
 				case "text/vtt":
 				case "application/vtt":
 					//body = VTT.parse($request.body);
-					//log(`🚧 body: ${JSON.stringify(body)}`, "");
+					//Console.debug(`body: ${JSON.stringify(body)}`);
 					//$request.body = VTT.stringify(body);
 					break;
 				case "text/json":
 				case "application/json":
 					//body = JSON.parse($request.body ?? "{}");
-					//log(`🚧 body: ${JSON.stringify(body)}`, "");
+					//Console.debug(`body: ${JSON.stringify(body)}`);
 					//$request.body = JSON.stringify(body);
 					break;
 				case "application/protobuf":
@@ -91,9 +91,9 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				case "application/grpc":
 				case "application/grpc+proto":
 				case "application/octet-stream": {
-					//log(`🚧 $request.body: ${JSON.stringify($request.body)}`, "");
+					//Console.debug(`$request.body: ${JSON.stringify($request.body)}`);
 					let rawBody = $app === "Quantumult X" ? new Uint8Array($request.bodyBytes ?? []) : ($request.body ?? new Uint8Array());
-					//log(`🚧 isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`, "");
+					//Console.debug(`isBuffer? ${ArrayBuffer.isView(rawBody)}: ${JSON.stringify(rawBody)}`);
 					switch (FORMAT) {
 						case "application/protobuf":
 						case "application/x-protobuf":
@@ -113,7 +113,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											switch (PATHs?.[1]) {
 												case "View": // 播放页
 													body = ViewReq.fromBinary(rawBody);
-													log(`🚧 body: ${JSON.stringify(body)}`, "");
+													Console.debug(`body: ${JSON.stringify(body)}`);
 													rawBody = ViewReq.toBinary(body);
 													// 判断线路
 													infoGroup.seasonId = Number.parseInt(body?.extraContent?.season_id, 10) || infoGroup.seasonId;
@@ -128,7 +128,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											switch (PATHs?.[1]) {
 												case "PlayViewUnite": // 播放地址
 													body = PlayViewUniteReq.fromBinary(rawBody);
-													log(`🚧 body: ${JSON.stringify(body)}`, "");
+													Console.debug(`body: ${JSON.stringify(body)}`);
 													body.vod.forceHost = Settings?.ForceHost ?? 1;
 													rawBody = PlayViewUniteReq.toBinary(body);
 													// 判断线路
@@ -152,7 +152,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											switch (PATHs?.[1]) {
 												case "PlayView": // 播放地址
 													body = PlayViewReq.fromBinary(rawBody);
-													log(`🚧 body: ${JSON.stringify(body)}`, "");
+													Console.debug(`body: ${JSON.stringify(body)}`);
 													body.forceHost = Settings?.ForceHost ?? 1;
 													rawBody = PlayViewReq.toBinary(body);
 													// 判断线路
@@ -182,19 +182,19 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 											switch (PATHs?.[1]) {
 												case "SearchAll": // 全部结果（综合）
 													body = SearchAllRequest.fromBinary(rawBody);
-													log(`🚧 body: ${JSON.stringify(body)}`, "");
+													Console.debug(`body: ${JSON.stringify(body)}`);
 													({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(body?.keyword));
 													body.keyword = infoGroup.keyword;
-													log(`🚧 body: ${JSON.stringify(body)}`, "");
+													Console.debug(`body: ${JSON.stringify(body)}`);
 													rawBody = SearchAllRequest.toBinary(body);
 													break;
 												case "SearchByType": {
 													// 分类结果（番剧、用户、影视、专栏）
 													body = SearchByTypeRequest.fromBinary(rawBody);
-													log(`🚧 body: ${JSON.stringify(body)}`, "");
+													Console.debug(`body: ${JSON.stringify(body)}`);
 													({ keyword: infoGroup.keyword, locale: infoGroup.locale } = checkKeyword(body?.keyword));
 													body.keyword = infoGroup.keyword;
-													log(`🚧 body: ${JSON.stringify(body)}`, "");
+													Console.debug(`body: ${JSON.stringify(body)}`);
 													rawBody = SearchByTypeRequest.toBinary(body);
 													break;
 												}
@@ -352,8 +352,8 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 	}
 	//url.searchParams.set("type", infoGroup.type);
 	$request.url = url.toString();
-	log("🚧 调试信息", `$request.url: ${$request.url}`, "");
-	log(`🚧 信息组, infoGroup: ${JSON.stringify(infoGroup)}`, "");
+	Console.debug(`$request.url: ${$request.url}`);
+	Console.debug(`infoGroup: ${JSON.stringify(infoGroup)}`);
 	// 请求策略
 	switch (url.pathname) {
 		case "/bilibili.app.viewunite.v1.View/View": // 番剧页面-内容-app
@@ -368,7 +368,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 				case "UGC":
 				default:
-					log("⚠ 不是 PGC, 跳过", "");
+					Console.info("不是 PGC, 跳过");
 					break;
 			}
 			switch ($app) {
@@ -399,7 +399,7 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 					break;
 				case "UGC":
 				default:
-					log("⚠ 不是 PGC, 跳过", "");
+					Console.info("不是 PGC, 跳过");
 					break;
 			}
 			break;
@@ -412,11 +412,11 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 			break;
 	}
 })()
-	.catch(e => logError(e))
+	.catch(e => Console.error(e))
 	.finally(() => {
 		switch (typeof $response) {
 			case "object": // 有构造回复数据，返回构造的回复数据
-				//log("🚧 finally", `echo $response: ${JSON.stringify($response, null, 2)}`, "");
+				//Console.debug("finally", `echo $response: ${JSON.stringify($response, null, 2)}`);
 				if ($response.headers?.["Content-Encoding"]) $response.headers["Content-Encoding"] = "identity";
 				if ($response.headers?.["content-encoding"]) $response.headers["content-encoding"] = "identity";
 				switch ($app) {
@@ -433,11 +433,11 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
 				}
 				break;
 			case "undefined": // 无构造回复数据，发送修改的请求数据
-				//log("🚧 finally", `$request: ${JSON.stringify($request, null, 2)}`, "");
+				//Console.debug("finally", `$request: ${JSON.stringify($request, null, 2)}`);
 				done($request);
 				break;
 			default:
-				logError(`不合法的 $response 类型: ${typeof $response}`, "");
+				Console.error(`不合法的 $response 类型: ${typeof $response}`);
 				done();
 				break;
 		}
@@ -454,12 +454,12 @@ log(`⚠ FORMAT: ${FORMAT}`, "");
  * @return {Promise<request>} modified request
  */
 async function availableFetch(request = {}, proxies = {}, locales = [], availableLocales = []) {
-	log("☑️ availableFetch", `availableLocales: ${availableLocales}`, "");
+	Console.log("☑️ availableFetch", `availableLocales: ${availableLocales}`);
 	availableLocales = availableLocales.filter(locale => locales.includes(locale));
 	let locale = "";
 	locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
-	log("✅ availableFetch", `locale: ${locale}`, "");
+	Console.log("✅ availableFetch", `locale: ${locale}`);
 	return request;
 }
 /**
@@ -471,7 +471,7 @@ async function availableFetch(request = {}, proxies = {}, locales = [], availabl
  * @return {Promise<{request, response}>} modified { request, response }
  */
 async function mutiFetch(request = {}, proxies = {}, locales = []) {
-	log("☑️ mutiFetch", `locales: ${locales}`, "");
+	Console.log("☑️ mutiFetch", `locales: ${locales}`);
 	const responses = {};
 	await Promise.allSettled(
 		locales.map(async locale => {
@@ -481,15 +481,15 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
 		}),
 	);
 	for (const locale in responses) {
-		//log("🚧 mutiFetch", `locale: ${locale}`);
+		//Console.debug("mutiFetch", `locale: ${locale}`);
 		if (!isResponseAvailability(responses[locale])) delete responses[locale];
 	}
 	const availableLocales = Object.keys(responses);
-	log("☑️ mutiFetch", `availableLocales: ${availableLocales}`, "");
+	Console.log("☑️ mutiFetch", `availableLocales: ${availableLocales}`);
 	const locale = availableLocales[Math.floor(Math.random() * availableLocales.length)];
 	request.policy = proxies[locale];
 	const response = responses[locale];
-	log("✅ mutiFetch", `locale: ${locale}`, "");
+	Console.log("✅ mutiFetch", `locale: ${locale}`);
 	return { request, response };
 }
 
@@ -501,9 +501,9 @@ async function mutiFetch(request = {}, proxies = {}, locales = []) {
  * @return {Object} { keyword, locale }
  */
 function checkKeyword(keyword = "", delimiter = " ") {
-	log("⚠ Check Search Keyword", `Original Keyword: ${keyword}`, "");
+	Console.log("☑️ Check Search Keyword", `Original Keyword: ${keyword}`);
 	const keywords = keyword?.split(delimiter);
-	log("🚧 Check Search Keyword", `keywords: ${keywords}`, "");
+	Console.debug("Check Search Keyword", `keywords: ${keywords}`);
 	let locale = undefined;
 	switch ([...keywords].pop()) {
 		case "CN":
@@ -590,6 +590,6 @@ function checkKeyword(keyword = "", delimiter = " ") {
 			keyword = keywords.join(delimiter);
 			break;
 	}
-	log("🎉 Check Search Keyword", `Keyword: ${keyword}, Locale: ${locale}`, "");
+	Console.log("✅ Check Search Keyword", `Keyword: ${keyword}, Locale: ${locale}`);
 	return { keyword, locale };
 }

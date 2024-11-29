@@ -1,4 +1,4 @@
-import { Lodash as _, getStorage, log } from "@nsnanocat/util";
+import { Console, getStorage, Lodash as _ } from "@nsnanocat/util";
 
 /**
  * Set Environment Variables
@@ -10,17 +10,18 @@ import { Lodash as _, getStorage, log } from "@nsnanocat/util";
  * @return {Object} { Settings, Caches, Configs }
  */
 export default function setENV(name, platforms, database) {
-	log("☑️ Set Environment Variables", "");
+	Console.log("☑️ Set Environment Variables");
 	const { Settings, Caches, Configs } = getStorage(name, platforms, database);
 	/***************** Settings *****************/
 	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
-	log(`✅ Set Environment Variables, Settings: ${typeof Settings}, Settings内容: ${JSON.stringify(Settings)}`, "");
+	Console.debug(`typeof Settings: ${typeof Settings}`, `Settings: ${JSON.stringify(Settings)}`);
 	/***************** Caches *****************/
 	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
 	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
-	//log(`✅ Set Environment Variables, Caches: ${typeof Caches}, Caches内容: ${JSON.stringify(Caches)}`, "");
+	//Console.debug(`typeof Caches: ${typeof Caches}`, `Caches: ${JSON.stringify(Caches)}`);
 	Caches.ss = new Map(Caches?.ss ?? []); // Array转Map
 	Caches.ep = new Map(Caches?.ep ?? []); // Array转Map
 	/***************** Configs *****************/
+	Console.log("✅ Set Environment Variables");
 	return { Settings, Caches, Configs };
 };

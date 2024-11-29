@@ -1,4 +1,4 @@
-import { log } from "@nsnanocat/util";
+import { Console } from "@nsnanocat/util";
 
 /**
  * Determine Response Availability
@@ -7,10 +7,10 @@ import { log } from "@nsnanocat/util";
  * @return {Boolean} is Available
  */
 export default function isResponseAvailability(response = {}) {
-	log("☑️ Determine Response Availability", "");
-	//log(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers, null, 2)}`, "");
+	Console.log("☑️ Determine Response Availability");
+	//Console.debug(`statusCode: ${response.statusCode}`, `headers: ${JSON.stringify(response.headers, null, 2)}`);
 	const FORMAT = (response?.headers?.["Content-Type"] ?? response?.headers?.["content-type"])?.split(";")?.[0];
-	log("🚧 Determine Response Availability", `FORMAT: ${FORMAT}`, "");
+	Console.debug(`FORMAT: ${FORMAT}`);
 	let isAvailable = true;
 	switch (response?.statusCode) {
 		case 200:
@@ -102,6 +102,6 @@ export default function isResponseAvailability(response = {}) {
 			isAvailable = false;
 			break;
 	}
-	log("✅ Determine Response Availability", `isAvailable:${isAvailable}`, "");
+	Console.log("✅ Determine Response Availability", `isAvailable:${isAvailable}`);
 	return isAvailable;
 }
