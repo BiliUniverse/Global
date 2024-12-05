@@ -46,8 +46,8 @@
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {
-		"@nsnanocat/url": "^1.2.3",
-		"@nsnanocat/util": "^1.6.3",
+		"@nsnanocat/url": "^1.2.4",
+		"@nsnanocat/util": "^1.7.5",
 		"@protobuf-ts/runtime": "^2.9.3",
 		"@protobuf-ts/runtime-rpc": "^2.9.3"
 	}

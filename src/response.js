@@ -1,11 +1,9 @@
-import { $app, Console, done, fetch, gRPC, Lodash as _, notification, Storage, wait } from "@nsnanocat/util";
+import { $app, Console, done, gRPC, Lodash as _, Storage } from "@nsnanocat/util";
 import { URL } from "@nsnanocat/url";
 import database from "./function/database.mjs";
 import setENV from "./function/setENV.mjs";
-import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "@protobuf-ts/runtime";
 import { ViewReply } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
 import { ViewPgcAny } from "./protobuf/bilibili/app/viewunite/pgcanymodel.js";
-Console.debug = () => {};
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);

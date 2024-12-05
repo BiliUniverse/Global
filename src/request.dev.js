@@ -1,4 +1,4 @@
-import { $app, Console, done, fetch, gRPC, Lodash as _, notification, Storage, wait } from "@nsnanocat/util";
+import { $app, Console, done, fetch, gRPC, Lodash as _ } from "@nsnanocat/util";
 import { URL } from "@nsnanocat/url";
 import database from "./function/database.mjs";
 import setENV from "./function/setENV.mjs";
@@ -10,6 +10,7 @@ import { PlayViewReq } from "./protobuf/bilibili/pgc/gateway/player/v2/playurl.j
 import { SearchAllRequest, SearchByTypeRequest } from "./protobuf/bilibili/polymer/app/search/v1/search.js";
 // 构造回复数据
 let $response = undefined;
+Console.logLevel = "DEBUG";
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);
