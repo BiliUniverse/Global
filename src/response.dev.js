@@ -5,7 +5,6 @@ import setENV from "./function/setENV.mjs";
 import { WireType, UnknownFieldHandler, reflectionMergePartial, MESSAGE_TYPE, MessageType, BinaryReader, isJsonObject, typeofJsonValue, jsonWriteOptions } from "@protobuf-ts/runtime";
 import { ViewReply } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
 import { ViewPgcAny } from "./protobuf/bilibili/app/viewunite/pgcanymodel.js";
-Console.logLevel = "DEBUG";
 /***************** Processing *****************/
 // 解构URL
 const url = new URL($request.url);
@@ -16,12 +15,13 @@ Console.info(`PATHs: ${PATHs}`);
 // 解析格式
 const FORMAT = ($response.headers?.["Content-Type"] ?? $response.headers?.["content-type"])?.split(";")?.[0];
 Console.info(`FORMAT: ${FORMAT}`);
-!(async () => {
+(async () => {
 	/**
 	 * 设置
 	 * @type {{Settings: import('./types').Settings}}
 	 */
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", database);
+	Console.logLevel = Settings.LogLevel;
 	// 创建空数据
 	let body = { code: 0, message: "0", data: {} };
 	// 信息组

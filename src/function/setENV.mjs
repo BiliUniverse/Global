@@ -13,8 +13,8 @@ export default function setENV(name, platforms, database) {
 	Console.log("☑️ Set Environment Variables");
 	const { Settings, Caches, Configs } = getStorage(name, platforms, database);
 	/***************** Settings *****************/
-	if (!Array.isArray(Settings?.Locales)) Settings.Locales = (Settings.Locales) ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
-	Console.debug(`typeof Settings: ${typeof Settings}`, `Settings: ${JSON.stringify(Settings)}`);
+	if (!Array.isArray(Settings?.Locales)) Settings.Locales = Settings.Locales ? [Settings.Locales] : []; // 只有一个选项时，无逗号分隔
+	Console.info(`typeof Settings: ${typeof Settings}`, `Settings: ${JSON.stringify(Settings)}`);
 	/***************** Caches *****************/
 	if (!Array.isArray(Caches?.ss)) Caches.ss = [];
 	if (!Array.isArray(Caches?.ep)) Caches.ep = [];
@@ -24,4 +24,4 @@ export default function setENV(name, platforms, database) {
 	/***************** Configs *****************/
 	Console.log("✅ Set Environment Variables");
 	return { Settings, Caches, Configs };
-};
+}
