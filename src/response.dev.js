@@ -27,9 +27,9 @@ Console.info(`FORMAT: ${FORMAT}`);
 	// 信息组
 	const infoGroup = {
 		seasonTitle: url.searchParams.get("season_title"),
-		seasonId: Number.parseInt(url.searchParams.get("season_id"), 10) || undefined,
-		epId: Number.parseInt(url.searchParams.get("ep_id"), 10) || undefined,
-		mId: Number.parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
+		seasonId: url.searchParams.get("season_id") || undefined,
+		epId: url.searchParams.get("ep_id") || undefined,
+		mId: url.searchParams.get("mid") || url.searchParams.get("vmid") || undefined,
 		evaluate: undefined,
 		keyword: url.searchParams.get("keyword"),
 		locale: url.searchParams.get("locale"),
@@ -191,17 +191,17 @@ Console.info(`FORMAT: ${FORMAT}`);
 									switch (PATHs?.[1]) {
 										case "View": // 播放页
 											body = ViewReply.fromBinary(rawBody);
-											Console.debug(`body: ${JSON.stringify(body)}`);
+											Console.debug(`ViewUniteReply: ${JSON.stringify(body, null, 2)}`);
 											infoGroup.seasonTitle = body?.arc?.title ?? body?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
-											infoGroup.seasonId = Number.parseInt(body?.report?.season_id, 10) || body?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
-											infoGroup.mId = Number.parseInt(body?.report?.up_mid, 10) || body?.owner?.mid || infoGroup.mId;
+											infoGroup.seasonId = body?.report?.season_id || body?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
+											infoGroup.mId = body?.report?.up_mid || body?.owner?.mid || infoGroup.mId;
 											//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
 											if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 											switch (body?.supplement?.typeUrl) {
 												case "type.googleapis.com/bilibili.app.viewunite.pgcanymodel.ViewPgcAny": {
 													infoGroup.type = "PGC";
 													const PgcBody = ViewPgcAny.fromBinary(body.supplement.value);
-													Console.debug(`PgcBody: ${JSON.stringify(PgcBody)}`);
+													Console.debug(`PgcBody: ${JSON.stringify(PgcBody, null, 2)}`);
 													infoGroup.seasonTitle = PgcBody?.ogvData?.title || infoGroup.seasonTitle;
 													infoGroup.seasonId = PgcBody?.ogvData?.seasonId || infoGroup.seasonId;
 													_.set(PgcBody, "ogvData.rights.allowDownload", 1);
@@ -209,7 +209,7 @@ Console.info(`FORMAT: ${FORMAT}`);
 													_.set(PgcBody, "ogvData.rights.allowBp", 1);
 													_.set(PgcBody, "ogvData.rights.areaLimit", 0);
 													_.set(PgcBody, "ogvData.rights.banAreaShow", 1);
-													Console.debug(`PgcBody: ${JSON.stringify(PgcBody)}`);
+													Console.debug(`PgcBody: ${JSON.stringify(PgcBody, null, 2)}`);
 													body.supplement.value = ViewPgcAny.toBinary(PgcBody);
 													break;
 												}
