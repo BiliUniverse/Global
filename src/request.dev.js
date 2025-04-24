@@ -8,7 +8,6 @@ import { ViewReq } from "./protobuf/bilibili/app/viewunite/v1/viewunite.js";
 import { PlayViewUniteReq } from "./protobuf/bilibili/app/playerunite/v1/playerunite.js";
 import { PlayViewReq } from "./protobuf/bilibili/pgc/gateway/player/v2/playurl.js";
 import { SearchAllRequest, SearchByTypeRequest } from "./protobuf/bilibili/polymer/app/search/v1/search.js";
-import { MainListReq } from "./protobuf/bilibili/main/community/reply/v1/reply.js";
 // 构造回复数据
 let $response = undefined;
 /***************** Processing *****************/
@@ -200,14 +199,6 @@ Console.info(`FORMAT: ${FORMAT}`);
 													rawBody = SearchByTypeRequest.toBinary(body);
 													break;
 												}
-											}
-											break;
-										case "bilibili.main.community.reply.v1.Reply": // 评论
-											switch (PATHs?.[1]) {
-												case "MainList": // 主评论列表
-													body = MainListReq.fromBinary(rawBody);
-													Console.debug(`MainListReq: ${JSON.stringify(body, null, 2)}`);
-													break;
 											}
 											break;
 									}
