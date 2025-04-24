@@ -205,18 +205,7 @@ Console.info(`FORMAT: ${FORMAT}`);
 														switch (tabModule?.tabType) {
 															case 1: // introduction
 																// 解锁剧集信息限制
-																tabModule.tab.introduction.modules = tabModule.tab.introduction.modules.map(module => {
-																	switch (module?.type) {
-																		case 13: // sectionData
-																		case 14:
-																			// 解锁剧集信息限制
-																			module.data.sectionData.episodes = setEpisodes(module.data.sectionData.episodes);
-																			break;
-																		default:
-																			break;
-																	}
-																	return module;
-																});
+																tabModule.tab.introduction.modules = setModules(tabModule.tab.introduction.modules)
 																break;
 															default:
 																break;
@@ -348,7 +337,7 @@ function getEpisodes(modules = []) {
  * @return {Array<Object>} Modules Datas
  */
 function setModules(modules = []) {
-	Console.log("☑️ Set Episodes");
+	Console.log("☑️ Set Modules");
 	modules = modules.map(module => {
 		switch (module?.type) {
 			case 13: // sectionData
@@ -372,8 +361,8 @@ function setModules(modules = []) {
 		}
 		return module;
 	});
-	Console.log("✅ Set Episodes");
-	//Console.debug(`Set Episodes`, `modules: ${JSON.stringify(modules)}`);
+	Console.log("✅ Set Modules");
+	Console.debug("Set Modules", `modules: ${JSON.stringify(modules)}`);
 	return modules;
 }
 
