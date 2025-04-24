@@ -249,14 +249,14 @@ Console.info(`FORMAT: ${FORMAT}`);
 							break;
 						case "/x/v2/space": // 用户空间
 							switch (infoGroup.mId) {
-								case 928123: // 哔哩哔哩番剧
-								case 15773384: // 哔哩哔哩电影
+								case "928123": // 哔哩哔哩番剧
+								case "15773384": // 哔哩哔哩电影
 								default:
 									infoGroup.locales = ["CHN"];
 									break;
-								case 11783021: // 哔哩哔哩番剧出差
-								case 1988098633: // b站_戲劇咖
-								case 2042149112: // b站_綜藝咖
+								case "11783021": // 哔哩哔哩番剧出差
+								case "1988098633": // b站_戲劇咖
+								case "2042149112": // b站_綜藝咖
 									infoGroup.locales = Settings.Locales.filter(locale => locale !== "CHN");
 									break;
 							}
@@ -283,14 +283,14 @@ Console.info(`FORMAT: ${FORMAT}`);
 						case "/x/space/acc/info": // 用户空间-账号信息-pc
 						case "/x/space/wbi/acc/info": // 用户空间-账号信息-wbi
 							switch (infoGroup.mId) {
-								case 928123: // 哔哩哔哩番剧
-								case 15773384: // 哔哩哔哩电影
+								case "928123": // 哔哩哔哩番剧
+								case "15773384": // 哔哩哔哩电影
 								default:
 									infoGroup.locales = ["CHN"];
 									break;
-								case 11783021: // 哔哩哔哩番剧出差
-								case 1988098633: // b站_戲劇咖
-								case 2042149112: // b站_綜藝咖
+								case "11783021": // 哔哩哔哩番剧出差
+								case "1988098633": // b站_戲劇咖
+								case "2042149112": // b站_綜藝咖
 									infoGroup.locales = Settings.Locales.filter(locale => locale !== "CHN");
 									break;
 							}

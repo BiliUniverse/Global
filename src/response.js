@@ -85,9 +85,9 @@ Console.info(`FORMAT: ${FORMAT}`);
 						case "/x/space/acc/info": // 用户空间-账号信息-pc
 						case "/x/space/wbi/acc/info": // 用户空间-账号信息-wbi
 							switch (infoGroup.mId) {
-								case 11783021: // 哔哩哔哩番剧出差
-								case 1988098633: // b站_戲劇咖
-								case 2042149112: // b站_綜藝咖
+								case "11783021": // 哔哩哔哩番剧出差
+								case "1988098633": // b站_戲劇咖
+								case "2042149112": // b站_綜藝咖
 									break;
 								default:
 									break;
