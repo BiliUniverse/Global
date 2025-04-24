@@ -429,14 +429,10 @@ function setEpisodes(episodes = []) {
  */
 function detectLocales(infoGroup = { seasonTitle: undefined, seasonId: undefined, epId: undefined, mId: undefined, evaluate: undefined }) {
 	Console.log("☑️ Detect Locales", `seasonTitle: ${infoGroup.seasonTitle}`, `seasonId: ${infoGroup.seasonId}`, `epId: ${infoGroup.epId}`, `mId: ${infoGroup.mId}`);
-	switch (infoGroup.seasonTitle) {
-		case undefined:
-		case null:
-			infoGroup.locales = detectMId(infoGroup.mId);
-			break;
-		default:
-			infoGroup.locales = detectSeasonTitle(infoGroup.seasonTitle);
-			break;
+	if (infoGroup.seasonTitle) infoGroup.locales = detectSeasonTitle(infoGroup.seasonTitle) // 有标题先测标题
+	else if (infoGroup.mId) infoGroup.locales = detectMId(infoGroup.mId); // 无标题再测 mId
+	if (infoGroup.locales.length === 0) { // infoGroup.locales 为空再测 evaluate
+		if (infoGroup.seasonTitle && infoGroup.evaluate) infoGroup.locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
 	}
 	Console.log("✅ Detect Locales", `locales: ${infoGroup.locales}`);
 	return infoGroup.locales;
@@ -472,7 +468,7 @@ function detectLocales(infoGroup = { seasonTitle: undefined, seasonId: undefined
 			case undefined:
 			case null:
 			default:
-				locales = detectMId(infoGroup.mId);
+				//locales = detectMId(infoGroup.mId);
 				break;
 		}
 		Console.log("✅ Detect Season Title", `locales: ${locales}`);
@@ -483,25 +479,25 @@ function detectLocales(infoGroup = { seasonTitle: undefined, seasonId: undefined
 		Console.log("☑️ Detect mId");
 		let locales = [];
 		switch (mId) {
-			case 928123: // 哔哩哔哩番剧
+			case "928123": // 哔哩哔哩番剧
 				locales = ["CHN"];
 				break;
-			case 11783021: // 哔哩哔哩番剧出差
-			case 1988098633: // b站_戲劇咖
-			case 2042149112: // b站_綜藝咖
+			case "11783021": // 哔哩哔哩番剧出差
+			case "1988098633": // b站_戲劇咖
+			case "2042149112": // b站_綜藝咖
 				locales = ["HKG", "MAC", "TWN"];
 				break;
-			case 15773384: // 哔哩哔哩电影
+			case "15773384": // 哔哩哔哩电影
 				locales = ["CHN"];
 				break;
-			case 4856007: // 迷影社
-			case 98627270: // 哔哩哔哩国创
+			case "4856007": // 迷影社
+			case "98627270": // 哔哩哔哩国创
 				locales = ["CHN", "HKG", "MAC", "TWN"];
 				break;
 			case undefined: // 无UP主信息
 			case null:
 			default: // 其他UP主
-				locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
+				//locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
 				break;
 		}
 		Console.log("✅ Detect mId", `locales: ${locales}`);
