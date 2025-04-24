@@ -132,8 +132,8 @@ Console.info(`FORMAT: ${FORMAT}`);
 							break;
 						}
 						case "/pgc/view/web/season": // 番剧-内容-web
-						case "/pgc/view/pc/season": {
-							// 番剧-内容-pc
+						case "/pgc/view/pc/season": // 番剧-内容-pc
+						case "/pgc/view/web/ep/list": { // 番剧-剧集列表-web
 							const result = body.result;
 							infoGroup.seasonTitle = result.season_title ?? infoGroup.seasonTitle;
 							infoGroup.seasonId = result.season_id ?? infoGroup.seasonId;
