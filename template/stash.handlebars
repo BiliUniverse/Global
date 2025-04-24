@@ -51,6 +51,12 @@ http:
       require-body: true
       max-size: 262144
       argument:
+    - match: ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/ep\/list\?
+      name: 📺 BiliBili.Global.response
+      type: response
+      require-body: true
+      max-size: 262144
+      argument:
     - match: ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$
       name: 📺 BiliBili.Global.request
       type: request

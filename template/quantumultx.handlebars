@@ -18,6 +18,8 @@
 # 📺 BiliBili.Global.season.json
 ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season\? url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 ^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/season\? url script-response-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/response.bundle.js
+# 📺 BiliBili.Global.ep.list.json
+^https?:\/\/api\.bili(bili\.com|api\.net)\/pgc\/view\/(v2\/app|web|pc)\/ep\/list\? url script-response-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/response.bundle.js
 
 # 📺 BiliBili.Global.playerunite.v1.Player.grpc
 ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.playerunite\.v1\.Player\/PlayViewUnite$ url script-request-body https://github.com/BiliUniverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
