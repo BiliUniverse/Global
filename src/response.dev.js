@@ -200,6 +200,30 @@ Console.info(`FORMAT: ${FORMAT}`);
 											switch (body?.supplement?.typeUrl) {
 												case "type.googleapis.com/bilibili.app.viewunite.pgcanymodel.ViewPgcAny": {
 													infoGroup.type = "PGC";
+													// 先处理 tab
+													body.tab.tabModule = body.tab.tabModule.map(tabModule => {
+														switch (tabModule?.tabType) {
+															case 1: // introduction
+																// 解锁剧集信息限制
+																tabModule.tab.introduction.modules = tabModule.tab.introduction.modules.map(module => {
+																	switch (module?.type) {
+																		case 13: // sectionData
+																		case 14:
+																			// 解锁剧集信息限制
+																			module.data.sectionData.episodes = setEpisodes(module.data.sectionData.episodes);
+																			break;
+																		default:
+																			break;
+																	}
+																	return module;
+																});
+																break;
+															default:
+																break;
+														}
+														return tabModule;
+													})
+													// 再处理 supplement
 													const PgcBody = ViewPgcAny.fromBinary(body.supplement.value);
 													Console.debug(`PgcBody: ${JSON.stringify(PgcBody, null, 2)}`);
 													infoGroup.seasonTitle = PgcBody?.ogvData?.title || infoGroup.seasonTitle;
@@ -326,6 +350,15 @@ function getEpisodes(modules = []) {
 function setModules(modules = []) {
 	Console.log("☑️ Set Episodes");
 	modules = modules.map(module => {
+		switch (module?.type) {
+			case 13: // sectionData
+			case 14:
+				// 解锁剧集信息限制
+				module.data.sectionData.episodes = setEpisodes(module.data.sectionData.episodes);
+				break;
+			default:
+				break;
+		}
 		switch (module?.style) {
 			case "positive": // 选集
 			case "section": // SP
@@ -353,16 +386,33 @@ function setModules(modules = []) {
 function setEpisodes(episodes = []) {
 	Console.log("☑️ Set Episodes");
 	episodes = episodes.map(episode => {
-		if (episode?.badge_info?.text === "受限") {
-			episode.badge_info.text = "";
-			episode.badge_info.bg_color = "#FB7299";
-			episode.badge_info.bg_color_night = "#BB5B76";
+		if (episode?.ep_id) {
+			// json
+			if (episode?.badge_info?.text === "受限") {
+				episode.badge_info.text = "";
+				episode.badge_info.bg_color = "#FB7299";
+				episode.badge_info.bg_color_night = "#BB5B76";
+			}
+			if (episode?.rights) {
+				episode.rights.allow_dm = 1;
+				episode.rights.allow_download = 1;
+				episode.rights.allow_demand = 1;
+				episode.rights.area_limit = 0;
+			}
 		}
-		if (episode?.rights) {
-			episode.rights.allow_dm = 1;
-			episode.rights.allow_download = 1;
-			episode.rights.allow_demand = 1;
-			episode.rights.area_limit = 0;
+		if (episode?.epId) {
+			// protobuf
+			if (episode?.badgeInfo?.text === "受限") {
+				episode.badgeInfo.text = "";
+				episode.badgeInfo.bgColor = "#FB7299";
+				episode.badgeInfo.bgColorNight = "#D44E7D";
+			}
+			if (episode?.rights) {
+				episode.rights.allowDm = 1;
+				episode.rights.allowDownload = 1;
+				episode.rights.allowDemand = 1;
+				episode.rights.areaLimit = 0;
+			}
 		}
 		return episode;
 	});
