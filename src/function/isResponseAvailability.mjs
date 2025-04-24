@@ -43,42 +43,62 @@ export default function isResponseAvailability(response = {}) {
 					switch (response?.headers?.["bili-status-code"]) {
 						case "0":
 						case undefined: {
-							const data = JSON.parse(response?.body).data;
-							switch (response?.headers?.idc) {
-								case "sgp001":
-								case "sgp002":
-									switch (data?.limit) {
-										case "":
-										case undefined:
-											isAvailable = true;
-											break;
-										default:
-											isAvailable = false;
-											break;
-									}
-									break;
-								case "shjd":
-								case undefined:
-								default:
-									switch (data?.video_info?.code) {
-										case 0:
-										default:
-											isAvailable = true;
-											break;
-										case undefined:
-											isAvailable = false;
-											break;
-									}
-									switch (data?.dialog?.code) {
-										case undefined:
-											isAvailable = true;
-											break;
-										case 6010001:
-										default:
-											isAvailable = false;
-											break;
-									}
-									break;
+							const body = JSON.parse(response?.body);
+							if (body?.result) {
+								switch (body?.result?.play_check?.play_detail) {
+									case "PLAY_NONE":
+										isAvailable = false;
+										break;
+									case "PLAY_WHOLE":
+										isAvailable = true;
+										break;
+								}
+								switch (body?.result?.play_check?.limit_play_reason) {
+									case "AREA_LIMIT":
+										isAvailable = false;
+										break;
+									case undefined:
+										isAvailable = true;
+										break;
+								}
+							}
+							if (body?.data) {
+								switch (response?.headers?.idc) {
+									case "sgp001":
+									case "sgp002":
+										switch (body?.data?.limit) {
+											case "":
+											case undefined:
+												isAvailable = true;
+												break;
+											default:
+												isAvailable = false;
+												break;
+										}
+										break;
+									case "shjd":
+									case undefined:
+									default:
+										switch (body?.data?.video_info?.code) {
+											case 0:
+											default:
+												isAvailable = true;
+												break;
+											case undefined:
+												isAvailable = false;
+												break;
+										}
+										switch (body?.data?.dialog?.code) {
+											case undefined:
+												isAvailable = true;
+												break;
+											case 6010001:
+											default:
+												isAvailable = false;
+												break;
+										}
+										break;
+								}
 							}
 							break;
 						}
