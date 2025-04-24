@@ -26,9 +26,9 @@ Console.info(`FORMAT: ${FORMAT}`);
 	// 信息组
 	const infoGroup = {
 		seasonTitle: url.searchParams.get("season_title"),
-		seasonId: Number.parseInt(url.searchParams.get("season_id"), 10) || undefined,
-		epId: Number.parseInt(url.searchParams.get("ep_id"), 10) || undefined,
-		mId: Number.parseInt(url.searchParams.get("mid") || url.searchParams.get("vmid"), 10) || undefined,
+		seasonId: url.searchParams.get("season_id") || undefined,
+		epId: url.searchParams.get("ep_id") || undefined,
+		mId: url.searchParams.get("mid") || url.searchParams.get("vmid") || undefined,
 		evaluate: undefined,
 		keyword: url.searchParams.get("keyword"),
 		locale: url.searchParams.get("locale"),
@@ -122,8 +122,8 @@ Console.info(`FORMAT: ${FORMAT}`);
 							break;
 						}
 						case "/pgc/view/web/season": // 番剧-内容-web
-						case "/pgc/view/pc/season": {
-							// 番剧-内容-pc
+						case "/pgc/view/pc/season": // 番剧-内容-pc
+						case "/pgc/view/web/ep/list": { // 番剧-剧集列表-web
 							const result = body.result;
 							infoGroup.seasonTitle = result.season_title ?? infoGroup.seasonTitle;
 							infoGroup.seasonId = result.season_id ?? infoGroup.seasonId;
@@ -181,15 +181,41 @@ Console.info(`FORMAT: ${FORMAT}`);
 									switch (PATHs?.[1]) {
 										case "View": // 播放页
 											body = ViewReply.fromBinary(rawBody);
+											Console.debug(`ViewUniteReply: ${JSON.stringify(body, null, 2)}`);
 											infoGroup.seasonTitle = body?.arc?.title ?? body?.supplement?.ogv_data?.title ?? infoGroup.seasonTitle;
-											infoGroup.seasonId = Number.parseInt(body?.report?.season_id, 10) || body?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
-											infoGroup.mId = Number.parseInt(body?.report?.up_mid, 10) || body?.owner?.mid || infoGroup.mId;
+											infoGroup.seasonId = body?.report?.season_id || body?.supplement?.ogv_data?.season_id || infoGroup.seasonId;
+											infoGroup.mId = body?.report?.up_mid || body?.owner?.mid || infoGroup.mId;
 											//infoGroup.evaluate = result?.evaluate ?? infoGroup.evaluate;
 											if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 											switch (body?.supplement?.typeUrl) {
 												case "type.googleapis.com/bilibili.app.viewunite.pgcanymodel.ViewPgcAny": {
 													infoGroup.type = "PGC";
+													// 先处理 tab
+													body.tab.tabModule = body.tab.tabModule.map(tabModule => {
+														switch (tabModule?.tabType) {
+															case 1: // introduction
+																// 解锁剧集信息限制
+																tabModule.tab.introduction.modules = tabModule.tab.introduction.modules.map(module => {
+																	switch (module?.type) {
+																		case 13: // sectionData
+																		case 14:
+																			// 解锁剧集信息限制
+																			module.data.sectionData.episodes = setEpisodes(module.data.sectionData.episodes);
+																			break;
+																		default:
+																			break;
+																	}
+																	return module;
+																});
+																break;
+															default:
+																break;
+														}
+														return tabModule;
+													})
+													// 再处理 supplement
 													const PgcBody = ViewPgcAny.fromBinary(body.supplement.value);
+													Console.debug(`PgcBody: ${JSON.stringify(PgcBody, null, 2)}`);
 													infoGroup.seasonTitle = PgcBody?.ogvData?.title || infoGroup.seasonTitle;
 													infoGroup.seasonId = PgcBody?.ogvData?.seasonId || infoGroup.seasonId;
 													_.set(PgcBody, "ogvData.rights.allowDownload", 1);
@@ -197,6 +223,7 @@ Console.info(`FORMAT: ${FORMAT}`);
 													_.set(PgcBody, "ogvData.rights.allowBp", 1);
 													_.set(PgcBody, "ogvData.rights.areaLimit", 0);
 													_.set(PgcBody, "ogvData.rights.banAreaShow", 1);
+													Console.debug(`PgcBody: ${JSON.stringify(PgcBody, null, 2)}`);
 													body.supplement.value = ViewPgcAny.toBinary(PgcBody);
 													break;
 												}
@@ -331,16 +358,33 @@ function setModules(modules = []) {
 function setEpisodes(episodes = []) {
 	Console.log("☑️ Set Episodes");
 	episodes = episodes.map(episode => {
-		if (episode?.badge_info?.text === "受限") {
-			episode.badge_info.text = "";
-			episode.badge_info.bg_color = "#FB7299";
-			episode.badge_info.bg_color_night = "#BB5B76";
+		if (episode?.ep_id) {
+			// json
+			if (episode?.badge_info?.text === "受限") {
+				episode.badge_info.text = "";
+				episode.badge_info.bg_color = "#FB7299";
+				episode.badge_info.bg_color_night = "#BB5B76";
+			}
+			if (episode?.rights) {
+				episode.rights.allow_dm = 1;
+				episode.rights.allow_download = 1;
+				episode.rights.allow_demand = 1;
+				episode.rights.area_limit = 0;
+			}
 		}
-		if (episode?.rights) {
-			episode.rights.allow_dm = 1;
-			episode.rights.allow_download = 1;
-			episode.rights.allow_demand = 1;
-			episode.rights.area_limit = 0;
+		if (episode?.epId) {
+			// protobuf
+			if (episode?.badgeInfo?.text === "受限") {
+				episode.badgeInfo.text = "";
+				episode.badgeInfo.bgColor = "#FB7299";
+				episode.badgeInfo.bgColorNight = "#D44E7D";
+			}
+			if (episode?.rights) {
+				episode.rights.allowDm = 1;
+				episode.rights.allowDownload = 1;
+				episode.rights.allowDemand = 1;
+				episode.rights.areaLimit = 0;
+			}
 		}
 		return episode;
 	});
@@ -357,14 +401,10 @@ function setEpisodes(episodes = []) {
  */
 function detectLocales(infoGroup = { seasonTitle: undefined, seasonId: undefined, epId: undefined, mId: undefined, evaluate: undefined }) {
 	Console.log("☑️ Detect Locales", `seasonTitle: ${infoGroup.seasonTitle}`, `seasonId: ${infoGroup.seasonId}`, `epId: ${infoGroup.epId}`, `mId: ${infoGroup.mId}`);
-	switch (infoGroup.seasonTitle) {
-		case undefined:
-		case null:
-			infoGroup.locales = detectMId(infoGroup.mId);
-			break;
-		default:
-			infoGroup.locales = detectSeasonTitle(infoGroup.seasonTitle);
-			break;
+	if (infoGroup.seasonTitle) infoGroup.locales = detectSeasonTitle(infoGroup.seasonTitle) // 有标题先测标题
+	else if (infoGroup.mId) infoGroup.locales = detectMId(infoGroup.mId); // 无标题再测 mId
+	if (infoGroup.locales.length === 0) { // infoGroup.locales 为空再测 evaluate
+		if (infoGroup.seasonTitle && infoGroup.evaluate) infoGroup.locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
 	}
 	Console.log("✅ Detect Locales", `locales: ${infoGroup.locales}`);
 	return infoGroup.locales;
@@ -398,7 +438,7 @@ function detectLocales(infoGroup = { seasonTitle: undefined, seasonId: undefined
 			case undefined:
 			case null:
 			default:
-				locales = detectMId(infoGroup.mId);
+				//locales = detectMId(infoGroup.mId);
 				break;
 		}
 		Console.log("✅ Detect Season Title", `locales: ${locales}`);
@@ -409,25 +449,25 @@ function detectLocales(infoGroup = { seasonTitle: undefined, seasonId: undefined
 		Console.log("☑️ Detect mId");
 		let locales = [];
 		switch (mId) {
-			case 928123: // 哔哩哔哩番剧
+			case "928123": // 哔哩哔哩番剧
 				locales = ["CHN"];
 				break;
-			case 11783021: // 哔哩哔哩番剧出差
-			case 1988098633: // b站_戲劇咖
-			case 2042149112: // b站_綜藝咖
+			case "11783021": // 哔哩哔哩番剧出差
+			case "1988098633": // b站_戲劇咖
+			case "2042149112": // b站_綜藝咖
 				locales = ["HKG", "MAC", "TWN"];
 				break;
-			case 15773384: // 哔哩哔哩电影
+			case "15773384": // 哔哩哔哩电影
 				locales = ["CHN"];
 				break;
-			case 4856007: // 迷影社
-			case 98627270: // 哔哩哔哩国创
+			case "4856007": // 迷影社
+			case "98627270": // 哔哩哔哩国创
 				locales = ["CHN", "HKG", "MAC", "TWN"];
 				break;
 			case undefined: // 无UP主信息
 			case null:
 			default: // 其他UP主
-				locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
+				//locales = detectTraditional(infoGroup.seasonTitle, infoGroup.evaluate);
 				break;
 		}
 		Console.log("✅ Detect mId", `locales: ${locales}`);
