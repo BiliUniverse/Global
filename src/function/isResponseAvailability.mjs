@@ -62,6 +62,19 @@ export default function isResponseAvailability(response = {}) {
 										break;
 								}
 							}
+							if (body?.code) {
+								switch (body?.code) {
+									case 0: // success
+										isAvailable = true;
+										break;
+									case -404: // 啥都木有
+									case -10403: // 抱歉您所在地区不可观看！
+									case 10015001: // 版权地区受限
+									default:
+										isAvailable = false;
+										break;
+								}
+							}
 							if (body?.data) {
 								switch (response?.headers?.idc) {
 									case "sgp001":
@@ -103,7 +116,7 @@ export default function isResponseAvailability(response = {}) {
 							break;
 						}
 						case "-404": // 啥都木有
-						case "-10403":
+						case "-10403": // 抱歉您所在地区不可观看！
 						case "10015001": // 版权地区受限
 						default:
 							isAvailable = false;
