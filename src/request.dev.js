@@ -41,6 +41,21 @@ Console.info(`FORMAT: ${FORMAT}`);
 		locales: [],
 		type: "UGC",
 	};
+	// 初步检查信息组
+	switch (infoGroup.mId) {
+		case "928123": // 哔哩哔哩番剧
+		case "15773384": // 哔哩哔哩电影
+		default:
+			infoGroup.type = "PGC";
+			infoGroup.locales = ["CHN"];
+			break;
+		case "11783021": // 哔哩哔哩番剧出差
+		case "1988098633": // b站_戲劇咖
+		case "2042149112": // b站_綜藝咖
+			infoGroup.type = "PGC";
+			infoGroup.locales = Settings.Locales.filter(locale => locale !== "CHN");
+			break;
+	}
 	// 方法判断
 	switch ($request.method) {
 		case "POST":
@@ -119,7 +134,7 @@ Console.info(`FORMAT: ${FORMAT}`);
 													// 判断线路
 													infoGroup.seasonId = body?.extraContent?.season_id || infoGroup.seasonId;
 													infoGroup.epId = body?.extraContent.ep_id || infoGroup.epId;
-													if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
+													//if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 													if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 													else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 													break;
@@ -135,7 +150,7 @@ Console.info(`FORMAT: ${FORMAT}`);
 													// 判断线路
 													infoGroup.seasonId = body?.extraContent?.season_id || infoGroup.seasonId;
 													infoGroup.epId = body?.extraContent.ep_id || infoGroup.epId;
-													if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
+													//if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 													if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 													else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 													break;
@@ -159,7 +174,7 @@ Console.info(`FORMAT: ${FORMAT}`);
 													// 判断线路
 													infoGroup.seasonId = body?.seasonId;
 													infoGroup.epId = body?.epId;
-													infoGroup.type = "PGC";
+													//infoGroup.type = "PGC";
 													if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 													else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 													break;
@@ -266,18 +281,22 @@ Console.info(`FORMAT: ${FORMAT}`);
 							url.searchParams.set("keyword", infoGroup.keyword);
 							break;
 						case "/x/v2/space": // 用户空间
+							/*
 							switch (infoGroup.mId) {
 								case "928123": // 哔哩哔哩番剧
 								case "15773384": // 哔哩哔哩电影
 								default:
+									infoGroup.type = "PGC";
 									infoGroup.locales = ["CHN"];
 									break;
 								case "11783021": // 哔哩哔哩番剧出差
 								case "1988098633": // b站_戲劇咖
 								case "2042149112": // b站_綜藝咖
+									infoGroup.type = "PGC";
 									infoGroup.locales = Settings.Locales.filter(locale => locale !== "CHN");
 									break;
 							}
+							*/
 							break;
 					}
 					break;
@@ -288,7 +307,7 @@ Console.info(`FORMAT: ${FORMAT}`);
 						case "/pgc/player/web/playurl": // 番剧-播放地址-web
 						case "/pgc/player/web/v2/playurl": // 番剧-播放地址-web-v2
 						case "/pgc/player/web/playurl/html5": // 番剧-播放地址-web-HTML5
-							infoGroup.type = "PGC";
+							//infoGroup.type = "PGC";
 							if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 							else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 							break;
@@ -300,31 +319,35 @@ Console.info(`FORMAT: ${FORMAT}`);
 							break;
 						case "/x/space/acc/info": // 用户空间-账号信息-pc
 						case "/x/space/wbi/acc/info": // 用户空间-账号信息-wbi
+							/*
 							switch (infoGroup.mId) {
 								case "928123": // 哔哩哔哩番剧
 								case "15773384": // 哔哩哔哩电影
 								default:
+									infoGroup.type = "PGC";
 									infoGroup.locales = ["CHN"];
 									break;
 								case "11783021": // 哔哩哔哩番剧出差
 								case "1988098633": // b站_戲劇咖
 								case "2042149112": // b站_綜藝咖
+									infoGroup.type = "PGC";
 									infoGroup.locales = Settings.Locales.filter(locale => locale !== "CHN");
 									break;
 							}
+							*/
 							break;
 						case "/pgc/view/v2/app/season": // 番剧页面-内容-app
 						case "/pgc/view/web/season": // 番剧-内容-web
 						case "/pgc/view/pc/season": // 番剧-内容-pc
-							infoGroup.type = "PGC";
+							//infoGroup.type = "PGC";
 							if (Caches.ss.has(infoGroup.seasonId)) infoGroup.locales = Caches.ss.get(infoGroup.seasonId);
 							else if (Caches.ep.has(infoGroup.epId)) infoGroup.locales = Caches.ep.get(infoGroup.epId);
 							break;
-						//case "pgc/view/web/season": // 番剧-内容-web
-						//infoGroup.type = "PGC";
-						//if (Caches.AccessKey) {
-						// https://github.com/ipcjs/bilibili-helper/blob/user.js/packages/unblock-area-limit/src/api/biliplus.ts
-						//};
+						//case "/pgc/view/web/season": // 番剧-内容-web
+							//infoGroup.type = "PGC";
+							//if (Caches.AccessKey) {
+							// https://github.com/ipcjs/bilibili-helper/blob/user.js/packages/unblock-area-limit/src/api/biliplus.ts
+							//};
 						//break;
 						case "/x/web-interface/search": // 搜索-全部结果-web（综合）
 						case "/x/web-interface/search/all/v2": // 搜索-全部结果-web（综合）
@@ -354,6 +377,8 @@ Console.info(`FORMAT: ${FORMAT}`);
 	//url.searchParams.set("type", infoGroup.type);
 	$request.url = url.toString();
 	Console.debug(`$request.url: ${$request.url}`);
+	// 核查信息组
+	if (infoGroup.seasonId || infoGroup.epId) infoGroup.type = "PGC";
 	Console.debug(`infoGroup: ${JSON.stringify(infoGroup)}`);
 	// 请求策略
 	switch (url.pathname) {
