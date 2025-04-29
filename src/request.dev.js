@@ -43,6 +43,8 @@ Console.info(`FORMAT: ${FORMAT}`);
 	};
 	// 初步检查信息组
 	switch (infoGroup.mId) {
+		case undefined:
+			break;
 		case "928123": // 哔哩哔哩番剧
 		case "15773384": // 哔哩哔哩电影
 		default:
