@@ -44,24 +44,6 @@ export default function isResponseAvailability(response = {}) {
 						case "0":
 						case undefined: {
 							const body = JSON.parse(response?.body);
-							if (body?.result) {
-								switch (body?.result?.play_check?.play_detail) {
-									case "PLAY_NONE":
-										isAvailable = false;
-										break;
-									case "PLAY_WHOLE":
-										isAvailable = true;
-										break;
-								}
-								switch (body?.result?.play_check?.limit_play_reason) {
-									case "AREA_LIMIT":
-										isAvailable = false;
-										break;
-									case undefined:
-										isAvailable = true;
-										break;
-								}
-							}
 							if (body?.code) {
 								switch (body?.code) {
 									case 0: // success
@@ -110,6 +92,24 @@ export default function isResponseAvailability(response = {}) {
 												isAvailable = false;
 												break;
 										}
+										break;
+								}
+							}
+							if (body?.result?.play_check) {
+								switch (body?.result?.play_check?.play_detail) {
+									case "PLAY_NONE":
+										isAvailable = false;
+										break;
+									case "PLAY_WHOLE":
+										isAvailable = true;
+										break;
+								}
+								switch (body?.result?.play_check?.limit_play_reason) {
+									case "AREA_LIMIT":
+										isAvailable = false;
+										break;
+									case undefined:
+										isAvailable = true;
 										break;
 								}
 							}
