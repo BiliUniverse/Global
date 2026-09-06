@@ -13,6 +13,9 @@
 [Argument]
 {{{arguments}}}
 
+[Rewrite]
+^https:\/\/biliverse\.github\.io\/settings\/Global\/(?:\?.*)?$ mock-response-body data-type=html data-path=https://biliverse.github.io/settings/assets/Global.html status-code=200
+
 [Script]
 http-request ^https:\/\/biliverse\.github\.io\/settings\/api\/Global(?:\?.*)?$ requires-body=1, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, tag=📺 BiliBili.Global.Settings, argument={{{scriptParams}}}
 http-request ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/? requires-body=1, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, tag=📺 BiliBili.Global.bangumi.play.html, argument={{{scriptParams}}}

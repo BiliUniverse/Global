@@ -10,6 +10,9 @@
 #!arguments = {{{arguments}}}
 #!arguments-desc = {{{argumentsDesc}}}
 
+[Map Local]
+^https:\/\/biliverse\.github\.io\/settings\/Global\/(?:\?.*)?$ data-type=file data="https://biliverse.github.io/settings/assets/Global.html" status-code=200 header="Content-Type:text/html; charset=utf-8"
+
 [Script]
 📺 BiliBili.Global.Settings = type=http-request, pattern=^https:\/\/biliverse\.github\.io\/settings\/api\/Global(?:\?.*)?$, requires-body=1, max-size=65536, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, argument={{{scriptParams}}}
 📺 BiliBili.Global.bangumi.play.html = type=http-request, pattern=^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?, ability=http-client-policy, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, argument={{{scriptParams}}}
@@ -36,5 +39,5 @@
 📺 BiliBili.Global.space.pc.json = type=http-request, pattern=^https?:\/\/api\.bili(bili\.com|api\.net)\/x\/space\/acc\/info\?, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, argument={{{scriptParams}}}
 
 [MITM]
-hostname = biliverse.github.io, %APPEND% biliverse.github.io, www.bilibili.com, search.bilibili.com, app.bilibili.com, app.biliapi.net, api.bilibili.com, api.biliapi.net, grpc.biliapi.net
+hostname = %APPEND% biliverse.github.io, www.bilibili.com, search.bilibili.com, app.bilibili.com, app.biliapi.net, api.bilibili.com, api.biliapi.net, grpc.biliapi.net
 h2 = true

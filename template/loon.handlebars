@@ -13,8 +13,11 @@
 [Argument]
 {{{arguments}}}
 
+[Rewrite]
+^https:\/\/biliverse\.github\.io\/settings\/Global\/(?:\?.*)?$ mock-response-body data-type=html data-path=https://biliverse.github.io/settings/assets/Global.html status-code=200
+
 [Script]
-http-request ^https:\/\/biliverse\.github\.io\/settings\/api\/Global(?:\?.*)?$ requires-body=1, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package, tag=📺 BiliBili.Global.Settings, argument={{{scriptParams}}}
+http-request ^https:\/\/biliverse\.github\.io\/settings\/api\/Global(?:\?.*)?$ requires-body=1, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, tag=📺 BiliBili.Global.Settings, argument={{{scriptParams}}}
 http-request ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/? requires-body=1, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, tag=📺 BiliBili.Global.bangumi.play.html, argument={{{scriptParams}}}
 
 http-request ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$ requires-body=1, binary-body-mode=1, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, tag=📺 BiliBili.Global.viewunite.v1.View.grpc, argument={{{scriptParams}}}
