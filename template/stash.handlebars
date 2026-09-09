@@ -29,7 +29,7 @@ http:
       name: PreferencePanes.Config.Global
       type: request
       require-body: false
-    - match: ^https:\/\/biliverse\.github\.io\/(?:api\/(?:get|set|delete)|settings\/(?:Global\/?|assets\/app\.mjs))(?:\?.*)?$
+    - match: ^https:\/\/biliverse\.github\.io\/(?:api\/(?:get|set|delete)|settings\/(?:[a-zA-Z0-9_-]+\/?|assets\/app\.mjs))(?:\?.*)?$
       name: PreferencePanes.API
       type: request
       require-body: true
