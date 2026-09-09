@@ -6,7 +6,7 @@
 #!icon = {{@package 'icon'}}
 #!category = {{@package 'organizationName'}}
 #!date = {{now "yyyy-MM-dd HH:mm:ss"}}
-#!version = {{@package 'version'}}
+#!version = {{version}}
 
 [Script]
 PreferencePanes.API = type=http-request, pattern=^https:\/\/biliverse\.github\.io\/(?:api\/(?:get|set|delete)|settings\/(?:[a-zA-Z0-9_-]+\/?|assets\/app\.mjs))(?:\?.*)?$, requires-body=1, max-size=65536, script-path=https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/api.js

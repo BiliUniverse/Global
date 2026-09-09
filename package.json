@@ -27,7 +27,7 @@
 		"example": "example"
 	},
 	"scripts": {
-		"dev": "npm-run-all --serial build:dev-args build:dev",
+		"dev": "BUILD_VERSION=dev.$(git rev-parse --short HEAD) npm-run-all --serial build:dev-args build:dev",
 		"dev:pages": "npx wrangler pages dev --port 8787",
 		"dev:workers": "npx wrangler dev -c wrangler.workers.jsonc",
 		"deploy:pages": "npx wrangler pages deploy",
