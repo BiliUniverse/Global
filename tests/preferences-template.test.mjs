@@ -14,6 +14,8 @@ test("settings integration installs versioned JSON and the common latest API", a
 		const pattern = line.startsWith("response if") ? line.match(/~= \/(.+)\/ then/)[1] : name.startsWith("shadowrocket") ? line.match(/pattern=([^,]+)/)[1] : name.startsWith("stash") ? line.trim().slice("- match: ".length) : line.split(" ")[0];
 		const matcher = new RegExp(pattern);
 		assert.ok(matcher.test("https://biliverse.github.io/configs/Global"));
+		assert.ok(matcher.test("https://app.bilibili.com/configs/Global"));
+		assert.equal(matcher.test("https://app.bilibili.com/x/v2/account/mine"), false);
 		assert.ok(matcher.test("https://biliverse.github.io/configs/Global?v=1"));
 		for (const pathname of ["/api/Global/", "/settings/", "/settings/Global", "/configs/Unknown", "/settings/assets/Global.boxjs.json", "/settings/assets/Global.config.js"]) assert.equal(matcher.test(`https://biliverse.github.io${pathname}`), false, name);
 		assert.doesNotMatch(template, /biliverse\.github\.io\/settings\/assets\//);
