@@ -1,4 +1,3 @@
-import { settingsResponse } from "../function/settings.mjs";
 import { PlayViewUniteReq } from "@biliverse/protobuf/bilibili/app/playerunite/v1/playerunite.js";
 import { ViewReq } from "@biliverse/protobuf/bilibili/app/viewunite/v1/viewunite.js";
 import { PlayViewReq } from "@biliverse/protobuf/bilibili/pgc/gateway/player/v2/playurl.js";
@@ -27,8 +26,6 @@ export async function Request($request) {
 	 */
 	const { Settings, Caches, Configs } = setENV("BiliBili", "Global", database);
 	Console.logLevel = Settings.LogLevel;
-	$response = settingsResponse($request, Settings);
-	if ($response) return { $request, $response };
 	// 创建空数据
 	let body = { code: 0, message: "0", data: {} };
 	// 信息组

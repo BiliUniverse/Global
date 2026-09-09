@@ -27,12 +27,13 @@
 		"example": "example"
 	},
 	"scripts": {
-		"dev": "npm-run-all --parallel build:dev build:dev-args",
+		"dev": "npm-run-all --serial build:dev-args build:dev",
 		"dev:pages": "npx wrangler pages dev --port 8787",
 		"dev:workers": "npx wrangler dev -c wrangler.workers.jsonc",
 		"deploy:pages": "npx wrangler pages deploy",
 		"deploy:workers": "npx wrangler deploy --minify -c wrangler.workers.jsonc",
-		"build": "rollup -c",
+		"build": "npm-run-all --serial build:args build:scripts",
+		"build:scripts": "rollup -c",
 		"build:dev": "rollup -c rollup.dev.config.mjs",
 		"build:dev-args": "arguments-builder build -c arguments-builder.dev.config.ts",
 		"build:release-args": "arguments-builder build -c arguments-builder.release.config.ts",

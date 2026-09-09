@@ -14,10 +14,10 @@
 {{{arguments}}}
 
 [Rewrite]
-^https:\/\/biliverse\.github\.io\/settings\/Global\/(?:\?.*)?$ mock-response-body data-type=html data-path=https://biliverse.github.io/settings/assets/Global.html status-code=200
+^https:\/\/biliverse\.github\.io\/configs\/Global(?:\?.*)?$ mock-response-body data-type=text data-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/BiliBili.Global.dev.boxjs.json status-code=200
 
 [Script]
-http-request ^https:\/\/biliverse\.github\.io\/settings\/api\/Global(?:\?.*)?$ requires-body=1, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, tag=📺 BiliBili.Global.Settings, argument={{{scriptParams}}}
+http-request ^https:\/\/biliverse\.github\.io\/(?:api\/(?:get|set|delete)|settings\/(?:Global\/?|assets\/app\.mjs))(?:\?.*)?$ requires-body=1, script-path=https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/api.js, tag=PreferencePanes.API
 http-request ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/? requires-body=1, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, tag=📺 BiliBili.Global.bangumi.play.html, argument={{{scriptParams}}}
 
 http-request ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$ requires-body=1, binary-body-mode=1, script-path=https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js, tag=📺 BiliBili.Global.viewunite.v1.View.grpc, argument={{{scriptParams}}}

@@ -9,7 +9,8 @@
 #!version = {{@package 'version'}}
 
 [Script]
-📺 BiliBili.Global.Settings = type=http-request, pattern=^https:\/\/biliverse\.github\.io\/settings\/api\/Global(?:\?.*)?$, requires-body=1, max-size=65536, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, argument=
+PreferencePanes.API = type=http-request, pattern=^https:\/\/biliverse\.github\.io\/(?:api\/(?:get|set|delete)|settings\/(?:Global\/?|assets\/app\.mjs))(?:\?.*)?$, requires-body=1, max-size=65536, script-path=https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/api.js
+PreferencePanes.Config.Global = type=http-request, pattern=^https:\/\/biliverse\.github\.io\/configs\/Global(?:\?.*)?$, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/config.bundle.js
 📺 BiliBili.Global.bangumi.play.html = type=http-request, pattern=^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, ability=http-client-policy, argument=
 
 📺 BiliBili.Global.viewunite.v1.View.grpc = type=http-request, pattern=^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$, requires-body=1, binary-body-mode=1, engine=webview, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, ability=http-client-policy, argument=

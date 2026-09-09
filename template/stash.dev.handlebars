@@ -25,10 +25,15 @@ http:
     - "api.biliapi.net"
     - "grpc.biliapi.net"
   script:
-    - match: ^https:\/\/biliverse\.github\.io\/settings\/api\/Global(?:\?.*)?$
-      name: 📺 BiliBili.Global.request
+    - match: ^https:\/\/biliverse\.github\.io\/configs\/Global(?:\?.*)?$
+      name: PreferencePanes.Config.Global
+      type: request
+      require-body: false
+    - match: ^https:\/\/biliverse\.github\.io\/(?:api\/(?:get|set|delete)|settings\/(?:Global\/?|assets\/app\.mjs))(?:\?.*)?$
+      name: PreferencePanes.API
       type: request
       require-body: true
+      max-size: 65536
     - match: ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/?
       name: 📺 BiliBili.Global.request
       type: request
@@ -118,6 +123,12 @@ http:
       argument:
 
 script-providers:
+  PreferencePanes.Config.Global:
+    url: https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/config.dev.bundle.js
+    interval: 86400
+  PreferencePanes.API:
+    url: https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/api.js
+    interval: 86400
   📺 BiliBili.Global.request:
     url: https://gist.githubusercontent.com/VirgilClyne/6b5c5164cc46cc9ac47f30b9824ec9b3/raw/request.dev.bundle.js
     interval: 86400

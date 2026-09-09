@@ -59,45 +59,14 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: artifact
-      - name: Deploy Request
-        uses: exuanbo/actions-deploy-gist@main
-        with:
-          token: ${{ secrets.GIST_TOKEN }}
-          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
-          gist_description: "📺 BiliBili: 🌐 Global β"
-          file_path: dist/request.dev.bundle.js
-      - name: Deploy Response
-        uses: exuanbo/actions-deploy-gist@main
-        with:
-          token: ${{ secrets.GIST_TOKEN }}
-          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
-          gist_description: "📺 BiliBili: 🌐 Global β"
-          file_path: dist/response.dev.bundle.js
-      - name: Deploy Surge Module
-        uses: exuanbo/actions-deploy-gist@main
-        with:
-          token: ${{ secrets.GIST_TOKEN }}
-          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
-          gist_description: "📺 BiliBili: 🌐 Global β"
-          file_path: dist/BiliBili.Global.dev.sgmodule
-      - name: Deploy Loon Plugin
-        uses: exuanbo/actions-deploy-gist@main
-        with:
-          token: ${{ secrets.GIST_TOKEN }}
-          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
-          gist_description: "📺 BiliBili: 🌐 Global β"
-          file_path: dist/BiliBili.Global.dev.plugin
-      - name: Deploy Quantumult X Snippet
-        uses: exuanbo/actions-deploy-gist@main
-        with:
-          token: ${{ secrets.GIST_TOKEN }}
-          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
-          gist_description: "📺 BiliBili: 🌐 Global β"
-          file_path: dist/BiliBili.Global.dev.snippet
-      - name: Deploy Stash Override
-        uses: exuanbo/actions-deploy-gist@main
-        with:
-          token: ${{ secrets.GIST_TOKEN }}
-          gist_id: 6b5c5164cc46cc9ac47f30b9824ec9b3
-          gist_description: "📺 BiliBili: 🌐 Global β"
-          file_path: dist/BiliBili.Global.dev.stoverride
+      - name: Publish scripts, configuration and subscriptions together
+        env:
+          GH_TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile, writeFile } from "node:fs/promises";
+          const names = ["request.dev.bundle.js","response.dev.bundle.js","BiliBili.Global.dev.sgmodule","BiliBili.Global.dev.plugin","BiliBili.Global.dev.snippet","BiliBili.Global.dev.stoverride","config.dev.bundle.js","BiliBili.Global.dev.boxjs.json"];
+          const files = Object.fromEntries(await Promise.all(names.map(async name => [name, { content: await readFile(`dist/${name}`, "utf8") }])));
+          await writeFile("gist-update.json", JSON.stringify({ description: "📺 BiliBili: 🌐 Global β", files }));
+          JS
+          gh api --method PATCH gists/6b5c5164cc46cc9ac47f30b9824ec9b3 --input gist-update.json --silent

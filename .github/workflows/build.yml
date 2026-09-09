@@ -28,7 +28,6 @@ jobs:
         with:
           package-token: ${{ secrets.PACKAGE_TOKEN }}
           build-command: npm run build
-          extra-command: npm run build:args
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v7
         with:

@@ -9,6 +9,8 @@
 #!version = {{@package 'version'}}
 
 #[Script]
+^https:\/\/biliverse\.github\.io\/configs\/Global(?:\?.*)?$ url script-echo-response https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/config.bundle.js
+^https:\/\/biliverse\.github\.io\/(?:api\/(?:get|set|delete)|settings\/(?:Global\/?|assets\/app\.mjs))(?:\?.*)?$ url script-echo-response https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/api.js
 # 📺 BiliBili.Global.bangumi.play.html
 ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/? url script-request-body https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js
 
