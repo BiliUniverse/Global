@@ -1,3 +1,6 @@
+### 🔄 Other Changes
+  * 设置页面资源与模块 API 分离，分别使用 PreferencePanes 1.0.0 的 `web.js` 和 `api.js`
+
 ### 🆕 New Features
   * 新增 `评论区` 限制与可用性的修改
   * 新增 `[储存] 配置类型 (Storage)` 选项，支持 `Argument` / `PersistentStore` / `database` 三种配置源
