@@ -17,7 +17,8 @@
 response if ${url} ~= /^https:\/\/(?:biliverse\.github\.io|app\.bilibili\.com)\/configs\/Global(?:\?.*)?$/ then response.body.mock_file("json", "https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/BiliBili.Global.boxjs.json", 200) | response.header.set("X-PreferencePanes-Version", "{{version}}") | response.header.set("Cache-Control", "no-store")
 
 [Script]
-http-request ^https:\/\/(?:biliverse\.github\.io|app\.bilibili\.com)\/(?:api\/(?:get|set|delete)|settings\/(?:[a-zA-Z0-9_-]+\/?|assets\/app\.mjs))(?:\?.*)?$ requires-body=1, script-path=https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/api.js, tag=PreferencePanes.API
+http-request ^https:\/\/(?:biliverse\.github\.io|app\.bilibili\.com)\/settings\/(?:Global\/?|assets\/app\.mjs)(?:\?.*)?$ script-path=https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/web.js, tag=PreferencePanes.Web
+http-request ^https:\/\/(?:biliverse\.github\.io|app\.bilibili\.com)\/api\/Global(?:\/(?:get|set|delete))?\/?(?:\?.*)?$ requires-body=1, script-path=https://github.com/NSNanoCat/PreferencePanes/releases/latest/download/api.js, tag=PreferencePanes.API
 http-request ^https?:\/\/www\.bilibili\.com\/bangumi\/play\/(ss|ep)\d+\/? requires-body=1, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, tag=📺 BiliBili.Global.bangumi.play.html, argument={{{scriptParams}}}
 
 http-request ^https?:\/\/(grpc|app)\.bili(bili\.com|api\.net)\/bilibili\.app\.viewunite\.v1\.View\/View$ requires-body=1, binary-body-mode=1, script-path=https://github.com/Biliverse/Global/releases/download/v{{@package 'version'}}/request.bundle.js, tag=📺 BiliBili.Global.viewunite.v1.View.grpc, argument={{{scriptParams}}}
